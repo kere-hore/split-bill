@@ -46,7 +46,9 @@
 
 ## Security Guidelines
 - **Environment Variables**: Never commit secrets, use `.env.local`
+- **Clerk Keys**: Keep publishable and secret keys secure
 - **API Keys**: Rotate regularly, use least privilege principle
 - **CORS**: Configure properly for CloudFront domains
 - **Input Validation**: Use Zod schemas for all API inputs
-- **Authentication**: Protect all admin APIs, public APIs read-only
+- **Authentication**: Use Clerk middleware for route protection
+- **User Data**: Sync Clerk users to database for app-specific data

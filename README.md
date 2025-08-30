@@ -1,22 +1,24 @@
-# 🚀 Feature Toggle Management System
+# 💰 Split Bill - Expense Tracker
 
-A modern, full-stack feature toggle management system built with Next.js, TypeScript, and MongoDB. Manage feature flags with a beautiful UI, authentication, and real-time updates.
+A modern, full-stack split bill management application built with Next.js, TypeScript, and MongoDB. Track shared expenses and calculate splits among friends and groups with real-time updates.
 
 ## ✨ Features
 
-- 🔐 **Authentication**: Google & GitHub OAuth integration
-- 🎛️ **Toggle Management**: Create, read, update, delete feature toggles
+- 🔐 **Authentication**: Clerk with Email, Google & GitHub OAuth
+- 👥 **Group Management**: Create and manage expense groups
+- 💸 **Expense Tracking**: Add, edit, delete shared expenses
+- 🧮 **Smart Splitting**: Automatic calculation of who owes what
+- 💳 **Settlement Tracking**: Record payments between group members
+- 📊 **Dashboard**: Overview of all groups and balances
 - 🎨 **Modern UI**: Built with shadcn/ui and Tailwind CSS
 - 🌙 **Dark Mode**: Full theme switching support
 - 📱 **Responsive**: Mobile-first design
 - 🔄 **Real-time**: Optimistic UI updates
-- 📊 **JSON Editor**: CodeMirror integration for complex values
 - 🛡️ **Type Safe**: Full TypeScript coverage
 - 🗄️ **Database**: MongoDB with Prisma ORM
-- ☁️ **CloudFront CDN**: Global edge caching for public API
+- ☁️ **CloudFront CDN**: Global edge caching for group summaries
 - 🚀 **S3 Integration**: File storage and cache management
-- ⚡ **Auto-Invalidation**: Instant cache updates on toggle changes
-- 📈 **Cache Analytics**: CloudFront hit/miss monitoring
+- ⚡ **Auto-Invalidation**: Instant cache updates on data changes
 
 ## 🛠️ Tech Stack
 
@@ -24,7 +26,7 @@ A modern, full-stack feature toggle management system built with Next.js, TypeSc
 - **Language**: TypeScript
 - **Database**: MongoDB Atlas
 - **ORM**: Prisma
-- **Authentication**: NextAuth.js
+- **Authentication**: Clerk
 - **UI**: shadcn/ui + Tailwind CSS
 - **Package Manager**: Bun
 - **Deployment**: Vercel
@@ -36,12 +38,11 @@ A modern, full-stack feature toggle management system built with Next.js, TypeSc
 
 ### Required Services
 1. **MongoDB Atlas** - Database hosting
-2. **Google OAuth App** - Authentication provider
-3. **GitHub OAuth App** - Authentication provider
-4. **Vercel Account** - Deployment platform
-5. **AWS Account** - S3 storage and CloudFront CDN
-6. **AWS S3 Bucket** - File storage and caching
-7. **AWS CloudFront Distribution** - Global CDN
+2. **Clerk Account** - Authentication service
+3. **Vercel Account** - Deployment platform
+4. **AWS Account** - S3 storage and CloudFront CDN
+5. **AWS S3 Bucket** - File storage and caching
+6. **AWS CloudFront Distribution** - Global CDN
 
 ### Development Tools
 - Node.js 18+ or Bun
@@ -71,28 +72,23 @@ cp .env.example .env.local
 Fill in your environment variables:
 ```env
 # Database
-DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/database"
+DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/split-bill"
 
-# NextAuth.js
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key"
-
-# Google OAuth
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# GitHub OAuth
-GITHUB_ID="your-github-client-id"
-GITHUB_SECRET="your-github-client-secret"
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/dashboard"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/dashboard"
 
 # AWS Configuration
 AWS_ACCESS_KEY_ID="your-aws-access-key"
 AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
-AWS_REGION="us-east-1"
-AWS_S3_BUCKET="your-s3-bucket-name"
-
-# CloudFront Configuration
+AWS_REGION="ap-southeast-1"
+S3_BUCKET_NAME="split-bill-cache"
 CLOUDFRONT_DISTRIBUTION_ID="your-cloudfront-distribution-id"
+NEXT_PUBLIC_CLOUDFRONT_URL="https://your-domain.cloudfront.net"
 
 # Cache Configuration (in seconds)
 BROWSER_CACHE_SECONDS=300      # Browser cache: 5 minutes
@@ -156,21 +152,19 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 3. Get connection string
 4. Add to `DATABASE_URL` in `.env.local`
 
-### Google OAuth Setup
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create new project or select existing
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Add authorized redirect URI:
-   - Development: `http://localhost:3000/api/auth/callback/google`
-   - Production: `https://your-domain.com/api/auth/callback/google`
-
-### GitHub OAuth Setup
-1. Go to [GitHub Settings → Developer settings](https://github.com/settings/developers)
-2. Create new OAuth App
-3. Set Authorization callback URL:
-   - Development: `http://localhost:3000/api/auth/callback/github`
-   - Production: `https://your-domain.com/api/auth/callback/github`
+### Clerk Setup
+1. Go to [Clerk Dashboard](https://dashboard.clerk.com/)
+2. Create new application
+3. Choose authentication methods:
+   - Email/Password
+   - Google OAuth
+   - GitHub OAuth
+4. Configure redirect URLs:
+   - Sign-in URL: `/sign-in`
+   - Sign-up URL: `/sign-up`
+   - After sign-in: `/dashboard`
+   - After sign-up: `/dashboard`
+5. Copy API keys to `.env.local`
 
 ### AWS Setup
 1. Create AWS account and get access keys
@@ -229,24 +223,25 @@ Connect your GitHub repository to Vercel for automatic deployments on every push
 
 ## 🎯 Usage
 
-### Creating Feature Toggles
-1. Login with Google or GitHub
-2. Navigate to Toggle Features page
-3. Click "Add Toggle"
-4. Fill in toggle details:
-   - Name: Feature name
-   - Description: What this toggle controls
-   - Type: boolean, string, number, or json
-   - Value: Initial value
-5. Save and manage your toggles
+### Managing Split Bills
+1. Login with Email, Google, or GitHub
+2. Create a new group for shared expenses
+3. Invite members to the group
+4. Add expenses and specify who paid
+5. System automatically calculates splits
+6. Track settlements between members
+7. View dashboard for overview of all groups
 
 ### API Endpoints
-- `GET /api/toggles` - List all toggles (admin)
-- `POST /api/toggles` - Create new toggle (admin)
-- `PUT /api/toggles/[id]` - Update toggle (admin)
-- `DELETE /api/toggles/[id]` - Delete toggle (admin)
-- `GET /api/public/toggles/[key]` - Get toggle by key (public, cached)
-- `POST /api/files` - Upload files to S3 (admin)
+- `GET /api/groups` - List user's groups
+- `POST /api/groups` - Create new group
+- `PUT /api/groups/[id]` - Update group
+- `DELETE /api/groups/[id]` - Delete group
+- `GET /api/expenses` - List expenses
+- `POST /api/expenses` - Add new expense
+- `GET /api/settlements` - List settlements
+- `POST /api/settlements` - Record payment
+- `GET /api/public/groups/[id]` - Get group summary (cached)
 
 ### Caching Strategy
 - **Public API**: Cached via CloudFront + S3 hybrid

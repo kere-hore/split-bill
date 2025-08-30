@@ -1,6 +1,6 @@
 "use client"
 
-import { signOut } from 'next-auth/react'
+import { useClerk } from '@clerk/nextjs'
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -40,6 +40,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const { signOut } = useClerk()
 
   return (
     <SidebarMenu>
@@ -99,7 +100,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
+            <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
