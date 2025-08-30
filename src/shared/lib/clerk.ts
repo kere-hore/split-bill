@@ -22,6 +22,7 @@ export async function getCurrentUser() {
       username,
       email,
       name,
+      phone: null,
       image: user.imageUrl,
     },
   })
