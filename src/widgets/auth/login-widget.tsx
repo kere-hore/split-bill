@@ -1,6 +1,5 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
 
@@ -9,7 +8,7 @@ interface LoginWidgetProps {
   error?: string | null
 }
 
-export function LoginWidget({ callbackUrl = '/dashboard', error }: LoginWidgetProps) {
+export function LoginWidget({ error }: LoginWidgetProps) {
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <Card className="w-full max-w-md">
@@ -29,16 +28,14 @@ export function LoginWidget({ callbackUrl = '/dashboard', error }: LoginWidgetPr
             </div>
           )}
           
-          <Button 
-            onClick={() => signIn('google', { callbackUrl })} 
+          <Button
             className="w-full"
             variant="outline"
           >
             Sign in with Google
           </Button>
           
-          <Button 
-            onClick={() => signIn('github', { callbackUrl })} 
+          <Button
             className="w-full"
             variant="outline"
           >

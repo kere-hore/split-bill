@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
-import { AuthGuard } from "@/widgets/auth/auth-guard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Feature Toggle Dashboard",
-  description: "Manage your application feature toggles",
+  title: "Split Bill - Expense Tracker",
+  description: "Track and split expenses with friends and groups",
 };
 
 export default function RootLayout({
@@ -30,7 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <AuthGuard>{children}</AuthGuard>
+          {children}
         </Providers>
       </body>
     </html>
