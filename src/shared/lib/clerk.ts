@@ -5,18 +5,23 @@ export async function getCurrentUser() {
   const user = await currentUser()
   if (!user) return null
 
+  const email = user.emailAddresses[0]?.emailAddress || ''
+  const name = user.fullName || user.firstName || 'User'
+  const username = user.username || email.split('@')[0] || `user_${user.id.slice(-8)}`
+
   // Sync user with database
   const dbUser = await prisma.user.upsert({
     where: { clerkId: user.id },
     update: {
-      email: user.emailAddresses[0]?.emailAddress || '',
-      name: user.fullName || user.firstName || 'User',
+      email,
+      name,
       image: user.imageUrl,
     },
     create: {
       clerkId: user.id,
-      email: user.emailAddresses[0]?.emailAddress || '',
-      name: user.fullName || user.firstName || 'User',
+      username,
+      email,
+      name,
       image: user.imageUrl,
     },
   })
