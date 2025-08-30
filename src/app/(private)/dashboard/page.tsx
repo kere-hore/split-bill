@@ -6,7 +6,11 @@ import data from "./data.json"
 
 export default async function Page() {
   // Sync user to database on dashboard access
-  await getCurrentUser()
+  try {
+    await getCurrentUser()
+  } catch (error) {
+    console.error('Dashboard: Error syncing user:', error)
+  }
   
   return (
     <div className="flex flex-col gap-4 md:gap-6">
