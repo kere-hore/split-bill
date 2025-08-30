@@ -39,8 +39,8 @@ export async function getCurrentUser() {
     return dbUser
   } catch (error) {
     console.error('Error in getCurrentUser:', error)
-    // Return null instead of throwing to prevent 500 error
-    return null
+    // Throw error so dashboard can handle redirect
+    throw error
   }
 }
 
