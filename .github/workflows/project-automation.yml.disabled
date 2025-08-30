@@ -14,14 +14,14 @@ jobs:
         if: github.event_name == 'issues' && github.event.action == 'opened'
         uses: actions/add-to-project@v1.0.2
         with:
-          project-url: https://github.com/users/pradiktabagus/projects/5
+          project-url: https://github.com/orgs/kere-hore/projects/1
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add PR to project
         if: github.event_name == 'pull_request' && github.event.action == 'opened'
         uses: actions/add-to-project@v1.0.2
         with:
-          project-url: https://github.com/users/pradiktabagus/projects/5
+          project-url: https://github.com/orgs/kere-hore/projects/1
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   auto-assign-labels:

@@ -18,7 +18,7 @@ jobs:
             console.log(`Processing PR #${pr.number}: ${pr.title}`);
             
             // Add project board comment
-            const projectUrl = 'https://github.com/users/pradiktabagus/projects/5';
+            const projectUrl = 'https://github.com/orgs/kere-hore/projects/1';
             const message = `🚀 This pull request has been created! Please add it to the [project board](${projectUrl}) manually.\n\n**PR Details:**\n- Branch: \`${pr.head.ref}\`\n- Base: \`${pr.base.ref}\`\n- Files changed: ${pr.changed_files}\n- Additions: +${pr.additions}\n- Deletions: -${pr.deletions}\n\n**Next steps:**\n1. Add to project board "In Progress" column\n2. Request code review\n3. Link to related issue if applicable\n4. Ensure all checks pass before merge`;
             
             try {
