@@ -5,7 +5,7 @@ A comprehensive feature toggle management system built with Next.js, TypeScript,
 
 ## 🎯 Project Status: **PHASE 1.5 COMPLETED** ✅
 
-**Live Demo**: [https://feature-toggle-one.vercel.app](https://feature-toggle-one.vercel.app)
+**Live Demo**: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 
 ## Tech Stack
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS ✅

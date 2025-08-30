@@ -281,7 +281,7 @@ If you encounter any issues:
 
 ## 🎉 Demo
 
-Live demo: [https://feature-toggle-one.vercel.app](https://feature-toggle-one.vercel.app)
+Live demo: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 
 ---
 
