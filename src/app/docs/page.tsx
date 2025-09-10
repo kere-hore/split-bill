@@ -102,9 +102,9 @@ const result = await response.json()`}</pre>
                 <h3 className="font-semibold mb-2">Price Format</h3>
                 <p className="mb-2">All monetary values are returned as raw numbers without formatting:</p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li><code>"Rp 25,000"</code> → <code>25000</code></li>
-                  <li><code>"$12.50"</code> → <code>1250</code></li>
-                  <li><code>"15.000,00"</code> → <code>15000</code></li>
+                  <li><code>&quot;Rp 25,000&quot;</code> → <code>25000</code></li>
+                  <li><code>&quot;$12.50&quot;</code> → <code>1250</code></li>
+                  <li><code>&quot;15.000,00&quot;</code> → <code>15000</code></li>
                 </ul>
               </div>
             </section>
