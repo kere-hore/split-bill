@@ -6,6 +6,8 @@ import { getCurrentUser } from "@/shared/lib/clerk";
 import { redirect } from "next/navigation";
 import "../globals.css";
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: "Split Bill",
   description: "Split expenses with friends and groups",
