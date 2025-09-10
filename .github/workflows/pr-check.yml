@@ -1,12 +1,11 @@
-name: Deploy to Production
+name: PR Build Check
 
 on:
-  push:
+  pull_request:
     branches: [master]
-  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-check:
     runs-on: ubuntu-latest
     
     steps:
@@ -42,20 +41,3 @@ jobs:
           NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
           NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
           SKIP_ENV_VALIDATION: true
-          
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-        
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-          
-      - name: Post-deploy health check
-        run: |
-          sleep 30
-          curl -f https://split-bill-mu.vercel.app/ || echo "Health check failed but continuing"
