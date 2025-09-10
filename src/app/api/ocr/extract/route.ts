@@ -1,26 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import OpenAI from 'openai'
+import { createSuccessResponse, createErrorResponse } from '@/shared/lib/api-response'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY!,
+  baseURL: 'https://api.deepseek.com/v1'
+})
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const file = formData.get('image') as File
+    const agent = (formData.get('agent') as string) || 'gemini'
     
     if (!file) {
-      return NextResponse.json(
-        { success: false, error: 'No image file provided' },
-        { status: 400 }
+      return createErrorResponse(
+        'Please upload an image file',
+        400,
+        'No file found in form data',
+        '/api/ocr/extract'
+      )
+    }
+
+    // Validate agent
+    if (!['gemini', 'deepseek'].includes(agent)) {
+      return createErrorResponse(
+        'Invalid AI agent selected',
+        400,
+        `Agent "${agent}" not supported. Available: gemini, deepseek`,
+        '/api/ocr/extract'
       )
     }
 
     // Validate mime type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, error: `Unsupported file type: ${file.type}. Only JPEG, PNG, and WebP are allowed.` },
-        { status: 400 }
+      return createErrorResponse(
+        'Please upload a valid image file (JPEG, PNG, or WebP)',
+        400,
+        `File type "${file.type}" not supported. Allowed: ${allowedTypes.join(', ')}`,
+        '/api/ocr/extract'
       )
     }
 
@@ -30,7 +51,7 @@ export async function POST(request: NextRequest) {
     
     const mimeType = file.type
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    let extractedData
 
     const prompt = `
 Analyze this receipt/bill image carefully and extract ALL financial information. Return ONLY valid JSON format:
@@ -87,39 +108,86 @@ Examples:
 - "1,234.56" → 123456
 `
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType,
-          data: base64Image,
+    if (agent === 'gemini') {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      
+      const result = await model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            mimeType,
+            data: base64Image,
+          },
         },
-      },
-    ])
+      ])
 
-    const response = await result.response
-    const text = response.text()
+      const response = await result.response
+      const text = response.text()
 
-    // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error('No valid JSON found in response')
+      // Extract JSON from response
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response')
+      }
+
+      extractedData = JSON.parse(jsonMatch[0])
+    } else if (agent === 'deepseek') {
+      const response = await deepseek.chat.completions.create({
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: prompt
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 2000,
+        temperature: 0.1
+      })
+      console.log(response)
+      const text = response.choices[0]?.message?.content || ''
+      
+      // Extract JSON from response
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response')
+      }
+
+      extractedData = JSON.parse(jsonMatch[0])
     }
 
-    const extractedData = JSON.parse(jsonMatch[0])
-
-    return NextResponse.json({
-      success: true,
-      data: extractedData,
-    })
+    return createSuccessResponse(
+      extractedData,
+      'Bill data extracted successfully'
+    )
   } catch (error) {
     console.error('OCR extraction error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to extract data',
-      },
-      { status: 500 }
+    
+    // Handle specific error types
+    if (error instanceof SyntaxError) {
+      return createErrorResponse(
+        'Unable to process the image. Please try with a clearer image.',
+        422,
+        `JSON parsing failed: ${error.message}`,
+        '/api/ocr/extract'
+      )
+    }
+    
+    return createErrorResponse(
+      'Something went wrong while processing your image. Please try again.',
+      500,
+      error instanceof Error ? error.message : 'Unknown error occurred',
+      '/api/ocr/extract'
     )
   }
 }
