@@ -4,10 +4,14 @@ import OpenAI from 'openai'
 import { createSuccessResponse, createErrorResponse } from '@/shared/lib/api-response'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const deepseek = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY!,
-  baseURL: 'https://api.deepseek.com/v1'
-})
+
+// Initialize DeepSeek client only when needed to avoid build-time API key validation
+function getDeepSeekClient() {
+  return new OpenAI({
+    apiKey: process.env.DEEPSEEK_API_KEY!,
+    baseURL: 'https://api.deepseek.com/v1'
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -132,6 +136,7 @@ Examples:
 
       extractedData = JSON.parse(jsonMatch[0])
     } else if (agent === 'deepseek') {
+      const deepseek = getDeepSeekClient()
       const response = await deepseek.chat.completions.create({
         model: 'deepseek-chat',
         messages: [
