@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import OpenAI from 'openai'
 import { createSuccessResponse, createErrorResponse } from '@/shared/lib/api-response'
