@@ -16,30 +16,39 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  const session = await auth()
-  const { pathname } = req.nextUrl
+  try {
+    const session = await auth()
+    const { pathname } = req.nextUrl
 
-  // Redirect authenticated users from root to dashboard
-  if (pathname === '/' && session.userId) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
+    // Redirect authenticated users from root to dashboard
+    if (pathname === '/' && session.userId) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
 
-  // Redirect unauthenticated users from root to sign-up
-  if (pathname === '/' && !session.userId) {
-    return NextResponse.redirect(new URL('/sign-up', req.url))
-  }
+    // Redirect unauthenticated users from root to sign-up
+    if (pathname === '/' && !session.userId) {
+      return NextResponse.redirect(new URL('/sign-up', req.url))
+    }
 
-  // Redirect authenticated users away from auth pages
-  if (isPublicRoute(req) && session.userId) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
-  }
+    // Redirect authenticated users away from auth pages
+    if (isPublicRoute(req) && session.userId) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
 
-  // Protect routes that require authentication
-  if (isProtectedRoute(req) && !session.userId) {
-    return NextResponse.redirect(new URL('/sign-in', req.url))
+    // Protect routes that require authentication
+    if (isProtectedRoute(req) && !session.userId) {
+      return NextResponse.redirect(new URL('/sign-in', req.url))
+    }
+  } catch (error) {
+    console.error('Clerk middleware error:', error)
+    // Allow request to continue on auth errors
+    return NextResponse.next()
   }
 })
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
 }
