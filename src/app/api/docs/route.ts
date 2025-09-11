@@ -343,6 +343,17 @@ export async function GET() {
           },
           required: ['success', 'error']
         },
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'clx1234567890' },
+            username: { type: 'string', example: 'johndoe' },
+            name: { type: 'string', example: 'John Doe' },
+            email: { type: 'string', example: 'john@example.com' },
+            image: { type: 'string', nullable: true, example: 'https://example.com/avatar1.jpg' },
+          },
+          required: ['id', 'username', 'name', 'email']
+        }
       },
     },
   }
