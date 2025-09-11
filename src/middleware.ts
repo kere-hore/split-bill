@@ -10,38 +10,49 @@ const isProtectedRoute = createRouteMatcher([
   '/api/settlements(.*)'
 ])
 
-const isPublicRoute = createRouteMatcher([
+const isAuthRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)'
 ])
 
 export default clerkMiddleware(async (auth, req) => {
+  const { pathname } = req.nextUrl
+  
+  // Skip middleware for static files and API routes that don't need auth
+  if (pathname.startsWith('/api/public') || pathname.startsWith('/_next')) {
+    return NextResponse.next()
+  }
+
   try {
     const session = await auth()
-    const { pathname } = req.nextUrl
-
-    // Redirect authenticated users from root to dashboard
-    if (pathname === '/' && session.userId) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
-
-    // Redirect unauthenticated users from root to sign-up
-    if (pathname === '/' && !session.userId) {
-      return NextResponse.redirect(new URL('/sign-up', req.url))
+    const isAuthenticated = !!session.userId
+    
+    // Handle root path
+    if (pathname === '/') {
+      if (isAuthenticated) {
+        return NextResponse.redirect(new URL('/dashboard', req.url))
+      } else {
+        return NextResponse.redirect(new URL('/sign-up', req.url))
+      }
     }
 
     // Redirect authenticated users away from auth pages
-    if (isPublicRoute(req) && session.userId) {
+    if (isAuthRoute(req) && isAuthenticated) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
     // Protect routes that require authentication
-    if (isProtectedRoute(req) && !session.userId) {
+    if (isProtectedRoute(req) && !isAuthenticated) {
       return NextResponse.redirect(new URL('/sign-in', req.url))
     }
+
+    return NextResponse.next()
   } catch (error) {
     console.error('Clerk middleware error:', error)
-    // Allow request to continue on auth errors
+    // On auth errors, redirect to sign-in for protected routes
+    if (isProtectedRoute(req)) {
+      return NextResponse.redirect(new URL('/sign-in', req.url))
+    }
     return NextResponse.next()
   }
 })
