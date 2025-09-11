@@ -5,8 +5,9 @@ import { SiteHeader } from "@/shared/components/site-header";
 import { getCurrentUser } from "@/shared/lib/clerk";
 import { redirect } from "next/navigation";
 import "../globals.css";
+import BillFormModal from "@/features/bill/ui/bill-modal";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Split Bill",
@@ -20,20 +21,20 @@ export default async function RootLayout({
 }>) {
   try {
     // Sync user to database for all private pages
-    const user = await getCurrentUser()
-    
+    const user = await getCurrentUser();
+
     // If user sync fails, redirect to sign-in
     if (!user) {
-      redirect('/sign-in')
+      redirect("/sign-in");
     }
   } catch (error) {
-    console.error('User sync failed:', error)
+    console.error("User sync failed:", error);
     // Redirect to sign-in on any error
-    redirect('/sign-in')
+    redirect("/sign-in");
   }
 
   return (
-    <SidebarProvider 
+    <SidebarProvider
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -43,14 +44,15 @@ export default async function RootLayout({
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-      <SiteHeader />
-      <div className="flex flex-1 flex-col">
-        <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="px-4 lg:px-6 py-4 md:py-6">
-            {children}
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="px-4 lg:px-6 py-4 md:py-6">
+              {children}
+              <BillFormModal />
+            </div>
           </div>
         </div>
-      </div>
       </SidebarInset>
     </SidebarProvider>
   );
