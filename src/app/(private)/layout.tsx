@@ -18,11 +18,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Sync user to database for all private pages
-  const user = await getCurrentUser()
-  
-  // If user sync fails, redirect to sign-in
-  if (!user) {
+  try {
+    // Sync user to database for all private pages
+    const user = await getCurrentUser()
+    
+    // If user sync fails, redirect to sign-in
+    if (!user) {
+      redirect('/sign-in')
+    }
+  } catch (error) {
+    console.error('User sync failed:', error)
+    // Redirect to sign-in on any error
     redirect('/sign-in')
   }
 
