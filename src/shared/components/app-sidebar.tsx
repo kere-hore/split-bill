@@ -4,7 +4,6 @@ import * as React from "react"
 import { useCurrentUser } from '@/entities/user/model/use-current-user'
 import {
   IconCamera,
-  IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
@@ -12,9 +11,8 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconReport,
-  IconSearch,
   IconSettings,
-  IconToggleLeft
+  IconHistory
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/shared/components/nav-documents"
@@ -34,14 +32,9 @@ import {
 const staticData = {
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Toggle Features",
-      url: "/toggle-features",
-      icon: IconToggleLeft,
+      title: "History",
+      url: "/history",
+      icon: IconHistory,
     },
   ],
   navClouds: [
@@ -102,30 +95,8 @@ const staticData = {
       title: "Get Help",
       url: "#",
       icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
+    }
+  ]
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -148,7 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Toggle.</span>
+                <span className="text-base font-semibold">Kere Hore</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -156,7 +127,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={staticData.navMain} />
-        <NavDocuments items={staticData.documents} />
         <NavSecondary items={staticData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
