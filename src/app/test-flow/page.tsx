@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function TestFlow() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
@@ -17,10 +19,10 @@ export default function TestFlow() {
         <div className="p-4 bg-blue-100 rounded">
           <h2 className="font-semibold text-blue-800">🔗 Test Links</h2>
           <div className="space-y-2 text-blue-700">
-            <div><a href="/sign-in" className="underline">Sign In Page</a></div>
-            <div><a href="/sign-up" className="underline">Sign Up Page</a></div>
-            <div><a href="/dashboard" className="underline">Dashboard (Protected)</a></div>
-            <div><a href="/debug-auth" className="underline">Debug Auth State</a></div>
+            <div><Link href="/sign-in" className="underline">Sign In Page</Link></div>
+            <div><Link href="/sign-up" className="underline">Sign Up Page</Link></div>
+            <div><Link href="/dashboard" className="underline">Dashboard (Protected)</Link></div>
+            <div><Link href="/debug-auth" className="underline">Debug Auth State</Link></div>
           </div>
         </div>
 
