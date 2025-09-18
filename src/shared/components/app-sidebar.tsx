@@ -1,24 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useCurrentUser } from '@/entities/user/model/use-current-user'
+import * as React from "react";
+import { useCurrentUser } from "@/entities/user/model/use-current-user";
 import {
   IconCamera,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconHelp,
   IconInnerShadowTop,
   IconReport,
   IconSettings,
-  IconHistory
-} from "@tabler/icons-react"
+  IconUsersGroup,
+} from "@tabler/icons-react";
 
-import { NavDocuments } from "@/shared/components/nav-documents"
-import { NavMain } from "@/shared/components/nav-main"
-import { NavSecondary } from "@/shared/components/nav-secondary"
-import { NavUser } from "@/shared/components/nav-user"
+import { NavMain } from "@/shared/components/nav-main";
+import { NavSecondary } from "@/shared/components/nav-secondary";
+import { NavUser } from "@/shared/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -27,14 +24,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/shared/components/ui/sidebar"
+} from "@/shared/components/ui/sidebar";
 
 const staticData = {
   navMain: [
     {
-      title: "History",
-      url: "/history",
-      icon: IconHistory,
+      title: "Allocations",
+      url: "/allocations",
+      icon: IconUsersGroup,
+    },
+    {
+      title: "Settlements",
+      url: "/settlement",
+      icon: IconReport,
     },
   ],
   navClouds: [
@@ -95,18 +97,18 @@ const staticData = {
       title: "Get Help",
       url: "#",
       icon: IconHelp,
-    }
-  ]
-}
+    },
+  ],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useCurrentUser()
-  
+  const { user } = useCurrentUser();
+
   const userData = {
-    name: user?.name || 'User',
-    email: user?.email || 'user@example.com',
-    avatar: user?.avatar || '/avatars/default.jpg',
-  }
+    name: user?.name || "User",
+    email: user?.email || "user@example.com",
+    avatar: user?.avatar || "/avatars/default.jpg",
+  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -133,5 +135,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

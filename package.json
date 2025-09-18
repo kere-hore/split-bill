@@ -17,6 +17,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.864.0",
     "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/client-textract": "^3.890.0",
     "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@clerk/nextjs": "^6.31.6",
     "@codemirror/lang-json": "^6.0.2",
