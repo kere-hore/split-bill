@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const { page, limit, status } = querySchema.parse({
+    const { page, limit } = querySchema.parse({
       page: searchParams.get("page"),
       limit: searchParams.get("limit"),
       status: searchParams.get("status"),
@@ -63,9 +63,6 @@ export async function GET(request: NextRequest) {
         "/api/groups"
       );
     }
-
-    console.log("Clerk userId:", userId);
-    console.log("Database user ID:", dbUser.id);
 
     // Query groups using database user ID
     const groups = await prisma.$queryRaw`

@@ -7,12 +7,13 @@ import {
 import { prisma } from "@/shared/lib/prisma";
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { id } = await params;
   try {
     // Get authenticated user
     const { userId } = await auth();
@@ -21,11 +22,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Authentication required",
         401,
         "User not authenticated",
-        `/api/groups/${params.id}`
+        `/api/groups/${id}`
       );
     }
-    
-    const { id } = params;
 
     // Get database user ID from Clerk ID
     const dbUser = await prisma.user.findUnique({
@@ -118,7 +117,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Authentication required",
         401,
         "User not authenticated",
-        `/api/groups/${params.id}`
+        `/api/groups/${id}`
       );
     }
 
@@ -129,17 +128,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Database connection error",
         500,
         "Please try again later",
-        `/api/groups/${params.id}`
+        `/api/groups/${id}`
       );
     }
 
     console.error("Error fetching group:", error);
-    
+
     return createErrorResponse(
       "Failed to fetch group",
       500,
       error instanceof Error ? error.message : "Unknown error occurred",
-      `/api/groups/${params.id}`
+      `/api/groups/${id}`
     );
   }
 }

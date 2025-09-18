@@ -1,11 +1,11 @@
 interface SettlementPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function SettlementPage({ params }: SettlementPageProps) {
-  const { id } = params;
+  const { id } = await params;
   // TODO: Fetch bill data from database
   // const bill = await getBill(id);
   // if (!bill) notFound();

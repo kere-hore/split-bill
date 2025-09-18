@@ -27,40 +27,43 @@ export default function BillFormModal() {
 
   const { mutate: createBill, isPending: isSaving } = useCreateBill();
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     const params = new URLSearchParams(param);
     setSelectedFile(null);
     setHasExtracted(false);
     resetExtraction();
     params.delete("bill");
     router.replace(`${window.location.pathname}?${params.toString()}`);
-  };
+  }, [param, resetExtraction, router]);
 
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file);
     setHasExtracted(false);
   }, []);
 
-  const handleBillSubmit = useCallback((data: BillFormData) => {
-    console.log("handleBillSubmit called with data:", data);
-    
-    createBill(data, {
-      onSuccess: (response) => {
-        console.log("Bill creation success:", response);
-        if (response.success) {
-          toast.success("Bill saved successfully!");
-          router.push(`/settlement/${response.data.id}`);
-          handleClose();
-        } else {
+  const handleBillSubmit = useCallback(
+    (data: BillFormData) => {
+      console.log("handleBillSubmit called with data:", data);
+
+      createBill(data, {
+        onSuccess: (response) => {
+          console.log("Bill creation success:", response);
+          if (response.success) {
+            toast.success("Bill saved successfully!");
+            router.push(`/settlement/${response.data.id}`);
+            handleClose();
+          } else {
+            toast.error("Failed to save bill");
+          }
+        },
+        onError: (error) => {
+          console.error("Save bill error:", error);
           toast.error("Failed to save bill");
-        }
-      },
-      onError: (error) => {
-        console.error("Save bill error:", error);
-        toast.error("Failed to save bill");
-      },
-    });
-  }, [createBill, router, handleClose]);
+        },
+      });
+    },
+    [createBill, router, handleClose]
+  );
 
   useEffect(() => {
     if (selectedFile && !isExtracting && !hasExtracted) {

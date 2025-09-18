@@ -1,11 +1,12 @@
 import { AllocationDetailPage } from "@/widgets/allocation-detail";
 
 interface AllocationDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function Page({ params }: AllocationDetailPageProps) {
-  return <AllocationDetailPage groupId={params.id} />;
+export default async function Page({ params }: AllocationDetailPageProps) {
+  const { id } = await params;
+  return <AllocationDetailPage groupId={id} />;
 }

@@ -1,4 +1,8 @@
-import { createBill, CreateBillRequest, CreateBillResponse } from "@/shared/api/contract/bills";
+import {
+  createBill,
+  CreateBillRequest,
+  CreateBillResponse,
+} from "@/shared/api/contract/bills";
 import { useMutation } from "@tanstack/react-query";
 
 export const useCreateBill = () => {
