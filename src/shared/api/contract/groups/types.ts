@@ -56,6 +56,9 @@ export interface Group {
   status: "outstanding" | "allocated";
   created_at: string;
   updated_at: string;
+  created_by: string;
+  current_user_id: string;
+  is_current_user_admin: boolean;
   members: GroupMember[];
   bill: Bill | null;
 }

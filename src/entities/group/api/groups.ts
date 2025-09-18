@@ -23,7 +23,10 @@ export const groupKeys = {
 export function useGroups(params: GetGroupsParams = {}) {
   return useQuery({
     queryKey: groupKeys.list(params),
-    queryFn: () => getGroupsContract(params),
+    queryFn: async () => {
+      const response = await getGroupsContract(params);
+      return response.data.groups; // Extract groups array from API response
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -31,7 +34,10 @@ export function useGroups(params: GetGroupsParams = {}) {
 export function useGroupById(id: string) {
   return useQuery({
     queryKey: groupKeys.detail(id),
-    queryFn: () => getGroupByIdContract(id),
+    queryFn: async () => {
+      const response = await getGroupByIdContract(id);
+      return response.data; // Extract data from API response
+    },
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

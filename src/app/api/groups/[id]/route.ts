@@ -93,17 +93,44 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Transform response with bill data
+    // Get group members
+    const members = await prisma.groupMember.findMany({
+      where: { groupId: id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    // Transform response with bill data and members
     const transformedGroup = {
       id: group.id,
       name: group.name,
       description: group.description,
-      member_count: 0,
-      status: "outstanding",
+      member_count: members.length,
+      status: members.length === 0 ? "outstanding" : "allocated",
       created_at: group.createdAt.toISOString(),
       updated_at: group.updatedAt.toISOString(),
+      created_by: group.createdBy, // Database user ID of creator
+      current_user_id: dbUser.id, // Current user's database ID
+      is_current_user_admin: group.createdBy === dbUser.id, // Check if current user is creator
       bill: billData,
-      members: [],
+      members: members.map((member) => ({
+        id: member.id,
+        role: member.role,
+        user: {
+          id: member.user.id,
+          name: member.user.name,
+          email: member.user.email,
+          image: member.user.image,
+        },
+      })),
     };
 
     return createSuccessResponse(

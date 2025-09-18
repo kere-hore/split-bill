@@ -33,7 +33,7 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
   if (!group) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Group not found</p>
+        d<p className="text-muted-foreground">Group not found</p>
       </div>
     );
   }
@@ -42,11 +42,11 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Group Summary */}
       <div className="space-y-6">
-        <GroupSummary group={group.data} />
+        <GroupSummary group={group} />
 
         {/* Bill Items */}
-        {group.data.bill ? (
-          <BillItems bill={group.data.bill} />
+        {group.bill ? (
+          <BillItems bill={group.bill} />
         ) : (
           <div className="bg-card rounded-lg border p-6">
             <h3 className="text-lg font-semibold mb-4">Receipt Details</h3>
@@ -62,15 +62,14 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
         <div className="bg-card rounded-lg border p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Group Members</h2>
-            {group.data.status === "outstanding" && (
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Member
-              </Button>
-            )}
           </div>
 
-          <MembersList members={group.data.members} />
+          <MembersList
+            groupId={groupId}
+            members={group.members}
+            currentUserId={group.current_user_id}
+            isAdmin={group.is_current_user_admin}
+          />
         </div>
 
         <div className="bg-card rounded-lg border p-6">
@@ -78,23 +77,21 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Total Members:</span>
-              <span>{group.data.member_count}</span>
+              <span>{group.member_count}</span>
             </div>
             <div className="flex justify-between">
               <span>Status:</span>
               <span
                 className={
-                  group.data.status === "allocated"
+                  group.status === "allocated"
                     ? "text-green-600"
                     : "text-orange-600"
                 }
               >
-                {group.data.status === "allocated"
-                  ? "Allocated"
-                  : "Outstanding"}
+                {group.status === "allocated" ? "Allocated" : "Outstanding"}
               </span>
             </div>
-            {group.data.status === "allocated" && (
+            {group.status === "allocated" && (
               <div className="pt-2 border-t">
                 <Button className="w-full">View Settlement</Button>
               </div>
