@@ -8,8 +8,9 @@ import {
 import { prisma } from "@/shared/lib/prisma";
 
 const addMemberSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
-  role: z.enum(["admin", "member"]).default("member"),
+  userId: z.string().nullable(), // null for non-registered users
+  name: z.string().min(1, "Name is required"),
+  // role is always "member" - only creator is admin
 });
 
 interface RouteParams {
@@ -32,7 +33,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id: groupId } = await params;
     const body = await request.json();
-    const { userId, role } = addMemberSchema.parse(body);
+    const { userId, name } = addMemberSchema.parse(body);
+    const role = "member"; // Always member - only creator is admin
+    
+    // Use provided userId or generate one for custom users
+    const finalUserId = userId || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Get current user
     const currentUser = await prisma.user.findUnique({
@@ -64,26 +69,37 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Check if user to be added exists
-    const userToAdd = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, email: true },
-    });
+    let userToAdd;
+    
+    if (userId) {
+      // Registered user - check if exists
+      userToAdd = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, name: true, email: true },
+      });
 
-    if (!userToAdd) {
-      return createErrorResponse(
-        "User not found",
-        404,
-        "User to be added not found",
-        "/api/groups/[id]/members"
-      );
+      if (!userToAdd) {
+        return createErrorResponse(
+          "User not found",
+          404,
+          "Registered user not found",
+          "/api/groups/[id]/members"
+        );
+      }
+    } else {
+      // Custom user - use provided data
+      userToAdd = {
+        id: finalUserId,
+        name,
+        email: null,
+      };
     }
 
     // Check if user is already a member
     const existingMember = await prisma.groupMember.findFirst({
       where: {
         groupId,
-        userId,
+        userId: finalUserId,
       },
     });
 
@@ -100,18 +116,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const newMember = await prisma.groupMember.create({
       data: {
         groupId,
-        userId,
+        userId: finalUserId,
+        name: userToAdd.name,
         role,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
       },
     });
 
@@ -119,7 +126,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       {
         id: newMember.id,
         role: newMember.role,
-        user: newMember.user,
+        user: {
+          id: userToAdd.id,
+          name: userToAdd.name,
+          email: userToAdd.email || null,
+          image: userToAdd.id ? userToAdd.image : null,
+        },
       },
       "Member added successfully"
     );

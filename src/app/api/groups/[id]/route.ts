@@ -123,12 +123,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       bill: billData,
       members: members.map((member) => ({
         id: member.id,
-        role: member.role,
-        user: {
+        role: (member.userId && member.userId === group.createdBy) ? "admin" : "member",
+        user: member.user ? {
           id: member.user.id,
           name: member.user.name,
           email: member.user.email,
           image: member.user.image,
+        } : {
+          id: null,
+          name: member.name, // Use name from GroupMember for custom users
+          email: null,
+          image: null,
         },
       })),
     };

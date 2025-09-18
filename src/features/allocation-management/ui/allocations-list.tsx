@@ -34,7 +34,7 @@ export function AllocationsList() {
     );
   }
 
-  if (data?.data.groups.length === 0) {
+  if (data?.length === 0) {
     return (
       <div className="text-center py-12">
         <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
@@ -54,7 +54,7 @@ export function AllocationsList() {
 
   return (
     <div className="grid gap-4">
-      {data?.data.groups.map((group) => (
+      {data?.map((group) => (
         <GroupCard key={group.id} group={group} />
       ))}
     </div>

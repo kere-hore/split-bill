@@ -76,15 +76,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Group creator cannot remove themselves
-    if (memberToRemove.userId === currentUser.id) {
-      return createErrorResponse(
-        "Cannot remove self",
-        400,
-        "Group creator cannot remove themselves from the group",
-        "/api/groups/[id]/members/[memberId]"
-      );
-    }
+    // Allow admin to remove themselves (group will be orphaned but that's allowed)
 
     // Remove member from group
     await prisma.groupMember.delete({

@@ -6,3 +6,4 @@ export * from "./ui/group-summary";
 export * from "./ui/members-list";
 export * from "./ui/add-member-modal";
 export * from "./ui/bill-items";
+export * from "./ui/item-allocation-panel";

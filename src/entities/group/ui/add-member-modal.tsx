@@ -27,7 +27,10 @@ export function AddMemberModal({ groupId, isOpen, onClose }: AddMemberModalProps
     if (!selectedUser) return;
 
     addMember(
-      { userId: selectedUser.id, role: "member" },
+      { 
+        userId: selectedUser.isRegistered ? selectedUser.id : null,
+        name: selectedUser.name
+      },
       {
         onSuccess: () => {
           toast.success("Member added successfully!");
@@ -73,11 +76,11 @@ export function AddMemberModal({ groupId, isOpen, onClose }: AddMemberModalProps
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               ) : users.length > 0 ? (
-                users.map((user) => (
+                users.map((user, index) => (
                   <div
-                    key={user.id}
+                    key={user.id || `custom-${index}`}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 ${
-                      selectedUser?.id === user.id ? "bg-muted border-primary" : ""
+                      selectedUser?.name === user.name ? "bg-muted border-primary" : ""
                     }`}
                     onClick={() => setSelectedUser(user)}
                   >
@@ -88,8 +91,17 @@ export function AddMemberModal({ groupId, isOpen, onClose }: AddMemberModalProps
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium truncate">{user.name}</p>
+                        {!user.isRegistered && (
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                            New
+                          </span>
+                        )}
+                      </div>
+                      {user.email && (
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      )}
                     </div>
                   </div>
                 ))
@@ -114,7 +126,9 @@ export function AddMemberModal({ groupId, isOpen, onClose }: AddMemberModalProps
                 </Avatar>
                 <div>
                   <p className="text-sm font-medium">{selectedUser.name}</p>
-                  <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
+                  {selectedUser.email && (
+                    <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
+                  )}
                 </div>
               </div>
             </div>

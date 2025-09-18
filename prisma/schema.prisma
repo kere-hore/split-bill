@@ -53,13 +53,14 @@ model Group {
 model GroupMember {
   id      String @id @default(cuid())
   groupId String
-  userId  String
+  userId  String // generated ID for both registered and custom users
+  name    String // name for all members
   role    String @default("member") // member, admin
   
   group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  @@unique([groupId, userId])
+  @@unique([groupId, userId]) // unique user per group
 }
 
 model Expense {
