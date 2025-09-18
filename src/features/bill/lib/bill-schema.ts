@@ -5,7 +5,7 @@ export const billItemSchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unit_price: z.number().min(0, "Unit price must be positive"),
   total_price: z.number().min(0, "Total price must be positive"),
-  category: z.string().optional(),
+  category: z.string().nullable().optional(),
 });
 
 export const discountSchema = z.object({
@@ -21,17 +21,17 @@ export const additionalFeeSchema = z.object({
 
 export const billFormSchema = z.object({
   merchant_name: z.string().min(1, "Merchant name is required"),
-  receipt_number: z.string().optional(),
+  receipt_number: z.string().nullable().optional(),
   date: z.string().min(1, "Date is required"),
-  time: z.string().optional(),
+  time: z.string().nullable().optional(),
   items: z.array(billItemSchema).min(1, "At least one item is required"),
   subtotal: z.number().min(0, "Subtotal must be positive"),
-  discounts: z.array(discountSchema).optional(),
-  service_charge: z.number().min(0).optional(),
-  tax: z.number().min(0).optional(),
-  additional_fees: z.array(additionalFeeSchema).optional(),
+  discounts: z.array(discountSchema).default([]),
+  service_charge: z.number().min(0).default(0),
+  tax: z.number().min(0).default(0),
+  additional_fees: z.array(additionalFeeSchema).default([]),
   total_amount: z.number().min(0, "Total amount must be positive"),
-  payment_method: z.string().optional(),
+  payment_method: z.string().nullable().optional(),
   currency: z.string().min(1, "Currency is required"),
 });
 
