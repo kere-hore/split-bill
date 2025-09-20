@@ -29,32 +29,30 @@ export async function POST(request: NextRequest) {
 
     const validatedData = billFormSchema.parse(body);
 
-    // Use transaction to create bill and group together
-    const result = await prisma.$transaction(async (tx) => {
-      // Ensure user exists in database
-      await tx.user.upsert({
-        where: { clerkId: userId },
-        update: {},
-        create: {
-          clerkId: userId,
-          username: `user_${userId.slice(-8)}`,
-          name: "User",
-          email: `${userId}@temp.com`,
-        },
-      });
+    // Ensure user exists in database
+    await prisma.user.upsert({
+      where: { clerkId: userId },
+      update: {},
+      create: {
+        clerkId: userId,
+        username: `user_${userId.slice(-8)}`,
+        name: "User",
+        email: `${userId}@temp.com`,
+      },
+    });
 
-      // Get user for foreign key
-      const user = await tx.user.findUnique({
-        where: { clerkId: userId },
-        select: { id: true },
-      });
+    // Get user for foreign key
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    });
 
-      if (!user) {
-        throw new Error("Failed to create or find user");
-      }
+    if (!user) {
+      throw new Error("Failed to create or find user");
+    }
 
-      // Create bill
-      const bill = await tx.bill.create({
+    // Create bill
+    const bill = await prisma.bill.create({
         data: {
           merchantName: validatedData.merchantName || "",
           receiptNumber: validatedData.receiptNumber || null,
@@ -95,24 +93,19 @@ export async function POST(request: NextRequest) {
           discounts: true,
           additionalFees: true,
         },
-      });
-
-      // Auto-create group for settlement
-      const group = await tx.group.create({
-        data: {
-          name: `${validatedData.merchantName || "Bill"} - ${new Date(
-            validatedData.date
-          ).toLocaleDateString()}`,
-          description: `Split bill for ${validatedData.merchantName || "Bill"}`,
-          billId: bill.id, // Link group to bill
-          createdBy: user.id,
-        },
-      });
-
-      return { bill, group };
     });
 
-    const { bill, group } = result;
+    // Auto-create group for settlement
+    const group = await prisma.group.create({
+      data: {
+        name: `${validatedData.merchantName || "Bill"} - ${new Date(
+          validatedData.date
+        ).toLocaleDateString()}`,
+        description: `Split bill for ${validatedData.merchantName || "Bill"}`,
+        billId: bill.id, // Link group to bill
+        createdBy: user.id,
+      },
+    });
 
     // Transform to snake_case response format
     const response = {
