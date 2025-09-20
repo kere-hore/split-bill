@@ -47,6 +47,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         id,
         createdBy: dbUser.id,
       },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        billId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: true,
+      },
     });
 
     if (!group) {
@@ -65,45 +75,95 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         where: { id: group.billId },
         include: {
           items: true,
+          discounts: true,
+          additionalFees: true,
         },
       });
 
       if (bill) {
         billData = {
           id: bill.id,
-          merchant_name: bill.merchantName,
-          receipt_number: bill.receiptNumber,
+          merchantName: bill.merchantName,
+          receiptNumber: bill.receiptNumber,
           date: bill.date.toISOString().split("T")[0],
           time: bill.time,
           subtotal: Number(bill.subtotal),
-          service_charge: Number(bill.serviceCharge),
+          serviceCharge: Number(bill.serviceCharge),
           tax: Number(bill.tax),
-          total_amount: Number(bill.totalAmount),
-          payment_method: bill.paymentMethod,
+          totalAmount: Number(bill.totalAmount),
+          paymentMethod: bill.paymentMethod,
           currency: bill.currency,
           items: bill.items.map((item) => ({
             id: item.id,
             name: item.name,
             quantity: item.quantity,
-            unit_price: Number(item.unitPrice),
-            total_price: Number(item.totalPrice),
+            unitPrice: Number(item.unitPrice),
+            totalPrice: Number(item.totalPrice),
             category: item.category,
+          })),
+          discounts: bill.discounts.map((discount) => ({
+            id: discount.id,
+            name: discount.name,
+            amount: Number(discount.amount),
+            type: discount.type,
+          })),
+          additionalFees: bill.additionalFees.map((fee) => ({
+            id: fee.id,
+            name: fee.name,
+            amount: Number(fee.amount),
           })),
         };
       }
     }
 
-    // Transform response with bill data
+    // Get group members
+    const members = await prisma.groupMember.findMany({
+      where: { groupId: id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    // Transform response with bill data and members
     const transformedGroup = {
       id: group.id,
       name: group.name,
       description: group.description,
-      member_count: 0,
-      status: "outstanding",
-      created_at: group.createdAt.toISOString(),
-      updated_at: group.updatedAt.toISOString(),
+      memberCount: members.length,
+      status: group.status,
+      createdAt: group.createdAt.toISOString(),
+      updatedAt: group.updatedAt.toISOString(),
+      createdBy: group.createdBy, // Database user ID of creator
+      currentUserId: dbUser.id, // Current user's database ID
+      isCurrentUserAdmin: group.createdBy === dbUser.id, // Check if current user is creator
       bill: billData,
-      members: [],
+      members: members.map((member) => ({
+        id: member.id,
+        role:
+          member.userId && member.userId === group.createdBy
+            ? "admin"
+            : "member",
+        user: member.user
+          ? {
+              id: member.user.id,
+              name: member.user.name,
+              email: member.user.email,
+              image: member.user.image,
+            }
+          : {
+              id: null,
+              name: member.name, // Use name from GroupMember for custom users
+              email: null,
+              image: null,
+            },
+      })),
     };
 
     return createSuccessResponse(

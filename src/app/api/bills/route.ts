@@ -56,23 +56,23 @@ export async function POST(request: NextRequest) {
       // Create bill
       const bill = await tx.bill.create({
         data: {
-          merchantName: validatedData.merchant_name,
-          receiptNumber: validatedData.receipt_number || null,
+          merchantName: validatedData.merchantName || "",
+          receiptNumber: validatedData.receiptNumber || null,
           date: new Date(validatedData.date),
           time: validatedData.time || null,
-          subtotal: validatedData.subtotal,
-          serviceCharge: validatedData.service_charge || 0,
+          subtotal: validatedData.subtotal || 0,
+          serviceCharge: validatedData.serviceCharge || 0,
           tax: validatedData.tax || 0,
-          totalAmount: validatedData.total_amount,
-          paymentMethod: validatedData.payment_method || null,
-          currency: validatedData.currency,
+          totalAmount: validatedData.totalAmount || 0,
+          paymentMethod: validatedData.paymentMethod || null,
+          currency: validatedData.currency || "IDR",
           createdBy: userId,
           items: {
             create: validatedData.items.map((item) => ({
               name: item.name,
               quantity: item.quantity,
-              unitPrice: item.unit_price,
-              totalPrice: item.total_price,
+              unitPrice: item.unitPrice || 0,
+              totalPrice: item.totalPrice || 0,
               category: item.category || null,
             })),
           },
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             })),
           },
           additionalFees: {
-            create: (validatedData.additional_fees || []).map((fee) => ({
+            create: (validatedData.additionalFees || []).map((fee) => ({
               name: fee.name,
               amount: fee.amount,
             })),
@@ -100,10 +100,10 @@ export async function POST(request: NextRequest) {
       // Auto-create group for settlement
       const group = await tx.group.create({
         data: {
-          name: `${validatedData.merchant_name} - ${new Date(
+          name: `${validatedData.merchantName || "Bill"} - ${new Date(
             validatedData.date
           ).toLocaleDateString()}`,
-          description: `Split bill for ${validatedData.merchant_name}`,
+          description: `Split bill for ${validatedData.merchantName || "Bill"}`,
           billId: bill.id, // Link group to bill
           createdBy: user.id,
         },
@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          unit_price: Number(item.unitPrice),
-          total_price: Number(item.totalPrice),
+          unitPrice: Number(item.unitPrice),
+          totalPrice: Number(item.totalPrice),
           category: item.category,
         })
       ),
@@ -159,9 +159,9 @@ export async function POST(request: NextRequest) {
 
     // Note: Cache invalidation should be handled on client-side using React Query
     // Client should call useInvalidateGroups().invalidateAll() after successful bill creation
-    
+
     return createSuccessResponse(
-      { ...response, group_id: group.id },
+      { ...response, groupId: group.id },
       "Bill and group created successfully"
     );
   } catch (error) {

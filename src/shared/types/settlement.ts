@@ -1,13 +1,13 @@
 export interface Settlement {
   id: string;
-  merchant_name: string;
-  total_amount: number;
+  merchantName: string;
+  totalAmount: number;
   date: string;
   status: "outstanding" | "allocated";
-  member_count: number;
+  memberCount: number;
   currency: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SettlementListResponse {

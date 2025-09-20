@@ -1,8 +1,8 @@
 export interface BillItem {
   name: string
   quantity: number
-  unit_price: number
-  total_price: number
+  unitPrice: number
+  totalPrice: number
   category?: string
 }
 
@@ -18,22 +18,22 @@ export interface AdditionalFee {
 }
 
 export interface ExtractedBillData {
-  merchant_name?: string
-  merchant_address?: string
-  receipt_number?: string
+  merchantName?: string
+  merchantAddress?: string
+  receiptNumber?: string
   date?: string
   time?: string
   items: BillItem[]
   subtotal?: number
   discounts?: BillDiscount[]
-  service_charge?: number
+  serviceCharge?: number
   tax?: number
-  additional_fees?: AdditionalFee[]
-  total_amount?: number
-  payment_method?: string
+  additionalFees?: AdditionalFee[]
+  totalAmount?: number
+  paymentMethod?: string
   currency?: string
   cashier?: string
-  table_number?: string
+  tableNumber?: string
 }
 
 export interface OCRResponse {

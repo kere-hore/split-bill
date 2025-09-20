@@ -13,8 +13,8 @@ export interface BillItem {
   id: string;
   name: string;
   quantity: number;
-  unit_price: number;
-  total_price: number;
+  unitPrice: number;
+  totalPrice: number;
   category: string | null;
 }
 
@@ -33,29 +33,32 @@ export interface BillFee {
 
 export interface Bill {
   id: string;
-  merchant_name: string;
-  receipt_number: string | null;
+  merchantName: string;
+  receiptNumber: string | null;
   date: string;
   time: string | null;
   subtotal: number;
-  service_charge: number;
+  serviceCharge: number;
   tax: number;
-  total_amount: number;
-  payment_method: string | null;
+  totalAmount: number;
+  paymentMethod: string | null;
   currency: string;
   items: BillItem[];
   discounts: BillDiscount[];
-  additional_fees: BillFee[];
+  additionalFees: BillFee[];
 }
 
 export interface Group {
   id: string;
   name: string;
   description: string | null;
-  member_count: number;
+  memberCount: number;
   status: "outstanding" | "allocated";
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  currentUserId: string;
+  isCurrentUserAdmin: boolean;
   members: GroupMember[];
   bill: Bill | null;
 }

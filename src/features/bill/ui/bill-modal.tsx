@@ -48,9 +48,9 @@ export default function BillFormModal() {
       createBill(data, {
         onSuccess: (response) => {
           console.log("Bill creation success:", response);
-          if (response.success) {
+          if (response.success && response.data.groupId) {
             toast.success("Bill saved successfully!");
-            router.push(`/settlement/${response.data.id}`);
+            router.push(`/allocations/${response.data.groupId}`);
             handleClose();
           } else {
             toast.error("Failed to save bill");

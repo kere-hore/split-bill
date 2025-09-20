@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const { page, limit } = querySchema.parse({
+    const { page, limit, status } = querySchema.parse({
       page: searchParams.get("page"),
       limit: searchParams.get("limit"),
       status: searchParams.get("status"),
@@ -64,35 +64,66 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Query groups using database user ID
-    const groups = await prisma.$queryRaw`
-      SELECT * FROM "Group" 
-      WHERE "createdBy" = ${dbUser.id}
-      ORDER BY "createdAt" DESC
-      LIMIT ${limit} OFFSET ${(page - 1) * limit}
-    `;
+    // Build where clause with status filter
+    const whereClause: any = { createdBy: dbUser.id };
+    if (status !== "all") {
+      whereClause.status = status;
+    }
 
-    const totalResult = await prisma.$queryRaw`
-      SELECT COUNT(*) as count FROM "Group" 
-      WHERE "createdBy" = ${dbUser.id}
-    `;
+    // Query groups using Prisma ORM
+    const groups = await prisma.group.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
 
-    const totalCount = Number((totalResult as any[])[0]?.count || 0);
+    const totalCount = await prisma.group.count({
+      where: whereClause,
+    });
 
     const hasMore = page * limit < totalCount;
 
-    // Transform response with basic data
-    const transformedGroups = (groups as any[]).map((group) => ({
-      id: group.id,
-      name: group.name,
-      description: group.description,
-      member_count: 0, // Will be calculated separately
-      status: "outstanding", // Will be calculated separately
-      created_at: group.createdAt.toISOString(),
-      updated_at: group.updatedAt.toISOString(),
-      bill: null, // Will be fetched separately if needed
-      members: [], // Will be fetched separately if needed
-    }));
+    // Get member counts and bill data for each group
+    const transformedGroups = await Promise.all(
+      (groups as any[]).map(async (group) => {
+        // Get member count
+        const memberCount = await prisma.groupMember.count({
+          where: { groupId: group.id },
+        });
+
+        // Get bill data if exists
+        let billData = null;
+        if (group.billId) {
+          const bill = await prisma.bill.findUnique({
+            where: { id: group.billId },
+            select: {
+              merchantName: true,
+              totalAmount: true,
+              date: true,
+            },
+          });
+          if (bill) {
+            billData = {
+              merchantName: bill.merchantName,
+              totalAmount: Number(bill.totalAmount),
+              date: bill.date.toISOString().split("T")[0],
+            };
+          }
+        }
+
+        return {
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          memberCount: memberCount,
+          status: group.status || "outstanding",
+          createdAt: group.createdAt.toISOString(),
+          updatedAt: group.updatedAt.toISOString(),
+          bill: billData,
+        };
+      })
+    );
 
     return createSuccessResponse(
       {

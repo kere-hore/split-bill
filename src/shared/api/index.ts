@@ -1,2 +1,1 @@
-export { api } from './axios'
-export * from './contract/toggle'
+export { api } from "./axios";
