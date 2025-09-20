@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 
 import {
   AlertDialog,
@@ -15,7 +19,9 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Loader2, Plus, Minus } from "lucide-react";
-import { ItemAllocationPanel, AddMemberModal, useRemoveMember } from "@/entities/group";
+import { useRemoveMember, GroupMember } from "@/entities/group";
+import { ItemAllocationPanel } from "./item-allocation-panel";
+import { AddMemberModal } from "./add-member-modal";
 import { useGroupDetail } from "../model/use-group-detail";
 import { toast } from "sonner";
 
@@ -26,9 +32,12 @@ interface AllocationDetailProps {
 export function AllocationDetail({ groupId }: AllocationDetailProps) {
   const { group, loading, error, refetch } = useGroupDetail(groupId);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [memberToRemove, setMemberToRemove] = useState<any>(null);
-  
-  const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(groupId);
+  const [memberToRemove, setMemberToRemove] = useState<GroupMember | null>(
+    null
+  );
+
+  const { mutate: removeMember, isPending: isRemoving } =
+    useRemoveMember(groupId);
 
   const handleRemoveMember = () => {
     if (!memberToRemove) return;
@@ -44,10 +53,13 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
     });
   };
 
-  const canRemoveMember = (member: any) => {
-    if (!group?.is_current_user_admin) return false;
+  const canRemoveMember = (member: GroupMember) => {
+    if (!group?.isCurrentUserAdmin) return false;
+    if (group?.status === "allocated") return false; // Cannot modify allocated groups
     return true; // Admin can remove anyone including themselves
   };
+
+  const isGroupAllocated = group?.status === "allocated";
 
   if (loading) {
     return (
@@ -84,16 +96,24 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
           <div>
             <h1 className="text-xl font-semibold">{group.name}</h1>
             <p className="text-sm text-muted-foreground">
-              {new Date(group.created_at).toLocaleDateString("id-ID")} • {group.member_count} members
+              {new Date(group.createdAt).toLocaleDateString("id-ID")} •{" "}
+              {group.memberCount} members
             </p>
           </div>
           <div className="text-right">
             <div className="text-lg font-semibold">
-              Rp {group.bill?.items.reduce((sum, item) => sum + item.total_price, 0).toLocaleString() || '0'}
+              Rp{" "}
+              {group.bill?.items
+                .reduce((sum, item) => sum + item.totalPrice, 0)
+                .toLocaleString() || "0"}
             </div>
-            <div className={`text-xs ${
-              group.status === "allocated" ? "text-green-600" : "text-orange-600"
-            }`}>
+            <div
+              className={`text-xs ${
+                group.status === "allocated"
+                  ? "text-green-600"
+                  : "text-orange-600"
+              }`}
+            >
               {group.status === "allocated" ? "Allocated" : "Outstanding"}
             </div>
           </div>
@@ -101,7 +121,7 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
 
         {/* Members with Add Button */}
         <div className="mb-6 pb-4 border-b">
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-2">
             {group.members.map((member) => (
               <div key={member.id} className="flex flex-col items-center gap-2">
                 <div className="relative">
@@ -111,7 +131,7 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
                       {member.user.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  {group.is_current_user_admin && canRemoveMember(member) && (
+                  {group.isCurrentUserAdmin && canRemoveMember(member) && (
                     <Button
                       size="sm"
                       variant="destructive"
@@ -123,15 +143,15 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
                   )}
                 </div>
                 <span className="text-xs text-center max-w-[60px] truncate">
-                  {member.user.name.split(' ')[0]}
+                  {member.user.name.split(" ")[0]}
                 </span>
               </div>
             ))}
-            
+
             {/* Add Member Avatar */}
-            {group.is_current_user_admin && (
+            {group.isCurrentUserAdmin && !isGroupAllocated && (
               <div className="flex flex-col items-center gap-2">
-                <Avatar 
+                <Avatar
                   className="h-12 w-12 border-2 border-dashed border-gray-300 cursor-pointer hover:border-primary transition-colors"
                   onClick={() => setShowAddModal(true)}
                 >
@@ -139,25 +159,40 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
                     <Plus className="h-5 w-5 text-gray-400" />
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-xs text-center text-gray-400">
-                  Add
-                </span>
+                <span className="text-xs text-center text-gray-400">Add</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Item Allocation */}
-        {group.bill && group.members.length > 0 ? (
-          <ItemAllocationPanel 
-            billItems={group.bill.items}
-            members={group.members}
-            groupId={groupId}
-          />
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            {!group.bill ? "No bill items to allocate" : "Add members first to start allocation"}
-          </div>
+        {group.bill && (
+          <>
+            {isGroupAllocated && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 font-medium">
+                  ✅ This group has been allocated and shared. No further
+                  changes allowed.
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  View the public breakdown:{" "}
+                  <a
+                    href={`/public/bills/${groupId}`}
+                    target="_blank"
+                    className="underline"
+                  >
+                    Public Link
+                  </a>
+                </p>
+              </div>
+            )}
+            <ItemAllocationPanel
+              bill={group.bill}
+              members={group.members}
+              groupId={groupId}
+              isReadOnly={isGroupAllocated}
+            />
+          </>
         )}
       </div>
 
@@ -169,13 +204,16 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
       />
 
       {/* Remove Member Confirmation */}
-      <AlertDialog open={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)}>
+      <AlertDialog
+        open={!!memberToRemove}
+        onOpenChange={() => setMemberToRemove(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Member</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove {memberToRemove?.user.name} from this group?
-              This action cannot be undone.
+              Are you sure you want to remove {memberToRemove?.user.name} from
+              this group? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

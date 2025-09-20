@@ -36,13 +36,15 @@ model User {
 }
 
 model Group {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  billId      String?  // Link to Bill for allocation
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  billId         String?  // Link to Bill for allocation
+  status         String   @default("outstanding") // outstanding, allocated
+  allocationData String?  // JSON string containing allocation breakdown
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdBy      String
   
   creator     User          @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: Cascade)
   bill        Bill?         @relation(fields: [billId], references: [id], onDelete: SetNull)
@@ -97,7 +99,9 @@ model Settlement {
   receiverId String
   amount     Decimal  @db.Decimal(10, 2)
   currency   String   @default("IDR")
+  status     String   @default("pending") // pending, paid
   createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt @default(now())
   
   payer      User @relation("SettlementPayer", fields: [payerId], references: [id])
   receiver   User @relation("SettlementReceiver", fields: [receiverId], references: [id])
@@ -135,7 +139,20 @@ model BillItem {
   totalPrice Decimal @db.Decimal(10, 2)
   category   String?
   
-  bill       Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  bill       Bill              @relation(fields: [billId], references: [id], onDelete: Cascade)
+  allocations BillItemAllocation[]
+}
+
+model BillItemAllocation {
+  id         String  @id @default(cuid())
+  billItemId String
+  memberId   String  // GroupMember ID
+  quantity   Int     // How many of this item the member consumed
+  amount     Decimal @db.Decimal(10, 2) // Calculated amount for this member
+  
+  billItem   BillItem @relation(fields: [billItemId], references: [id], onDelete: Cascade)
+  
+  @@unique([billItemId, memberId])
 }
 
 model BillDiscount {

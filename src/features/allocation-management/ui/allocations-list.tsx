@@ -7,13 +7,8 @@ import { GroupCard } from "@/entities/group";
 import { useGroups } from "../model/use-groups";
 
 export function AllocationsList() {
-  const {
-    data,
-    isLoading: loading,
-    error,
-    refetch,
-  } = useGroups({ status: "all" });
-  console.log({ data });
+  const { data, isLoading: loading, error, refetch } = useGroups("all");
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">

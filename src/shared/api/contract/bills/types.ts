@@ -1,15 +1,15 @@
 import { ApiResponse } from "@/shared/types/api-response";
 
 export interface CreateBillRequest {
-  merchant_name: string;
-  receipt_number?: string | null;
+  merchantName: string;
+  receiptNumber?: string | null;
   date: string;
   time?: string | null;
   items: {
     name: string;
     quantity: number;
-    unit_price: number;
-    total_price: number;
+    unitPrice: number;
+    totalPrice: number;
     category?: string | null;
   }[];
   subtotal: number;
@@ -18,43 +18,44 @@ export interface CreateBillRequest {
     amount: number;
     type: string;
   }[];
-  service_charge?: number;
+  serviceCharge?: number;
   tax?: number;
-  additional_fees?: {
+  additionalFees?: {
     name: string;
     amount: number;
   }[];
-  total_amount: number;
-  payment_method?: string | null;
+  totalAmount: number;
+  paymentMethod?: string | null;
   currency: string;
 }
 
 export interface BillResponse {
   id: string;
-  merchant_name: string;
-  receipt_number?: string;
+  merchantName: string;
+  receiptNumber?: string;
   date: string;
   time?: string;
   subtotal: number;
-  service_charge: number;
+  serviceCharge: number;
   tax: number;
-  total_amount: number;
-  payment_method?: string;
+  totalAmount: number;
+  paymentMethod?: string;
   currency: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  groupId: string;
   items: BillItem[];
   discounts: BillDiscount[];
-  additional_fees: BillFee[];
+  additionalFees: BillFee[];
 }
 
 export interface BillItem {
   id: string;
   name: string;
   quantity: number;
-  unit_price: number;
-  total_price: number;
+  unitPrice: number;
+  totalPrice: number;
   category?: string | null;
 }
 

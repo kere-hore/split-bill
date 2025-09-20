@@ -62,7 +62,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       where: { id: memberId },
       include: {
         user: {
-          select: { id: true },
+          select: { id: true, clerkId: true },
         },
       },
     });
@@ -76,12 +76,20 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Allow admin to remove themselves (group will be orphaned but that's allowed)
+    // Check if this is a custom user (clerkId starts with "custom_")
+    const isCustomUser = memberToRemove.user?.clerkId.startsWith("custom_");
 
     // Remove member from group
     await prisma.groupMember.delete({
       where: { id: memberId },
     });
+
+    // If custom user, also delete from User table
+    if (isCustomUser && memberToRemove.user) {
+      await prisma.user.delete({
+        where: { id: memberToRemove.user.id },
+      });
+    }
 
     return createSuccessResponse(
       { memberId },

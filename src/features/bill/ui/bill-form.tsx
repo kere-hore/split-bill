@@ -35,20 +35,20 @@ export function BillForm({
     resolver: zodResolver(billFormSchema),
     mode: "onChange",
     defaultValues: {
-      merchant_name: "",
-      receipt_number: "",
+      merchantName: "",
+      receiptNumber: "",
       date: new Date().toISOString().split("T")[0],
       time: "",
       items: [
-        { name: "", quantity: 1, unit_price: 0, total_price: 0, category: "" },
+        { name: "", quantity: 1, unitPrice: 0, totalPrice: 0, category: "" },
       ],
       subtotal: 0,
       discounts: [],
-      service_charge: 0,
+      serviceCharge: 0,
       tax: 0,
-      additional_fees: [],
-      total_amount: 0,
-      payment_method: "",
+      additionalFees: [],
+      totalAmount: 0,
+      paymentMethod: "",
       currency: "IDR",
     },
   });
@@ -69,21 +69,21 @@ export function BillForm({
     fields: feeFields,
     append: appendFee,
     remove: removeFee,
-  } = useFieldArray({ control, name: "additional_fees" });
+  } = useFieldArray({ control, name: "additionalFees" });
 
   // Watch specific fields for real-time updates
   const watchedItems = useWatch({ control, name: "items" });
   const watchedDiscounts = useWatch({ control, name: "discounts" });
-  const watchedServiceCharge = useWatch({ control, name: "service_charge" });
+  const watchedServiceCharge = useWatch({ control, name: "serviceCharge" });
   const watchedTax = useWatch({ control, name: "tax" });
-  const watchedFees = useWatch({ control, name: "additional_fees" });
+  const watchedFees = useWatch({ control, name: "additionalFees" });
 
   // Calculate subtotal in real-time
   const calculatedSubtotal = useMemo(() => {
     if (!watchedItems) return 0;
     return watchedItems.reduce((sum, item) => {
       const quantity = item?.quantity || 0;
-      const unitPrice = item?.unit_price || 0;
+      const unitPrice = item?.unitPrice || 0;
       return sum + quantity * unitPrice;
     }, 0);
   }, [watchedItems]);
@@ -119,7 +119,7 @@ export function BillForm({
     : initialData?.subtotal || calculatedSubtotal;
   const displayTotal = hasUserModified
     ? calculatedTotal
-    : initialData?.total_amount || calculatedTotal;
+    : initialData?.totalAmount || calculatedTotal;
 
   // Function to get item total price
   const getItemTotalPrice = (index: number) => {
@@ -130,13 +130,13 @@ export function BillForm({
     if (
       !modifiedItems.has(index) &&
       !hasUserModified &&
-      initialItem?.total_price
+      initialItem?.totalPrice
     ) {
-      return initialItem.total_price;
+      return initialItem.totalPrice;
     }
 
     const quantity = watchedItem?.quantity || 0;
-    const unitPrice = watchedItem?.unit_price || 0;
+    const unitPrice = watchedItem?.unitPrice || 0;
     return quantity * unitPrice;
   };
 
@@ -155,26 +155,26 @@ export function BillForm({
   useEffect(() => {
     if (initialData) {
       reset({
-        merchant_name: initialData.merchant_name || "",
-        receipt_number: initialData.receipt_number || "",
+        merchantName: initialData.merchantName || "",
+        receiptNumber: initialData.receiptNumber || "",
         date: initialData.date || new Date().toISOString().split("T")[0],
         time: initialData.time || "",
         items: initialData.items || [
           {
             name: "",
             quantity: 1,
-            unit_price: 0,
-            total_price: 0,
+            unitPrice: 0,
+            totalPrice: 0,
             category: "",
           },
         ],
         subtotal: initialData.subtotal || 0,
         discounts: initialData.discounts || [],
-        service_charge: initialData.service_charge || 0,
+        serviceCharge: initialData.serviceCharge || 0,
         tax: initialData.tax || 0,
-        additional_fees: initialData.additional_fees || [],
-        total_amount: initialData.total_amount || 0,
-        payment_method: initialData.payment_method || "",
+        additionalFees: initialData.additionalFees || [],
+        totalAmount: initialData.totalAmount || 0,
+        paymentMethod: initialData.paymentMethod || "",
         currency: initialData.currency || "IDR",
       });
       setHasUserModified(false);
@@ -186,7 +186,7 @@ export function BillForm({
   useEffect(() => {
     if (hasUserModified) {
       setValue("subtotal", calculatedSubtotal);
-      setValue("total_amount", calculatedTotal);
+      setValue("totalAmount", calculatedTotal);
     }
   }, [calculatedSubtotal, calculatedTotal, setValue, hasUserModified]);
 
@@ -200,7 +200,7 @@ export function BillForm({
       const initialItem = initialData.items?.[index];
       const itemChanged =
         item?.quantity !== initialItem?.quantity ||
-        item?.unit_price !== initialItem?.unit_price;
+        item?.unitPrice !== initialItem?.unitPrice;
       if (itemChanged) {
         newModifiedItems.add(index);
       }
@@ -219,14 +219,14 @@ export function BillForm({
       });
 
     const hasFeesChanged =
-      watchedFees?.length !== (initialData.additional_fees?.length || 0) ||
+      watchedFees?.length !== (initialData.additionalFees?.length || 0) ||
       watchedFees?.some((fee, index) => {
-        const initialFee = initialData.additional_fees?.[index];
+        const initialFee = initialData.additionalFees?.[index];
         return fee?.amount !== initialFee?.amount;
       });
 
     const hasServiceChargeChanged =
-      watchedServiceCharge !== (initialData.service_charge || 0);
+      watchedServiceCharge !== (initialData.serviceCharge || 0);
     const hasTaxChanged = watchedTax !== (initialData.tax || 0);
 
     if (
@@ -260,14 +260,14 @@ export function BillForm({
         {/* Header */}
         <div className="text-center border-b pb-3">
           <Input
-            {...register("merchant_name")}
+            {...register("merchantName")}
             placeholder="MERCHANT NAME"
             className="text-center font-bold border-none text-base p-0 h-auto"
             disabled={isLoading}
           />
-          {errors.merchant_name && (
+          {errors.merchantName && (
             <p className="text-xs text-red-500 mt-1">
-              {errors.merchant_name.message}
+              {errors.merchantName.message}
             </p>
           )}
           <Input
@@ -290,8 +290,8 @@ export function BillForm({
                 appendItem({
                   name: "",
                   quantity: 1,
-                  unit_price: 0,
-                  total_price: 0,
+                  unitPrice: 0,
+                  totalPrice: 0,
                   category: "",
                 });
                 setHasUserModified(true);
@@ -342,7 +342,7 @@ export function BillForm({
                   <span>x</span>
                   <Input
                     type="number"
-                    {...register(`items.${index}.unit_price`, {
+                    {...register(`items.${index}.unitPrice`, {
                       valueAsNumber: true,
                     })}
                     placeholder="Price"
@@ -435,7 +435,7 @@ export function BillForm({
           <span>Service Charge:</span>
           <Input
             type="number"
-            {...register("service_charge", { valueAsNumber: true })}
+            {...register("serviceCharge", { valueAsNumber: true })}
             className="w-20 text-xs border-none p-0 h-auto text-right"
             placeholder="0"
             disabled={isLoading}
@@ -464,7 +464,7 @@ export function BillForm({
               >
                 <div className="flex items-center gap-1">
                   <Input
-                    {...register(`additional_fees.${index}.name`)}
+                    {...register(`additionalFees.${index}.name`)}
                     placeholder="Fee name"
                     className="text-xs border-none p-0 h-auto w-20"
                     disabled={isLoading}
@@ -485,7 +485,7 @@ export function BillForm({
                 </div>
                 <Input
                   type="number"
-                  {...register(`additional_fees.${index}.amount`, {
+                  {...register(`additionalFees.${index}.amount`, {
                     valueAsNumber: true,
                   })}
                   className="w-16 text-xs border-none p-0 h-auto text-right"

@@ -7,40 +7,46 @@ export interface SearchUser {
   email?: string; // optional for registered users
   image?: string;
   isRegistered: boolean; // true if user exists in database
+  username: string;
 }
 
 // Query Keys
 export const userKeys = {
-  all: ['users'] as const,
-  search: (query: string) => [...userKeys.all, 'search', query] as const,
+  all: ["users"] as const,
+  search: (query: string) => [...userKeys.all, "search", query] as const,
 };
 
 // API Function
 export async function searchUsers(query: string): Promise<SearchUser[]> {
   if (!query.trim()) return [];
-  
-  const response = await api.get(`/users/search?q=${encodeURIComponent(query)}`);
-  const registeredUsers: SearchUser[] = (response.data.data || []).map((user: Omit<SearchUser, 'isRegistered'>) => ({
-    ...user,
-    isRegistered: true,
-  }));
-  
+
+  const response = await api.get(
+    `/users/search?q=${encodeURIComponent(query)}`
+  );
+  const registeredUsers: SearchUser[] = (response.data.data || []).map(
+    (user: Omit<SearchUser, "isRegistered">) => ({
+      ...user,
+      isRegistered: true,
+    })
+  );
+
   // Add option to create custom user with just name
   const customUser: SearchUser = {
     id: `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name: query.trim(),
     isRegistered: false,
+    username: query.trim().replace(/\s+/g, "_").toLowerCase(),
   };
-  
+
   // Only add custom user if not already in results
-  const existingUser = registeredUsers.find((u) => 
-    u.name.toLowerCase() === customUser.name.toLowerCase()
+  const existingUser = registeredUsers.find(
+    (u) => u.username.toLowerCase() === customUser.username.toLowerCase()
   );
-  
+
   if (!existingUser) {
     return [...registeredUsers, customUser];
   }
-  
+
   return registeredUsers;
 }
 

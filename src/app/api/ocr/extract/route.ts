@@ -23,16 +23,16 @@ const OCR_PROMPT = `
 Analyze this receipt/bill image carefully and extract ALL financial information. Return ONLY valid JSON format:
 
 {
-  "merchant_name": "string - store/restaurant name",
-  "receipt_number": "string - receipt/invoice number", 
+  "merchantName": "string - store/restaurant name",
+  "receiptNumber": "string - receipt/invoice number", 
   "date": "string - date in YYYY-MM-DD format",
   "time": "string - time in HH:MM format",
   "items": [
     {
       "name": "string - item name",
       "quantity": "number - quantity (default 1 if not shown)",
-      "unit_price": "number - price per unit (calculate from total_price/quantity if not shown)", 
-      "total_price": "number - total for this item",
+      "unitPrice": "number - price per unit (calculate from totalPrice/quantity if not shown)", 
+      "totalPrice": "number - total for this item",
       "category": "string - food/drink/service etc"
     }
   ],
@@ -44,16 +44,16 @@ Analyze this receipt/bill image carefully and extract ALL financial information.
       "type": "string - percentage/fixed"
     }
   ],
-  "service_charge": "number - service charge amount",
+  "serviceCharge": "number - service charge amount",
   "tax": "number - tax amount (PPN/VAT/GST)",
-  "additional_fees": [
+  "additionalFees": [
     {
       "name": "string - fee name (delivery, packaging, etc)",
       "amount": "number - fee amount"
     }
   ],
-  "total_amount": "number - final total amount",
-  "payment_method": "string - cash/card/digital wallet",
+  "totalAmount": "number - final total amount",
+  "paymentMethod": "string - cash/card/digital wallet",
   "currency": "string - currency code (IDR/USD/SGD etc)"
 }
 
@@ -68,16 +68,16 @@ ITEM EXTRACTION RULES:
 - If only total price is shown (like "3x SIOMAY AYAM Rp 40500"), extract:
   * quantity: 3
   * name: "SIOMAY AYAM"
-  * total_price: 40500
-  * unit_price: 13500 (40500/3)
+  * totalPrice: 40500
+  * unitPrice: 13500 (40500/3)
 - If unit price is shown separately, use that value
-- If no quantity shown, assume quantity: 1 and unit_price = total_price
+- If no quantity shown, assume quantity: 1 and unitPrice = totalPrice
 - Look for patterns like "2x ITEM NAME Rp 50000" or "ITEM NAME x3 Rp 30000"
 
 EXAMPLES OF CORRECT EXTRACTION:
-- "3x SIOMAY AYAM Rp 40500" → quantity: 3, name: "SIOMAY AYAM", total_price: 40500, unit_price: 13500
-- "1x MIE GACOAN LV 3 Rp 14500" → quantity: 1, name: "MIE GACOAN LV 3", total_price: 14500, unit_price: 14500
-- "UDANG KEJU Rp 40500" → quantity: 1, name: "UDANG KEJU", total_price: 40500, unit_price: 40500
+- "3x SIOMAY AYAM Rp 40500" → quantity: 3, name: "SIOMAY AYAM", totalPrice: 40500, unitPrice: 13500
+- "1x MIE GACOAN LV 3 Rp 14500" → quantity: 1, name: "MIE GACOAN LV 3", totalPrice: 14500, unitPrice: 14500
+- "UDANG KEJU Rp 40500" → quantity: 1, name: "UDANG KEJU", totalPrice: 40500, unitPrice: 40500
 
 EXAMPLES OF CORRECT NUMBER CONVERSION:
 - "Rp 27.520" → 27520
@@ -91,7 +91,7 @@ IMPORTANT:
 - Identify tax types (PPN 11%, VAT, GST, etc)
 - Return valid JSON only, no explanations
 - Pay special attention to Indonesian number formatting with dots as thousand separators
-- Calculate unit_price from total_price/quantity when unit price is not explicitly shown
+- Calculate unitPrice from totalPrice/quantity when unit price is not explicitly shown
 `;
 
 function findField(fields: any[], type: string) {
@@ -208,8 +208,8 @@ async function extractWithTextract(imageBytes: ArrayBuffer) {
 
   // Transform Textract response to our JSON format
   const extractedData = {
-    merchant_name: findField(summaryFields, "VENDOR_NAME"),
-    receipt_number: findField(summaryFields, "INVOICE_RECEIPT_ID"),
+    merchantName: findField(summaryFields, "VENDOR_NAME"),
+    receiptNumber: findField(summaryFields, "INVOICE_RECEIPT_ID"),
     date: findField(summaryFields, "INVOICE_RECEIPT_DATE"),
     time: findField(summaryFields, "INVOICE_RECEIPT_TIME"),
     items: lineItems.map((item: any) => {
@@ -222,21 +222,21 @@ async function extractWithTextract(imageBytes: ArrayBuffer) {
       return {
         name: findField(item.LineItemExpenseFields, "ITEM") || "Unknown Item",
         quantity: quantity,
-        unit_price: unitPrice,
-        total_price: totalPrice,
+        unitPrice: unitPrice,
+        totalPrice: totalPrice,
         category: findField(item.LineItemExpenseFields, "PRODUCT_CODE") || null,
       };
     }),
     subtotal: parseAmount(findField(summaryFields, "SUBTOTAL")),
     discounts: discounts,
-    service_charge:
+    serviceCharge:
       serviceCharge || parseAmount(findField(summaryFields, "SERVICE_CHARGE")),
     tax:
       parseAmount(findField(summaryFields, "TAX")) ||
       parseAmount(findField(summaryFields, "TAX_PAYER_ID")),
-    additional_fees: additionalFees,
-    total_amount: parseAmount(findField(summaryFields, "TOTAL")),
-    payment_method: findField(summaryFields, "PAYMENT_METHOD"),
+    additionalFees: additionalFees,
+    totalAmount: parseAmount(findField(summaryFields, "TOTAL")),
+    paymentMethod: findField(summaryFields, "PAYMENT_METHOD"),
     currency: findField(summaryFields, "CURRENCY") || "IDR",
   };
 

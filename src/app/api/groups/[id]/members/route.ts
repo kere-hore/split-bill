@@ -87,12 +87,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         );
       }
     } else {
-      // Custom user - use provided data
-      userToAdd = {
-        id: finalUserId,
-        name,
-        email: null,
-      };
+      // Custom user - create a temporary user record
+      userToAdd = await prisma.user.create({
+        data: {
+          id: finalUserId,
+          clerkId: finalUserId, // Use same ID for custom users
+          username: name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now(),
+          name,
+          email: `${finalUserId}@custom.local`, // Temporary email
+        },
+      });
     }
 
     // Check if user is already a member
