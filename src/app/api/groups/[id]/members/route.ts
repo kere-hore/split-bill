@@ -35,9 +35,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { userId, name } = addMemberSchema.parse(body);
     const role = "member"; // Always member - only creator is admin
-    
+
     // Use provided userId or generate one for custom users
-    const finalUserId = userId || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const finalUserId =
+      userId ||
+      `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Get current user
     const currentUser = await prisma.user.findUnique({
@@ -70,12 +72,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     let userToAdd;
-    
+
     if (userId) {
       // Registered user - check if exists
       userToAdd = await prisma.user.findUnique({
         where: { id: userId },
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, image: true },
       });
 
       if (!userToAdd) {
@@ -92,7 +94,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         data: {
           id: finalUserId,
           clerkId: finalUserId, // Use same ID for custom users
-          username: name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now(),
+          username: name.toLowerCase().replace(/\s+/g, "_") + "_" + Date.now(),
           name,
           email: `${finalUserId}@custom.local`, // Temporary email
         },

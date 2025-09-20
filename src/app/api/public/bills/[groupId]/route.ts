@@ -12,9 +12,8 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { groupId } = await params;
   try {
-    const { groupId } = await params;
-
     // Get group with bill and allocation data
     const group = await prisma.group.findUnique({
       where: { id: groupId },
@@ -74,7 +73,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         createdBy: group.creator.name,
       },
       bill: group.bill,
-      members: group.members.map(member => ({
+      members: group.members.map((member) => ({
         id: member.id,
         userId: member.userId,
         name: member.name,

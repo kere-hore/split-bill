@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { ArrowRight, Check, X, Clock } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import { Settlement } from "@/shared/api/contract/settlements/types";
 
 interface SettlementItemProps {

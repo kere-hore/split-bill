@@ -53,7 +53,8 @@ export function AllocationDetail({ groupId }: AllocationDetailProps) {
     });
   };
 
-  const canRemoveMember = (member: GroupMember) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const canRemoveMember = (_: GroupMember) => {
     if (!group?.isCurrentUserAdmin) return false;
     if (group?.status === "allocated") return false; // Cannot modify allocated groups
     return true; // Admin can remove anyone including themselves

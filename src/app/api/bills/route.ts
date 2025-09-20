@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
           id: item.id,
           name: item.name,
           quantity: item.quantity,
-          unit_price: Number(item.unitPrice),
-          total_price: Number(item.totalPrice),
+          unitPrice: Number(item.unitPrice),
+          totalPrice: Number(item.totalPrice),
           category: item.category,
         })
       ),
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     // Note: Cache invalidation should be handled on client-side using React Query
     // Client should call useInvalidateGroups().invalidateAll() after successful bill creation
-    
+
     return createSuccessResponse(
       { ...response, groupId: group.id },
       "Bill and group created successfully"

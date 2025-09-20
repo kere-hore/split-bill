@@ -27,7 +27,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id: groupId } = await params;
     const requestBody = await request.json();
-    const { allocations, settlements, billId } = requestBody;
+    const { allocations, billId } = requestBody;
 
     // Verify user is group admin
     const currentUser = await prisma.user.findUnique({
@@ -71,8 +71,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-
-
     // Save allocation data as JSON
     const allocationData = {
       groupId,
@@ -84,10 +82,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Auto-generate settlements from allocations
     let settlementsCreated = 0;
-    
+
     // Calculate who owes what to whom based on allocations
     const memberTotals: Record<string, number> = {};
-    
+
     // Calculate each member's total from allocations
     for (const allocation of allocations as MemberAllocation[]) {
       const memberTotal = allocation.breakdown.total;
@@ -97,13 +95,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           where: { id: allocation.memberId },
           select: { userId: true },
         });
-        
+
         if (member) {
           memberTotals[member.userId] = memberTotal;
         }
       }
     }
-    
+
     // Create settlements: everyone owes to group creator
     const memberIds = Object.keys(memberTotals);
     for (const memberId of memberIds) {
@@ -132,11 +130,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     return createSuccessResponse(
-      { 
-        groupId, 
-        saved: true, 
+      {
+        groupId,
+        saved: true,
         settlementsCreated,
-        allocationsCount: allocations.length 
+        allocationsCount: allocations.length,
       },
       "Allocations and settlements saved successfully"
     );

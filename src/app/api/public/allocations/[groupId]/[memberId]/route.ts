@@ -14,9 +14,8 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const { groupId, memberId } = await params;
   try {
-    const { groupId, memberId } = await params;
-
     // Get group with allocation data
     const group = await prisma.group.findUnique({
       where: { id: groupId },

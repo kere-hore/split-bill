@@ -1,23 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import {
-  TextractClient,
-  AnalyzeExpenseCommand,
-} from "@aws-sdk/client-textract";
+// import {TextractClient, AnalyzeExpenseCommand }from "@aws-sdk/client-textract";
 import {
   createSuccessResponse,
   createErrorResponse,
 } from "@/shared/lib/api-response";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const textractClient = new TextractClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+// const textractClient = new TextractClient({
+//   region: process.env.AWS_REGION,
+//   credentials: {
+//     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+//   },
+// });
 
 const OCR_PROMPT = `
 Analyze this receipt/bill image carefully and extract ALL financial information. Return ONLY valid JSON format:
@@ -94,85 +91,85 @@ IMPORTANT:
 - Calculate unitPrice from totalPrice/quantity when unit price is not explicitly shown
 `;
 
-function findField(fields: any[], type: string) {
-  return (
-    fields?.find((f: any) => f.Type?.Text === type)?.ValueDetection?.Text ||
-    null
-  );
-}
+// function findField(fields: any[], type: string) {
+//   return (
+//     fields?.find((f: any) => f.Type?.Text === type)?.ValueDetection?.Text ||
+//     null
+//   );
+// }
 
-function parseAmount(value: string | null): number {
-  if (!value) return 0;
+// function parseAmount(value: string | null): number {
+//   if (!value) return 0;
 
-  // Remove currency symbols and common prefixes
-  let cleanValue = value.replace(/[Rp\$€£¥₹]/g, "").trim();
+//   // Remove currency symbols and common prefixes
+//   let cleanValue = value.replace(/[Rp\$€£¥₹]/g, "").trim();
 
-  // Remove common suffixes like ",-"
-  cleanValue = cleanValue.replace(/[,-]+$/, "");
+//   // Remove common suffixes like ",-"
+//   cleanValue = cleanValue.replace(/[,-]+$/, "");
 
-  // For Indonesian format, dots are thousand separators
-  // Remove all dots and commas, keep only digits
-  cleanValue = cleanValue.replace(/[.,\s]/g, "");
+//   // For Indonesian format, dots are thousand separators
+//   // Remove all dots and commas, keep only digits
+//   cleanValue = cleanValue.replace(/[.,\s]/g, "");
 
-  return parseFloat(cleanValue) || 0;
-}
+//   return parseFloat(cleanValue) || 0;
+// }
 
-function extractDiscountsAndFees(summaryFields: any[]) {
-  const discounts: any[] = [];
-  const additionalFees: any[] = [];
-  let serviceCharge = 0;
+// function extractDiscountsAndFees(summaryFields: any[]) {
+//   const discounts: any[] = [];
+//   const additionalFees: any[] = [];
+//   let serviceCharge = 0;
 
-  // Look for common discount/fee patterns in summary fields
-  summaryFields.forEach((field: any) => {
-    const fieldType = field.Type?.Text?.toLowerCase() || "";
-    const fieldValue = field.ValueDetection?.Text || "";
-    const amount = parseAmount(fieldValue);
+//   // Look for common discount/fee patterns in summary fields
+//   summaryFields.forEach((field: any) => {
+//     const fieldType = field.Type?.Text?.toLowerCase() || "";
+//     const fieldValue = field.ValueDetection?.Text || "";
+//     const amount = parseAmount(fieldValue);
 
-    if (amount > 0) {
-      // Discount patterns
-      if (
-        fieldType.includes("discount") ||
-        fieldType.includes("promo") ||
-        fieldType.includes("coupon") ||
-        fieldType.includes("rebate")
-      ) {
-        discounts.push({
-          name: fieldType
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (l: any) => l.toUpperCase()),
-          amount: amount,
-          type: "fixed",
-        });
-      }
-      // Service charge patterns
-      else if (
-        fieldType.includes("service") ||
-        fieldType.includes("gratuity") ||
-        fieldType.includes("tip")
-      ) {
-        serviceCharge = amount;
-      }
-      // Additional fees patterns
-      else if (
-        fieldType.includes("delivery") ||
-        fieldType.includes("packaging") ||
-        fieldType.includes("convenience") ||
-        fieldType.includes("processing") ||
-        fieldType.includes("handling") ||
-        fieldType.includes("fee")
-      ) {
-        additionalFees.push({
-          name: fieldType
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (l: any) => l.toUpperCase()),
-          amount: amount,
-        });
-      }
-    }
-  });
+//     if (amount > 0) {
+//       // Discount patterns
+//       if (
+//         fieldType.includes("discount") ||
+//         fieldType.includes("promo") ||
+//         fieldType.includes("coupon") ||
+//         fieldType.includes("rebate")
+//       ) {
+//         discounts.push({
+//           name: fieldType
+//             .replace(/_/g, " ")
+//             .replace(/\b\w/g, (l: any) => l.toUpperCase()),
+//           amount: amount,
+//           type: "fixed",
+//         });
+//       }
+//       // Service charge patterns
+//       else if (
+//         fieldType.includes("service") ||
+//         fieldType.includes("gratuity") ||
+//         fieldType.includes("tip")
+//       ) {
+//         serviceCharge = amount;
+//       }
+//       // Additional fees patterns
+//       else if (
+//         fieldType.includes("delivery") ||
+//         fieldType.includes("packaging") ||
+//         fieldType.includes("convenience") ||
+//         fieldType.includes("processing") ||
+//         fieldType.includes("handling") ||
+//         fieldType.includes("fee")
+//       ) {
+//         additionalFees.push({
+//           name: fieldType
+//             .replace(/_/g, " ")
+//             .replace(/\b\w/g, (l: any) => l.toUpperCase()),
+//           amount: amount,
+//         });
+//       }
+//     }
+//   });
 
-  return { discounts, additionalFees, serviceCharge };
-}
+//   return { discounts, additionalFees, serviceCharge };
+// }
 
 async function extractWithGemini(base64Image: string, mimeType: string) {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -190,58 +187,58 @@ async function extractWithGemini(base64Image: string, mimeType: string) {
   return response.text();
 }
 
-async function extractWithTextract(imageBytes: ArrayBuffer) {
-  const command = new AnalyzeExpenseCommand({
-    Document: {
-      Bytes: new Uint8Array(imageBytes),
-    },
-  });
+// async function extractWithTextract(imageBytes: ArrayBuffer) {
+//   const command = new AnalyzeExpenseCommand({
+//     Document: {
+//       Bytes: new Uint8Array(imageBytes),
+//     },
+//   });
 
-  const result = await textractClient.send(command);
-  const expenseDoc = result.ExpenseDocuments?.[0];
-  const summaryFields = expenseDoc?.SummaryFields || [];
-  const lineItems = expenseDoc?.LineItemGroups?.[0]?.LineItems || [];
+//   const result = await textractClient.send(command);
+//   const expenseDoc = result.ExpenseDocuments?.[0];
+//   const summaryFields = expenseDoc?.SummaryFields || [];
+//   const lineItems = expenseDoc?.LineItemGroups?.[0]?.LineItems || [];
 
-  // Extract discounts, fees, and service charges
-  const { discounts, additionalFees, serviceCharge } =
-    extractDiscountsAndFees(summaryFields);
+//   // Extract discounts, fees, and service charges
+//   const { discounts, additionalFees, serviceCharge } =
+//     extractDiscountsAndFees(summaryFields);
 
-  // Transform Textract response to our JSON format
-  const extractedData = {
-    merchantName: findField(summaryFields, "VENDOR_NAME"),
-    receiptNumber: findField(summaryFields, "INVOICE_RECEIPT_ID"),
-    date: findField(summaryFields, "INVOICE_RECEIPT_DATE"),
-    time: findField(summaryFields, "INVOICE_RECEIPT_TIME"),
-    items: lineItems.map((item: any) => {
-      const quantity =
-        parseAmount(findField(item.LineItemExpenseFields, "QUANTITY")) || 1;
-      const totalPrice =
-        parseAmount(findField(item.LineItemExpenseFields, "PRICE")) || 0;
-      const unitPrice = quantity > 0 ? totalPrice / quantity : totalPrice;
+//   // Transform Textract response to our JSON format
+//   const extractedData = {
+//     merchantName: findField(summaryFields, "VENDOR_NAME"),
+//     receiptNumber: findField(summaryFields, "INVOICE_RECEIPT_ID"),
+//     date: findField(summaryFields, "INVOICE_RECEIPT_DATE"),
+//     time: findField(summaryFields, "INVOICE_RECEIPT_TIME"),
+//     items: lineItems.map((item: any) => {
+//       const quantity =
+//         parseAmount(findField(item.LineItemExpenseFields, "QUANTITY")) || 1;
+//       const totalPrice =
+//         parseAmount(findField(item.LineItemExpenseFields, "PRICE")) || 0;
+//       const unitPrice = quantity > 0 ? totalPrice / quantity : totalPrice;
 
-      return {
-        name: findField(item.LineItemExpenseFields, "ITEM") || "Unknown Item",
-        quantity: quantity,
-        unitPrice: unitPrice,
-        totalPrice: totalPrice,
-        category: findField(item.LineItemExpenseFields, "PRODUCT_CODE") || null,
-      };
-    }),
-    subtotal: parseAmount(findField(summaryFields, "SUBTOTAL")),
-    discounts: discounts,
-    serviceCharge:
-      serviceCharge || parseAmount(findField(summaryFields, "SERVICE_CHARGE")),
-    tax:
-      parseAmount(findField(summaryFields, "TAX")) ||
-      parseAmount(findField(summaryFields, "TAX_PAYER_ID")),
-    additionalFees: additionalFees,
-    totalAmount: parseAmount(findField(summaryFields, "TOTAL")),
-    paymentMethod: findField(summaryFields, "PAYMENT_METHOD"),
-    currency: findField(summaryFields, "CURRENCY") || "IDR",
-  };
+//       return {
+//         name: findField(item.LineItemExpenseFields, "ITEM") || "Unknown Item",
+//         quantity: quantity,
+//         unitPrice: unitPrice,
+//         totalPrice: totalPrice,
+//         category: findField(item.LineItemExpenseFields, "PRODUCT_CODE") || null,
+//       };
+//     }),
+//     subtotal: parseAmount(findField(summaryFields, "SUBTOTAL")),
+//     discounts: discounts,
+//     serviceCharge:
+//       serviceCharge || parseAmount(findField(summaryFields, "SERVICE_CHARGE")),
+//     tax:
+//       parseAmount(findField(summaryFields, "TAX")) ||
+//       parseAmount(findField(summaryFields, "TAX_PAYER_ID")),
+//     additionalFees: additionalFees,
+//     totalAmount: parseAmount(findField(summaryFields, "TOTAL")),
+//     paymentMethod: findField(summaryFields, "PAYMENT_METHOD"),
+//     currency: findField(summaryFields, "CURRENCY") || "IDR",
+//   };
 
-  return JSON.stringify(extractedData);
-}
+//   return JSON.stringify(extractedData);
+// }
 
 export async function POST(request: NextRequest) {
   try {

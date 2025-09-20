@@ -148,7 +148,7 @@ export default function PublicBillPage() {
           <CardContent className="pt-6 text-center">
             <p className="text-red-600 mb-4">❌ {error || "Bill not found"}</p>
             <p className="text-gray-600 text-sm">
-              This bill link may be invalid or the group doesn't exist.
+              This bill link may be invalid or the group doesn&apos;t exist.
             </p>
           </CardContent>
         </Card>
