@@ -78,8 +78,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       orderBy: { createdAt: 'desc' },
     });
 
+    // Calculate payment statistics
+    const totalMembers = settlements.length;
+    const paidMembers = settlements.filter(s => s.status === 'paid').length;
+    const pendingMembers = totalMembers - paidMembers;
+
     return createSuccessResponse(
-      { settlements },
+      { 
+        settlements,
+        paymentStats: {
+          totalMembers,
+          paidMembers,
+          pendingMembers
+        }
+      },
       "Settlements retrieved successfully"
     );
   } catch (error) {

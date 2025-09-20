@@ -112,6 +112,24 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        // Get payment stats for allocated groups
+        let paymentStats = null;
+        if (group.status === "allocated") {
+          const settlements = await prisma.settlement.findMany({
+            where: { groupId: group.id },
+            select: { status: true },
+          });
+          
+          const totalMembers = settlements.length;
+          const paidMembers = settlements.filter(s => s.status === 'paid').length;
+          
+          paymentStats = {
+            totalMembers,
+            paidMembers,
+            pendingMembers: totalMembers - paidMembers,
+          };
+        }
+
         return {
           id: group.id,
           name: group.name,
@@ -121,6 +139,7 @@ export async function GET(request: NextRequest) {
           createdAt: group.createdAt.toISOString(),
           updatedAt: group.updatedAt.toISOString(),
           bill: billData,
+          paymentStats,
         };
       })
     );

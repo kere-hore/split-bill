@@ -11,6 +11,7 @@ import {
   IconReport,
   IconSettings,
   IconUsersGroup,
+  IconReceipt,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/shared/components/nav-main";
@@ -37,6 +38,11 @@ const staticData = {
       title: "Settlements",
       url: "/settlement",
       icon: IconReport,
+    },
+    {
+      title: "Bills to Pay",
+      url: "/bills-to-pay",
+      icon: IconReceipt,
     },
   ],
   navClouds: [

@@ -13,6 +13,7 @@ export function useSettlementManagement(groupId: string) {
   const updateStatusMutation = useUpdateSettlementStatus(groupId);
 
   const settlements = (settlementsData?.success ? settlementsData.data.settlements : []) as Settlement[];
+  const paymentStats = settlementsData?.success ? settlementsData.data.paymentStats : null;
 
   // Business logic calculations
   const totalAmount = settlements.reduce(
@@ -41,6 +42,7 @@ export function useSettlementManagement(groupId: string) {
 
   return {
     settlements,
+    paymentStats,
     isLoading,
     error,
     totalAmount,

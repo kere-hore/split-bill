@@ -1,19 +1,30 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { ArrowLeft, Users, Receipt, Share2, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useSettlementManagement, SettlementList } from "@/features/settlement-management";
+import {
+  useSettlementManagement,
+  SettlementList,
+} from "@/features/settlement-management";
 import { SettlementSummary } from "@/widgets/settlement-summary";
 
 interface SettlementDetailWidgetProps {
   groupId: string;
 }
 
-export function SettlementDetailWidget({ groupId }: SettlementDetailWidgetProps) {
+export function SettlementDetailWidget({
+  groupId,
+}: SettlementDetailWidgetProps) {
   const {
     settlements,
+    paymentStats,
     isLoading: loading,
     error,
     totalAmount,
@@ -23,7 +34,6 @@ export function SettlementDetailWidget({ groupId }: SettlementDetailWidgetProps)
     updateSettlementStatus,
     isUpdating,
   } = useSettlementManagement(groupId);
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -42,7 +52,9 @@ export function SettlementDetailWidget({ groupId }: SettlementDetailWidgetProps)
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">❌ {error.message || 'Failed to load settlements'}</p>
+            <p className="text-red-600 mb-4">
+              ❌ {error.message || "Failed to load settlements"}
+            </p>
             <Button onClick={() => window.location.reload()}>Try Again</Button>
           </div>
         </div>
@@ -74,9 +86,17 @@ export function SettlementDetailWidget({ groupId }: SettlementDetailWidgetProps)
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Receipt className="h-5 w-5" />
-                  Outstanding Payments
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Receipt className="h-5 w-5" />
+                    Outstanding Payments
+                  </div>
+                  {paymentStats && (
+                    <div className="text-sm text-muted-foreground">
+                      {paymentStats.paidMembers} of {paymentStats.totalMembers}{" "}
+                      members paid
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>

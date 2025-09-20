@@ -17,3 +17,14 @@ export interface Settlement {
     image?: string;
   };
 }
+
+export interface PaymentStats {
+  totalMembers: number;
+  paidMembers: number;
+  pendingMembers: number;
+}
+
+export interface SettlementsResponse {
+  settlements: Settlement[];
+  paymentStats: PaymentStats;
+}
