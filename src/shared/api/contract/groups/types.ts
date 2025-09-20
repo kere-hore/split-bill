@@ -47,7 +47,14 @@ export interface Bill {
   discounts: BillDiscount[];
   additionalFees: BillFee[];
 }
-
+export interface PaymentStats {
+  totalMembers: number;
+  paidMembers: number;
+  pendingMembers: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+}
 export interface Group {
   id: string;
   name: string;
@@ -61,6 +68,7 @@ export interface Group {
   isCurrentUserAdmin: boolean;
   members: GroupMember[];
   bill: Bill | null;
+  paymentStats: PaymentStats;
 }
 
 export interface GetGroupsRequest {

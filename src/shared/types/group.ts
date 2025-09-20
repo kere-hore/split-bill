@@ -48,6 +48,15 @@ export interface GroupMember {
   };
 }
 
+export interface PaymentStats {
+  totalMembers: number;
+  paidMembers: number;
+  pendingMembers: number;
+  totalAmount: number;
+  paidAmount: number;
+  pendingAmount: number;
+}
+
 export interface Group {
   id: string;
   name: string;
@@ -61,6 +70,7 @@ export interface Group {
   isCurrentUserAdmin: boolean;
   bill: Bill | null;
   members: GroupMember[];
+  paymentStats?: PaymentStats;
 }
 
 export interface GroupListResponse {

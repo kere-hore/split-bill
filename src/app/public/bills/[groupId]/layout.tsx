@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const memberCount = members.length;
   const allocatedAmount =
     allocation?.allocations.reduce(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (sum: number, a: any) => sum + a.breakdown.total,
       0
     ) || 0;
@@ -60,7 +61,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `/api/og/bill?groupName=${encodeURIComponent(group.name)}&merchantName=${encodeURIComponent(bill.merchantName)}&totalAmount=${encodeURIComponent(totalAmount)}&memberCount=${memberCount}&date=${encodeURIComponent(new Date(bill.date).toLocaleDateString('id-ID'))}`,
+          url: `/api/og/bill?groupName=${encodeURIComponent(
+            group.name
+          )}&merchantName=${encodeURIComponent(
+            bill.merchantName
+          )}&totalAmount=${encodeURIComponent(
+            totalAmount
+          )}&memberCount=${memberCount}&date=${encodeURIComponent(
+            new Date(bill.date).toLocaleDateString("id-ID")
+          )}`,
           width: 1200,
           height: 630,
           alt: `${group.name} Bill Split`,
@@ -71,7 +80,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: `${group.name} - Bill Split`,
       description: `${bill.merchantName} • Rp ${totalAmount} • ${memberCount} members`,
-      images: [`/api/og/bill?groupName=${encodeURIComponent(group.name)}&merchantName=${encodeURIComponent(bill.merchantName)}&totalAmount=${encodeURIComponent(totalAmount)}&memberCount=${memberCount}&date=${encodeURIComponent(new Date(bill.date).toLocaleDateString('id-ID'))}`],
+      images: [
+        `/api/og/bill?groupName=${encodeURIComponent(
+          group.name
+        )}&merchantName=${encodeURIComponent(
+          bill.merchantName
+        )}&totalAmount=${encodeURIComponent(
+          totalAmount
+        )}&memberCount=${memberCount}&date=${encodeURIComponent(
+          new Date(bill.date).toLocaleDateString("id-ID")
+        )}`,
+      ],
     },
     other: {
       "bill:merchant": bill.merchantName,

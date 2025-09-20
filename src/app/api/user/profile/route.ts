@@ -9,11 +9,18 @@ import { prisma } from "@/shared/lib/prisma";
 
 const updateProfileSchema = z.object({
   name: z.string().min(1, "Full name is required").optional(),
-  username: z.string().min(3, "Username must be at least 3 characters").optional(),
-  phone: z.string().min(10, "Phone number must be at least 10 digits").optional(),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .optional(),
+  phone: z
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .optional(),
 });
 
-export async function GET(request: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -98,8 +105,6 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const validatedData = updateProfileSchema.parse(body);
 
-
-
     // Update user profile
     const updatedUser = await prisma.user.update({
       where: { clerkId },
@@ -137,7 +142,7 @@ export async function PUT(request: NextRequest) {
       return createErrorResponse(
         "Invalid profile data",
         400,
-        error.errors.map(e => e.message).join(", "),
+        error.issues.map((e) => e.message).join(", "),
         "/api/user/profile"
       );
     }

@@ -6,7 +6,8 @@ import {
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
 
-export async function GET(request: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     // Get group info for each settlement

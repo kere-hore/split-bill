@@ -106,6 +106,7 @@ export function SettlementListWidget() {
                       <Users className="w-4 h-4" />
                       {group.memberCount} members
                     </div>
+
                     {group.paymentStats && (
                       <div className="text-xs px-2 py-1 bg-muted rounded">
                         {group.paymentStats.paidMembers} of {group.paymentStats.totalMembers} paid
