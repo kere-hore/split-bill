@@ -6,6 +6,13 @@ interface Props {
 
 async function getBillData(groupId: string) {
   try {
+    // In production, use direct database call instead of self-fetch
+    if (process.env.NODE_ENV === 'production') {
+      const { getBillWithDetails } = await import('@/entities/bill');
+      return await getBillWithDetails(groupId);
+    }
+    
+    // In development, use fetch
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const response = await fetch(`${baseUrl}/api/public/bills/${groupId}`, {
       cache: "no-store",
