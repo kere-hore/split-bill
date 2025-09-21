@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 
 export const runtime = "edge";
@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
           >
             <div
               style={{
+                display: "flex",
                 fontSize: "48px",
                 fontWeight: "bold",
                 color: "#1f2937",
@@ -56,6 +57,7 @@ export async function GET(request: NextRequest) {
 
             <div
               style={{
+                display: "flex",
                 fontSize: "36px",
                 fontWeight: "bold",
                 color: "#1f2937",
@@ -68,6 +70,7 @@ export async function GET(request: NextRequest) {
 
             <div
               style={{
+                display: "flex",
                 fontSize: "24px",
                 color: "#6b7280",
                 marginBottom: "40px",
@@ -98,6 +101,7 @@ export async function GET(request: NextRequest) {
               >
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "32px",
                     fontWeight: "bold",
                     color: "#059669",
@@ -108,6 +112,7 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "18px",
                     color: "#6b7280",
                   }}
@@ -129,6 +134,7 @@ export async function GET(request: NextRequest) {
               >
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "32px",
                     fontWeight: "bold",
                     color: "#3b82f6",
@@ -139,6 +145,7 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "18px",
                     color: "#6b7280",
                   }}

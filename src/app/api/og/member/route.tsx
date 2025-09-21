@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 
 export const runtime = "edge";
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
           >
             <div
               style={{
+                display: "flex",
                 fontSize: "48px",
                 fontWeight: "bold",
                 color: "#1f2937",
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest) {
 
             <div
               style={{
+                display: "flex",
                 fontSize: "36px",
                 fontWeight: "bold",
                 color: "#1f2937",
@@ -67,6 +69,7 @@ export async function GET(request: NextRequest) {
 
             <div
               style={{
+                display: "flex",
                 fontSize: "20px",
                 color: "#6b7280",
                 marginBottom: "32px",
@@ -78,6 +81,7 @@ export async function GET(request: NextRequest) {
 
             <div
               style={{
+                display: "flex",
                 fontSize: "24px",
                 color: "#6b7280",
                 marginBottom: "40px",
@@ -108,6 +112,7 @@ export async function GET(request: NextRequest) {
               >
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "32px",
                     fontWeight: "bold",
                     color: "#d97706",
@@ -118,6 +123,7 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "18px",
                     color: "#92400e",
                   }}
@@ -139,6 +145,7 @@ export async function GET(request: NextRequest) {
               >
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "32px",
                     fontWeight: "bold",
                     color: "#2563eb",
@@ -149,6 +156,7 @@ export async function GET(request: NextRequest) {
                 </div>
                 <div
                   style={{
+                    display: "flex",
                     fontSize: "18px",
                     color: "#1d4ed8",
                   }}

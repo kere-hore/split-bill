@@ -26,7 +26,7 @@ async function getBillData(groupId: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupId } = await params;
   const data = await getBillData(groupId);
-
+  console.log({ data });
   if (!data) {
     return {
       title: "Bill Not Found - Split Bill",
