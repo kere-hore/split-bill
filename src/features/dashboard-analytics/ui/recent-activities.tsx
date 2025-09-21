@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Activity } from "lucide-react";
@@ -24,10 +29,15 @@ export function RecentActivitiesCard({ activities }: RecentActivitiesProps) {
         <div className="space-y-3">
           {activities.length ? (
             activities.map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between">
+              <div
+                key={activity.id}
+                className="flex items-center justify-between"
+              >
                 <div className="flex-1">
                   <p className="text-sm font-medium">{activity.title}</p>
-                  <p className="text-xs text-muted-foreground">{activity.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {activity.description}
+                  </p>
                 </div>
                 {activity.amount && (
                   <Badge variant="outline" className="text-xs">
@@ -37,10 +47,12 @@ export function RecentActivitiesCard({ activities }: RecentActivitiesProps) {
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">No recent activities</p>
+            <p className="text-sm text-muted-foreground">
+              No recent activities
+            </p>
           )}
           <Button asChild variant="outline" size="sm" className="w-full">
-            <Link href="/groups">View All Groups</Link>
+            <Link href="/allocations">View All Groups</Link>
           </Button>
         </div>
       </CardContent>

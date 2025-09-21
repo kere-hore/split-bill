@@ -5,6 +5,7 @@ import {
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
 import { MemberAllocation } from "@/shared/types/allocation";
+import "@/shared/lib/env-validation";
 
 interface RouteParams {
   params: Promise<{
@@ -16,6 +17,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { groupId, memberId } = await params;
   try {
+    if (!groupId || !memberId) {
+      return createErrorResponse(
+        "Group ID and Member ID are required",
+        400,
+        "Missing required parameters",
+        `/api/public/allocations/[groupId]/[memberId]`
+      );
+    }
+
+    console.log(
+      `[PUBLIC_ALLOCATION] Fetching allocation for group: ${groupId}, member: ${memberId}`
+    );
     // Get group with allocation data
     const group = await prisma.group.findUnique({
       where: { id: groupId },
@@ -45,8 +58,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const allocationData = JSON.parse(group.allocationData);
-    const memberAllocation = allocationData.allocations.find(
+    let allocationData;
+    try {
+      allocationData = JSON.parse(group.allocationData);
+    } catch (error) {
+      console.error("Error parsing allocation data:", error);
+      return createErrorResponse(
+        "Invalid allocation data",
+        500,
+        "Failed to parse allocation data",
+        `/api/public/allocations/${groupId}/${memberId}`
+      );
+    }
+
+    const memberAllocation = allocationData.allocations?.find(
       (allocation: MemberAllocation) => allocation.memberId === memberId
     );
 

@@ -1,3 +1,5 @@
+// Removed circular import - using inline type
+
 import { ApiResponse } from "@/shared/types/api-response";
 
 export type SplitMethod = "equal" | "proportional" | "custom";

@@ -4,7 +4,7 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from "@/shared/lib/api-response";
-import { billFormSchema } from "@/features/bill/lib/bill-schema";
+import { billFormSchema } from "@/features/bill";
 import {
   BillItem,
   BillDiscount,

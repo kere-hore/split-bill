@@ -6,7 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Loader2, Search, UserPlus } from "lucide-react";
-import { useSearchUsers, SearchUser } from "@/entities/user/model/search";
+import { useSearchUsers, SearchUser } from "@/entities/user";
 import { useAddMember } from "@/entities/group";
 import { toast } from "sonner";
 

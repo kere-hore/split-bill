@@ -7,11 +7,11 @@ interface Props {
 async function getBillData(groupId: string) {
   try {
     // In production, use direct database call instead of self-fetch
-    if (process.env.NODE_ENV === 'production') {
-      const { getBillWithDetails } = await import('@/entities/bill');
+    if (process.env.NODE_ENV === "production") {
+      const { getBillWithDetails } = await import("@/entities/bill");
       return await getBillWithDetails(groupId);
     }
-    
+
     // In development, use fetch
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const response = await fetch(`${baseUrl}/api/public/bills/${groupId}`, {
@@ -33,7 +33,7 @@ async function getBillData(groupId: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupId } = await params;
   const data = await getBillData(groupId);
-  console.log({ data });
+
   if (!data) {
     return {
       title: "Bill Not Found - Split Bill",

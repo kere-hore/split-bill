@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { invalidateToggleCache, getCloudFrontUrl } from '@/entities/cache'
+import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -10,7 +10,17 @@ const s3Client = new S3Client({
   },
 })
 
+const cloudFrontClient = new CloudFrontClient({
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+})
+
 const BUCKET_NAME = process.env.S3_BUCKET_NAME!
+const DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID!
+const CLOUDFRONT_DOMAIN = process.env.NEXT_PUBLIC_CLOUDFRONT_URL!
 
 export async function uploadToggleFile(key: string, content: string) {
   const command = new PutObjectCommand({
@@ -70,5 +80,20 @@ export async function getPresignedUrl(key: string, expiresIn = 3600) {
 }
 
 export function getPublicUrl(key: string): string {
-  return getCloudFrontUrl(key)
+  return `${CLOUDFRONT_DOMAIN}/${key}`
+}
+
+async function invalidateToggleCache(toggleKey: string) {
+  const paths = [`/${toggleKey}`, `/${toggleKey}/*`]
+  const command = new CreateInvalidationCommand({
+    DistributionId: DISTRIBUTION_ID,
+    InvalidationBatch: {
+      Paths: {
+        Quantity: paths.length,
+        Items: paths,
+      },
+      CallerReference: Date.now().toString(),
+    },
+  })
+  return await cloudFrontClient.send(command)
 }

@@ -5,7 +5,7 @@ import { SiteHeader } from "@/shared/components/site-header";
 import { getCurrentUser } from "@/shared/lib/clerk";
 import { redirect } from "next/navigation";
 import "../globals.css";
-import BillFormModal from "@/features/bill/ui/bill-modal";
+import { BillFormModal } from "@/features/bill";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +19,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let user = null;
+  
   try {
     // Sync user to database for all private pages
-    const user = await getCurrentUser();
+    user = await getCurrentUser();
 
     // If user sync fails, redirect to sign-in
     if (!user) {
@@ -33,6 +35,12 @@ export default async function RootLayout({
     redirect("/sign-in");
   }
 
+  const userData = user ? {
+    name: user.name || "User",
+    email: user.email || "user@example.com",
+    avatar: user.image || "/avatars/default.jpg",
+  } : undefined;
+
   return (
     <SidebarProvider
       style={
@@ -42,7 +50,7 @@ export default async function RootLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar variant="inset" user={userData} />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

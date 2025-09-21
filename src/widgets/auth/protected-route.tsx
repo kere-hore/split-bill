@@ -1,34 +1,34 @@
-'use client'
+"use client";
 
-import { useCurrentUser } from '@/entities/user/model/use-current-user'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useCurrentUser } from "@/entities/user";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isLoading, isAuthenticated } = useCurrentUser()
-  const router = useRouter()
+  const { isLoading, isAuthenticated } = useCurrentUser();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/')
+      router.push("/");
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
-    return null // Redirect handled by useEffect
+    return null; // Redirect handled by useEffect
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

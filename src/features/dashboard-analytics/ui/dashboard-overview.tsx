@@ -1,15 +1,26 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Plus, Receipt, Users, TrendingUp, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useDashboardData, type DashboardData } from "@/entities/dashboard";
-import { DashboardStatsCards, RecentActivitiesCard, BillsToPayCard } from "@/features/dashboard-analytics";
+import {
+  DashboardStatsCards,
+  RecentActivitiesCard,
+  BillsToPayCard,
+} from "@/features/dashboard-analytics";
 
 export function DashboardOverview() {
   const { data: dashboardData, isLoading } = useDashboardData();
-  const data: DashboardData | null = dashboardData?.success ? dashboardData.data : null;
+  const data: DashboardData | null = dashboardData?.success
+    ? dashboardData.data
+    : null;
 
   if (isLoading) {
     return (
@@ -55,9 +66,9 @@ export function DashboardOverview() {
 
         {/* Bills to Pay */}
         {data?.billsToPay && (
-          <BillsToPayCard 
-            bills={data.billsToPay} 
-            upcomingPayments={data.upcomingPayments} 
+          <BillsToPayCard
+            bills={data.billsToPay}
+            upcomingPayments={data.upcomingPayments}
           />
         )}
 
@@ -69,7 +80,7 @@ export function DashboardOverview() {
           <CardContent>
             <div className="space-y-3">
               <Button asChild className="w-full" variant="outline">
-                <Link href="/receipts/new">
+                <Link href="?bill=true">
                   <Receipt className="w-4 h-4 mr-2" />
                   Upload New Receipt
                 </Link>
@@ -86,14 +97,15 @@ export function DashboardOverview() {
                   View Settlements
                 </Link>
               </Button>
-              {data?.stats?.outstandingGroups && data.stats.outstandingGroups > 0 && (
-                <div className="pt-2 border-t">
-                  <div className="flex items-center gap-2 text-sm text-orange-600">
-                    <AlertCircle className="w-4 h-4" />
-                    {data.stats.outstandingGroups} groups need allocation
+              {data?.stats?.outstandingGroups &&
+                data.stats.outstandingGroups > 0 && (
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center gap-2 text-sm text-orange-600">
+                      <AlertCircle className="w-4 h-4" />
+                      {data.stats.outstandingGroups} groups need allocation
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </CardContent>
         </Card>

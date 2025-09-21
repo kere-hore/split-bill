@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useCurrentUser } from "@/entities/user/model/use-current-user";
 import {
   IconCamera,
   IconFileAi,
@@ -27,6 +26,12 @@ import {
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar";
 import Link from "next/link";
+
+interface UserData {
+  name: string;
+  email: string;
+  avatar: string;
+}
 
 const staticData = {
   navMain: [
@@ -108,9 +113,11 @@ const staticData = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useCurrentUser();
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: UserData;
+}
 
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const userData = {
     name: user?.name || "User",
     email: user?.email || "user@example.com",

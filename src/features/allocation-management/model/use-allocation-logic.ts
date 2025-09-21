@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Bill, BillItem, GroupMember } from "@/entities/group/model/types";
+import { Bill, BillItem, GroupMember } from "@/entities/group";
 import {
   SplitConfig,
   ItemAllocation,

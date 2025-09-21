@@ -1,1 +1,1 @@
-export * from "./model/use-ocr";
+export * from './model/use-ocr';

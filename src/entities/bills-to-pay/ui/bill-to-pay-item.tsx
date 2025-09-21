@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Check, Clock } from "lucide-react";
-import { BillToPay } from "../index";
+import { BillToPay } from "@/shared/api/contract/bills-to-pay";
 
 interface BillToPayItemProps {
   bill: BillToPay;
@@ -10,7 +10,11 @@ interface BillToPayItemProps {
   isUpdating: boolean;
 }
 
-export function BillToPayItem({ bill, onStatusUpdate, isUpdating }: BillToPayItemProps) {
+export function BillToPayItem({
+  bill,
+  onStatusUpdate,
+  isUpdating,
+}: BillToPayItemProps) {
   return (
     <Card className="hover:shadow-sm transition-shadow">
       <CardContent className="p-3 sm:p-4">
@@ -21,18 +25,22 @@ export function BillToPayItem({ bill, onStatusUpdate, isUpdating }: BillToPayIte
               <span className="font-medium text-sm truncate">
                 {bill.merchantName}
               </span>
-              <Badge 
+              <Badge
                 variant={bill.status === "paid" ? "default" : "secondary"}
                 className={`text-xs flex-shrink-0 ${
-                  bill.status === "paid" 
-                    ? "bg-green-100 text-green-800 border-green-200" 
+                  bill.status === "paid"
+                    ? "bg-green-100 text-green-800 border-green-200"
                     : "bg-orange-100 text-orange-800 border-orange-200"
                 }`}
               >
                 {bill.status === "paid" ? (
-                  <><Check className="w-3 h-3 mr-1" /> Paid</>
+                  <>
+                    <Check className="w-3 h-3 mr-1" /> Paid
+                  </>
                 ) : (
-                  <><Clock className="w-3 h-3 mr-1" /> Pending</>
+                  <>
+                    <Clock className="w-3 h-3 mr-1" /> Pending
+                  </>
                 )}
               </Badge>
             </div>
@@ -46,9 +54,7 @@ export function BillToPayItem({ bill, onStatusUpdate, isUpdating }: BillToPayIte
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <div className="text-xs text-muted-foreground">
-              {bill.billDate}
-            </div>
+            <div className="text-xs text-muted-foreground">{bill.billDate}</div>
             {bill.status === "pending" ? (
               <Button
                 size="sm"
@@ -71,18 +77,22 @@ export function BillToPayItem({ bill, onStatusUpdate, isUpdating }: BillToPayIte
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="font-medium">{bill.merchantName}</span>
-              <Badge 
+              <Badge
                 variant={bill.status === "paid" ? "default" : "secondary"}
                 className={`flex-shrink-0 ${
-                  bill.status === "paid" 
-                    ? "bg-green-100 text-green-800 border-green-200" 
+                  bill.status === "paid"
+                    ? "bg-green-100 text-green-800 border-green-200"
                     : "bg-orange-100 text-orange-800 border-orange-200"
                 }`}
               >
                 {bill.status === "paid" ? (
-                  <><Check className="w-3 h-3 mr-1" /> Paid</>
+                  <>
+                    <Check className="w-3 h-3 mr-1" /> Paid
+                  </>
                 ) : (
-                  <><Clock className="w-3 h-3 mr-1" /> Pending</>
+                  <>
+                    <Clock className="w-3 h-3 mr-1" /> Pending
+                  </>
                 )}
               </Badge>
             </div>

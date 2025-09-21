@@ -4,6 +4,7 @@ import {
   createErrorResponse,
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
+import "@/shared/lib/env-validation";
 
 interface RouteParams {
   params: Promise<{
@@ -14,6 +15,16 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { groupId } = await params;
   try {
+    if (!groupId) {
+      return createErrorResponse(
+        "Group ID is required",
+        400,
+        "Missing group ID parameter",
+        `/api/public/bills/[groupId]`
+      );
+    }
+
+    console.log(`[PUBLIC_BILLS] Fetching bill for group: ${groupId}`);
     // Get group with bill and allocation data
     const group = await prisma.group.findUnique({
       where: { id: groupId },
@@ -60,6 +71,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         allocationData = JSON.parse(group.allocationData);
       } catch (error) {
         console.error("Error parsing allocation data:", error);
+        // Return error instead of continuing with null data
+        return createErrorResponse(
+          "Invalid allocation data",
+          500,
+          "Failed to parse allocation data",
+          `/api/public/bills/${groupId}`
+        );
       }
     }
 

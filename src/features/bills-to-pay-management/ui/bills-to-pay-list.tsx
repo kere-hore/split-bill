@@ -1,7 +1,7 @@
 "use client";
 
-import { BillToPayItem } from "@/entities/bills-to-pay/ui/bill-to-pay-item";
-import { BillToPay } from "@/entities/bills-to-pay";
+import { BillToPayItem } from "@/entities/bills-to-pay";
+import { BillToPay } from "@/shared/api/contract/bills-to-pay";
 
 interface BillsToPayListProps {
   bills: BillToPay[];
@@ -9,7 +9,11 @@ interface BillsToPayListProps {
   isUpdating: boolean;
 }
 
-export function BillsToPayList({ bills, onStatusUpdate, isUpdating }: BillsToPayListProps) {
+export function BillsToPayList({
+  bills,
+  onStatusUpdate,
+  isUpdating,
+}: BillsToPayListProps) {
   if (bills.length === 0) {
     return (
       <div className="text-center py-8">

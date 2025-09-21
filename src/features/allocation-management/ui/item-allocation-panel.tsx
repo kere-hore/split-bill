@@ -7,7 +7,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/ui/avatar";
-import { Bill, BillItem, GroupMember } from "@/entities/group/model/types";
+import { Bill, BillItem, GroupMember } from "@/entities/group";
 import { useAllocationLogic } from "../model/use-allocation-logic";
 
 interface ItemAllocationPanelProps {

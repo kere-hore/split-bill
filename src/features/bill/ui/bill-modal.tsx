@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useBillExtraction } from "../model/use-bill-extraction";
-import { useCreateBill } from "@/entities/bill/model/use-bill";
+import { useCreateBill } from "@/entities/bill";
 import { BillFormData } from "../lib/bill-schema";
 import { toast } from "sonner";
 

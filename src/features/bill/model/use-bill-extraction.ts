@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useExtractDataOCR } from "@/entities/ocr/model/use-ocr";
+import { useExtractDataOCR } from "@/entities/ocr";
 import { BillFormData } from "../lib/bill-schema";
 import { toast } from "sonner";
 
