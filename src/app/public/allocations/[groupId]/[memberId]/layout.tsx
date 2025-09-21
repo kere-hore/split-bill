@@ -4,68 +4,71 @@ interface Props {
   params: Promise<{ groupId: string; memberId: string }>;
 }
 
-async function getMemberAllocationData(groupId: string, memberId: string) {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/public/allocations/${groupId}/${memberId}`, {
-      cache: 'no-store'
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    const result = await response.json();
-    return result.success ? result.data : null;
-  } catch (error) {
-    console.error('Error fetching allocation data for meta:', error);
-    return null;
-  }
-}
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { groupId, memberId } = await params;
-  const data = await getMemberAllocationData(groupId, memberId);
-
-  if (!data) {
-    return {
-      title: "Allocation Not Found - Split Bill",
-      description: "The requested allocation could not be found.",
-    };
-  }
-
-  const { group, member, allocation, bill } = data;
-  const totalAmount = allocation.breakdown.total.toLocaleString();
-  const itemCount = allocation.items.length;
-
-  return {
-    title: `${member.name}'s Bill - ${group.name} | Split Bill`,
-    description: `${member.name}'s share from ${bill.merchantName}: Rp ${totalAmount} for ${itemCount} items. View detailed breakdown and payment information.`,
-    openGraph: {
-      title: `${member.name}'s Bill Share`,
-      description: `${bill.merchantName} • Rp ${totalAmount} • ${itemCount} items`,
-      type: 'website',
-      images: [
-        {
-          url: `/api/og/member?memberName=${encodeURIComponent(member.name)}&groupName=${encodeURIComponent(group.name)}&merchantName=${encodeURIComponent(bill.merchantName)}&totalAmount=${encodeURIComponent(totalAmount)}&itemCount=${itemCount}`,
-          width: 1200,
-          height: 630,
-          alt: `${member.name}'s Bill Allocation`,
+  
+  try {
+    const { prisma } = await import("@/shared/lib/prisma");
+    
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      select: {
+        name: true,
+        allocationData: true,
+        bill: {
+          select: {
+            merchantName: true,
+          },
         },
-      ],
+      },
+    });
+
+    if (group?.allocationData) {
+      const allocation = JSON.parse(group.allocationData);
+      const member = allocation.allocations?.find(
+        (a: any) => a.memberId === memberId
+      );
+      
+      if (member) {
+        const totalAmount = member.breakdown.total.toLocaleString();
+        return {
+          title: `${member.memberName}'s Bill - ${group.name} | Split Bill`,
+          description: `${member.memberName}'s share from ${group.bill?.merchantName || group.name}: Rp ${totalAmount}`,
+          openGraph: {
+            title: `${member.memberName}'s Bill Share`,
+            description: `${group.bill?.merchantName || group.name} • Rp ${totalAmount}`,
+            type: 'website',
+            images: ["/images/illustration/payment.png"],
+          },
+          twitter: {
+            card: 'summary_large_image',
+            title: `${member.memberName}'s Bill Share`,
+            description: `${group.bill?.merchantName || group.name} • Rp ${totalAmount}`,
+            images: ["/images/illustration/payment.png"],
+          },
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Metadata generation error:', error);
+  }
+  
+  return {
+    title: "Bill Allocation - Split Bill",
+    description: "View your bill allocation and payment breakdown.",
+    openGraph: {
+      title: "Bill Allocation",
+      description: "View your bill allocation and payment breakdown.",
+      type: 'website',
+      images: ["/images/illustration/payment.png"],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${member.name}'s Bill Share`,
-      description: `${bill.merchantName} • Rp ${totalAmount} • ${itemCount} items`,
-      images: [`/api/og/member?memberName=${encodeURIComponent(member.name)}&groupName=${encodeURIComponent(group.name)}&merchantName=${encodeURIComponent(bill.merchantName)}&totalAmount=${encodeURIComponent(totalAmount)}&itemCount=${itemCount}`],
-    },
-    other: {
-      'member:name': member.name,
-      'member:total': totalAmount,
-      'member:items': itemCount.toString(),
-      'bill:merchant': bill.merchantName,
-      'group:name': group.name,
+      title: "Bill Allocation",
+      description: "View your bill allocation and payment breakdown.",
+      images: ["/images/illustration/payment.png"],
     },
   };
 }
