@@ -38,21 +38,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         const currentUrl = `${baseUrl}/public/allocations/${groupId}/${memberId}`;
         const imageUrl = `${baseUrl}/images/illustration/payment.png`;
         
+        const title = `${member.memberName}'s Bill - ${group.name}`;
+        const desc = `${member.memberName}'s share from ${group.bill?.merchantName || group.name}: Rp ${totalAmount}`;
+        
         return {
-          title: `${member.memberName}'s Bill - ${group.name} | Split Bill`,
-          description: `${member.memberName}'s share from ${
-            group.bill?.merchantName || group.name
-          }: Rp ${totalAmount}`,
+          title: `${title} | Split Bill`,
+          description: desc,
           alternates: {
             canonical: currentUrl,
           },
           openGraph: {
-            title: `${member.memberName}'s Bill Share`,
-            description: `${
-              group.bill?.merchantName || group.name
-            } • Rp ${totalAmount}`,
+            title: title,
+            description: desc,
             type: "website",
             url: currentUrl,
+            siteName: "Split Bill",
             images: [{
               url: imageUrl,
               width: 1200,
@@ -62,10 +62,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           },
           twitter: {
             card: "summary_large_image",
-            title: `${member.memberName}'s Bill Share`,
-            description: `${
-              group.bill?.merchantName || group.name
-            } • Rp ${totalAmount}`,
+            title: title,
+            description: desc,
             images: [imageUrl],
           },
         };
@@ -80,13 +78,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'https://split-bill-mu.vercel.app';
   const imageUrl = `${baseUrl}/images/illustration/payment.png`;
   
+  const title = "Bill Allocation";
+  const desc = "View your bill allocation and payment breakdown.";
+  
   return {
-    title: "Bill Allocation - Split Bill",
-    description: "View your bill allocation and payment breakdown.",
+    title: `${title} - Split Bill`,
+    description: desc,
     openGraph: {
-      title: "Bill Allocation",
-      description: "View your bill allocation and payment breakdown.",
+      title: title,
+      description: desc,
       type: "website",
+      siteName: "Split Bill",
       images: [{
         url: imageUrl,
         width: 1200,
@@ -96,8 +98,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: "Bill Allocation",
-      description: "View your bill allocation and payment breakdown.",
+      title: title,
+      description: desc,
       images: [imageUrl],
     },
   };

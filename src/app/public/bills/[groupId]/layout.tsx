@@ -37,17 +37,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const currentUrl = `${baseUrl}/public/bills/${groupId}`;
       const imageUrl = `${baseUrl}/images/illustration/payment.png`;
       
+      const title = `${group.name} - ${group.bill.merchantName}`;  
+      const desc = `Bill split for ${group.bill.merchantName} - Total: Rp ${totalAmount} among ${memberCount} members`;
+      
       return {
-        title: `${group.name} - ${group.bill.merchantName} | Split Bill`,
-        description: `Bill split for ${group.bill.merchantName} - Total: Rp ${totalAmount} among ${memberCount} members`,
+        title: `${title} | Split Bill`,
+        description: desc,
         alternates: {
           canonical: currentUrl,
         },
         openGraph: {
-          title: `${group.name} - Bill Split`,
-          description: `${group.bill.merchantName} • Rp ${totalAmount} • ${memberCount} members`,
+          title: title,
+          description: desc,
           type: "website",
           url: currentUrl,
+          siteName: "Split Bill",
           images: [{
             url: imageUrl,
             width: 1200,
@@ -57,8 +61,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         },
         twitter: {
           card: "summary_large_image",
-          title: `${group.name} - Bill Split`,
-          description: `${group.bill.merchantName} • Rp ${totalAmount} • ${memberCount} members`,
+          title: title,
+          description: desc,
           images: [imageUrl],
         },
       };
@@ -72,13 +76,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : 'https://split-bill-mu.vercel.app';
   const imageUrl = `${baseUrl}/images/illustration/payment.png`;
   
+  const title = "Bill Split";
+  const desc = "View shared bill split and payment breakdown.";
+  
   return {
-    title: "Bill Split - Split Bill",
-    description: "View shared bill split and payment breakdown.",
+    title: `${title} - Split Bill`,
+    description: desc,
     openGraph: {
-      title: "Bill Split",
-      description: "View shared bill split and payment breakdown.",
+      title: title,
+      description: desc,
       type: "website",
+      siteName: "Split Bill",
       images: [{
         url: imageUrl,
         width: 1200,
@@ -88,8 +96,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: "Bill Split",
-      description: "View shared bill split and payment breakdown.",
+      title: title,
+      description: desc,
       images: [imageUrl],
     },
   };
