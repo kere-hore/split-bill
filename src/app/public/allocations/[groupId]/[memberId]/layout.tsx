@@ -32,18 +32,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
       if (member) {
         const totalAmount = member.breakdown.total.toLocaleString();
+        const baseUrl = process.env.VERCEL_URL 
+          ? `https://${process.env.VERCEL_URL}` 
+          : 'https://split-bill-mu.vercel.app';
+        const currentUrl = `${baseUrl}/public/allocations/${groupId}/${memberId}`;
+        const imageUrl = `${baseUrl}/images/illustration/payment.png`;
+        
         return {
           title: `${member.memberName}'s Bill - ${group.name} | Split Bill`,
           description: `${member.memberName}'s share from ${
             group.bill?.merchantName || group.name
           }: Rp ${totalAmount}`,
+          alternates: {
+            canonical: currentUrl,
+          },
           openGraph: {
             title: `${member.memberName}'s Bill Share`,
             description: `${
               group.bill?.merchantName || group.name
             } • Rp ${totalAmount}`,
             type: "website",
-            images: ["/images/illustration/payment.png"],
+            url: currentUrl,
+            images: [{
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: `${member.memberName}'s Bill Share`,
+            }],
           },
           twitter: {
             card: "summary_large_image",
@@ -51,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description: `${
               group.bill?.merchantName || group.name
             } • Rp ${totalAmount}`,
-            images: ["/images/illustration/payment.png"],
+            images: [imageUrl],
           },
         };
       }
@@ -60,6 +75,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.error("Metadata generation error:", error);
   }
 
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'https://split-bill-mu.vercel.app';
+  const imageUrl = `${baseUrl}/images/illustration/payment.png`;
+  
   return {
     title: "Bill Allocation - Split Bill",
     description: "View your bill allocation and payment breakdown.",
@@ -67,13 +87,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: "Bill Allocation",
       description: "View your bill allocation and payment breakdown.",
       type: "website",
-      images: ["/images/illustration/payment.png"],
+      images: [{
+        url: imageUrl,
+        width: 1200,
+        height: 630,
+        alt: "Bill Allocation",
+      }],
     },
     twitter: {
       card: "summary_large_image",
       title: "Bill Allocation",
       description: "View your bill allocation and payment breakdown.",
-      images: ["/images/illustration/payment.png"],
+      images: [imageUrl],
     },
   };
 }
