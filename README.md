@@ -1,3 +1,7 @@
+
+<img width="1200" height="720" alt="Screenshot from 2025-09-21 15-31-10" src="https://github.com/user-attachments/assets/a594ebd8-74d0-4e5d-afb3-a4661885ebda" />
+<img width="1200" height="720" alt="Screenshot from 2025-09-21 15-32-00" src="https://github.com/user-attachments/assets/03b75446-2a2e-470c-844d-f43b4b4077cb" />
+
 # 💰 Split Bill - Expense Tracker
 
 A modern, full-stack split bill management application built with Next.js, TypeScript, and PostgreSQL. Track shared expenses and calculate splits among friends and groups with real-time updates.
