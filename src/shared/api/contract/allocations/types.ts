@@ -42,11 +42,21 @@ export interface SaveAllocationsRequest {
   billId?: string;
 }
 
+export interface WhatsAppBroadcast {
+  memberId: string;
+  memberName: string;
+  phone: string;
+  whatsappUrl: string;
+  totalAmount: number;
+}
+
 export interface SaveAllocationsResponse {
   groupId: string;
   saved: boolean;
   settlementsCreated: number;
   allocationsCount: number;
+  whatsappBroadcasts?: WhatsAppBroadcast[];
+  broadcastCount?: number;
 }
 
 export type SaveAllocationsApiResponse = ApiResponse<SaveAllocationsResponse>;

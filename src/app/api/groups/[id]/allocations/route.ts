@@ -6,6 +6,15 @@ import {
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
 import { MemberAllocation } from "@/shared/types/allocation";
+import { generateWhatsAppMessage, generateWhatsAppUrl } from "@/shared/lib/whatsapp-broadcast";
+
+type GroupMemberWithUser = {
+  id: string;
+  user: {
+    name: string;
+    phone: string | null;
+  } | null;
+};
 
 interface RouteParams {
   params: Promise<{
@@ -121,13 +130,66 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     // Store allocation data in group
-    await prisma.group.update({
+    const updatedGroup = await prisma.group.update({
       where: { id: groupId },
       data: {
         allocationData: JSON.stringify(allocationData),
         status: "allocated",
       },
+      include: {
+        bill: {
+          select: {
+            merchantName: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                phone: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    // Generate WhatsApp broadcast URLs for members with phone numbers
+    const whatsappBroadcasts = [];
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://split-bill-mu.vercel.app";
+
+    for (const allocation of allocations as MemberAllocation[]) {
+      if (allocation.breakdown.total > 0) {
+        const member = updatedGroup.members.find(
+          (m: GroupMemberWithUser) => m.id === allocation.memberId
+        );
+
+        if (member?.user?.phone) {
+          const memberUrl = `${baseUrl}/public/allocations/${groupId}/${allocation.memberId}`;
+
+          const message = generateWhatsAppMessage({
+            memberName: allocation.memberName,
+            groupName: updatedGroup.name,
+            merchantName: updatedGroup.bill?.merchantName,
+            totalAmount: allocation.breakdown.total,
+            memberUrl,
+          });
+
+          const whatsappUrl = generateWhatsAppUrl(member.user.phone, message);
+
+          whatsappBroadcasts.push({
+            memberId: allocation.memberId,
+            memberName: allocation.memberName,
+            phone: member.user.phone,
+            whatsappUrl,
+            totalAmount: allocation.breakdown.total,
+          });
+        }
+      }
+    }
 
     return createSuccessResponse(
       {
@@ -135,8 +197,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         saved: true,
         settlementsCreated,
         allocationsCount: allocations.length,
+        whatsappBroadcasts,
+        broadcastCount: whatsappBroadcasts.length,
       },
-      "Allocations and settlements saved successfully"
+      "Allocations saved successfully. WhatsApp broadcast URLs generated."
     );
   } catch (error) {
     console.error("Error saving allocations:", error);

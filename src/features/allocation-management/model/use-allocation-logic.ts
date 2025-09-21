@@ -193,8 +193,26 @@ export function useAllocationLogic(
         billId: bill?.id,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           toast.success("Allocations saved successfully!");
+
+          // Auto-open WhatsApp broadcasts for members with phone numbers
+          const broadcasts = response.success
+            ? response.data.whatsappBroadcasts
+            : undefined;
+          if (broadcasts && broadcasts.length > 0) {
+            toast.success(
+              `Opening WhatsApp for ${broadcasts.length} members...`
+            );
+
+            // Open WhatsApp URLs with delay to prevent browser blocking
+            broadcasts.forEach((broadcast, index: number) => {
+              setTimeout(() => {
+                window.open(broadcast.whatsappUrl, "_blank");
+              }, index * 1000); // 1 second delay between each
+            });
+          }
+
           router.push(`/public/bills/${groupId}`);
         },
         onError: () => {
