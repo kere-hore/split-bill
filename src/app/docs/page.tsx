@@ -11,12 +11,7 @@ interface SwaggerSpec {
   components?: object;
 }
 
-interface SwaggerRequest {
-  url: string;
-  method: string;
-  headers?: Record<string, string>;
-  body?: string;
-}
+
 
 // Dynamically import SwaggerUI to avoid SSR issues and suppress warnings
 const SwaggerUI = dynamic(() => import('swagger-ui-react').then(mod => ({ default: mod.default })), {
@@ -58,8 +53,7 @@ export default function ApiDocsPage() {
     defaultModelsExpandDepth: 2,
     defaultModelExpandDepth: 2,
     tryItOutEnabled: true,
-    filter: true,
-    requestInterceptor: (request: SwaggerRequest) => request
+    filter: true
   }), [])
 
   if (loading) {

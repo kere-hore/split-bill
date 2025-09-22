@@ -29,7 +29,7 @@ export function useAllocationLogic(
     additionalFees: "equal",
   });
 
-  const billItems = bill?.items || [];
+  const billItems = useMemo(() => bill?.items || [], [bill?.items]);
 
   const handleMemberSelect = (memberId: string) => {
     setSelectedMember(selectedMember === memberId ? null : memberId);
@@ -98,15 +98,18 @@ export function useAllocationLogic(
       if (cache.has(memberId)) {
         return cache.get(memberId)!;
       }
-      
-      const subtotal = billItems?.reduce((total: number, item: BillItem) => {
-        const allocation = allocations[item.id];
-        if (allocation?.memberAllocations[memberId]) {
-          return total + item.unitPrice * allocation.memberAllocations[memberId];
-        }
-        return total;
-      }, 0) || 0;
-      
+
+      const subtotal =
+        billItems?.reduce((total: number, item: BillItem) => {
+          const allocation = allocations[item.id];
+          if (allocation?.memberAllocations[memberId]) {
+            return (
+              total + item.unitPrice * allocation.memberAllocations[memberId]
+            );
+          }
+          return total;
+        }, 0) || 0;
+
       cache.set(memberId, subtotal);
       return subtotal;
     };

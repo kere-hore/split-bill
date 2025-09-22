@@ -13,44 +13,52 @@ const cache = new Map<string, CacheEntry>();
 export function getCachedResponse<T = unknown>(key: string): T | null {
   const cached = cache.get(key);
   if (!cached) return null;
-  
+
   if (Date.now() - cached.timestamp > cached.ttl) {
     cache.delete(key);
     return null;
   }
-  
+
   return cached.data as T;
 }
 
-export function setCachedResponse<T = unknown>(key: string, data: T, ttlMs: number = 300000): void {
+export function setCachedResponse<T = unknown>(
+  key: string,
+  data: T,
+  ttlMs: number = 300000
+): void {
   cache.set(key, {
     data,
     timestamp: Date.now(),
-    ttl: ttlMs
+    ttl: ttlMs,
   });
 }
 
 export function createCachedResponse<T>(
-  data: T, 
-  message: string, 
+  data: T,
+  message: string,
   ttlSeconds: number = 300
 ): NextResponse<ApiSuccessResponse<T>> {
-  const response = NextResponse.json({
-    success: true,
+  const responseData: ApiSuccessResponse<T> = {
+    success: true as const,
     data,
     message,
-    timestamp: new Date().toISOString()
-  });
+  };
   
+  const response = NextResponse.json(responseData);
+
   // Add cache headers
-  response.headers.set('Cache-Control', `public, max-age=${ttlSeconds}, s-maxage=${ttlSeconds}`);
-  response.headers.set('X-Cache-TTL', ttlSeconds.toString());
-  
+  response.headers.set(
+    "Cache-Control",
+    `public, max-age=${ttlSeconds}, s-maxage=${ttlSeconds}`
+  );
+  response.headers.set("X-Cache-TTL", ttlSeconds.toString());
+
   return response;
 }
 
 // Clear cache periodically
-if (typeof setInterval !== 'undefined') {
+if (typeof setInterval !== "undefined") {
   setInterval(() => {
     const now = Date.now();
     for (const [key, value] of cache.entries()) {
