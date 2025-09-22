@@ -127,11 +127,14 @@ export function useAllocationLogic(
       bill?.discounts?.reduce((sum, d) => sum + d.amount, 0) || 0;
     const totalFees =
       bill?.additionalFees?.reduce((sum, f) => sum + f.amount, 0) || 0;
-
+    const activeMembersCount = members.filter(
+      (m) => getMemberSubtotal(m.id) > 0
+    ).length;
     const memberDiscount = totalDiscounts * memberRatio;
     const memberTax = (bill?.tax || 0) * memberRatio;
     const memberServiceCharge = (bill?.serviceCharge || 0) * memberRatio;
-    const memberAdditionalFees = totalFees * memberRatio;
+    const memberAdditionalFees =
+      activeMembersCount > 0 ? totalFees / activeMembersCount : 0;
 
     const memberTotal =
       memberSubtotal -
@@ -141,12 +144,12 @@ export function useAllocationLogic(
       memberAdditionalFees;
 
     return {
-      subtotal: memberSubtotal,
-      discount: memberDiscount,
-      tax: memberTax,
-      serviceCharge: memberServiceCharge,
-      additionalFees: memberAdditionalFees,
-      total: Math.max(0, memberTotal),
+      subtotal: Number(memberSubtotal.toFixed(0)),
+      discount: Number(memberDiscount.toFixed(0)),
+      tax: Number(memberTax.toFixed(0)),
+      serviceCharge: Number(memberServiceCharge.toFixed(0)),
+      additionalFees: Number(memberAdditionalFees.toFixed(0)),
+      total: Number(Math.max(0, memberTotal).toFixed(0)),
     };
   };
 
@@ -170,23 +173,17 @@ export function useAllocationLogic(
               (allocations[item.id]?.memberAllocations[member.id] || 0),
           }));
 
+        const memberBreakdown = getMemberBreakdown(member.id);
+
         return {
           memberId: member.id,
           memberName: member.user.name,
           items: memberItems,
-          breakdown: {
-            subtotal: memberSubtotal,
-            discount: 0,
-            tax: 0,
-            serviceCharge: 0,
-            additionalFees: 0,
-            total: memberSubtotal,
-          },
+          breakdown: memberBreakdown,
           splitConfig,
         };
       })
       .filter(Boolean) as MemberAllocation[];
-
     saveAllocationsMutation.mutate(
       {
         allocations: allocationData,

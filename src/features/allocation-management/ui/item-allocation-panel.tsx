@@ -9,6 +9,7 @@ import {
 } from "@/shared/components/ui/avatar";
 import { Bill, BillItem, GroupMember } from "@/entities/group";
 import { useAllocationLogic } from "../model/use-allocation-logic";
+import { formatCurrency } from "@/shared/lib/currency";
 
 interface ItemAllocationPanelProps {
   bill: Bill;
@@ -51,7 +52,7 @@ export function ItemAllocationPanel({
   return (
     <div className="space-y-4">
       {/* Members Row */}
-      <div className="flex justify-start sm:justify-center gap-2 sm:gap-4 mb-6 overflow-x-auto pb-2 px-4 -mx-4">
+      <div className="flex justify-start gap-2 sm:gap-4 mb-6 overflow-x-auto pb-2 px-1 sm:px-0">
         {members.map((member) => {
           const isSelected = selectedMember === member.id;
           const memberBreakdown = getMemberBreakdown(member.id);
@@ -59,16 +60,18 @@ export function ItemAllocationPanel({
           return (
             <div
               key={member.id}
-              className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all min-w-[90px] ${
-                effectiveReadOnly 
-                  ? "cursor-default border-2 border-transparent" 
+              className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all min-w-[95px] ${
+                effectiveReadOnly
+                  ? "cursor-default border-2 border-transparent"
                   : "cursor-pointer hover:bg-gray-50 border-2 border-transparent"
               } ${
                 isSelected && !effectiveReadOnly
                   ? "bg-primary/10 border-2 border-primary"
                   : ""
               }`}
-              onClick={() => !effectiveReadOnly && handleMemberSelect(member.id)}
+              onClick={() =>
+                !effectiveReadOnly && handleMemberSelect(member.id)
+              }
             >
               <Avatar
                 className={`h-10 w-10 border-2 ${
@@ -86,31 +89,47 @@ export function ItemAllocationPanel({
 
               {/* Member Breakdown - Compact */}
               {memberBreakdown.subtotal > 0 && (
-                <div className="text-xs bg-white rounded-lg p-2 border shadow-sm min-w-[85px] max-w-[100px]">
+                <div className="text-xs bg-white rounded-lg p-1 border shadow-sm min-w-[85px] max-w-[100px]">
                   <div className="space-y-0.5">
-                    <div className="text-gray-600 leading-tight">
-                      <div>
-                        Sub: {(memberBreakdown.subtotal / 1000).toFixed(0)}k
+                    <div className="text-gray-600 leading-tight text-xs">
+                      <div className="flex gap-0.5 justify-between">
+                        <span>Sub:</span>
+                        <div className="text-right">
+                          {formatCurrency(memberBreakdown.subtotal)}
+                        </div>
                       </div>
                       {memberBreakdown.discount > 0 && (
-                        <div className="text-green-600">
-                          -{(memberBreakdown.discount / 1000).toFixed(0)}k
+                        <div className="text-green-600 text-right mt-1">
+                          -{formatCurrency(memberBreakdown.discount)}
                         </div>
                       )}
                       {memberBreakdown.tax > 0 && (
-                        <div>
-                          Tax: {(memberBreakdown.tax / 1000).toFixed(0)}k
+                        <div className="flex gap-0.5 justify-between">
+                          <span>Tax:</span>
+                          <div className="text-right">
+                            {formatCurrency(memberBreakdown.tax)}
+                          </div>
+                        </div>
+                      )}
+                      {memberBreakdown.additionalFees > 0 && (
+                        <div className="flex gap-0.5 justify-between">
+                          <span>Fee:</span>
+                          <div className="text-right">
+                            {formatCurrency(memberBreakdown.additionalFees)}
+                          </div>
                         </div>
                       )}
                       {memberBreakdown.serviceCharge > 0 && (
-                        <div>
-                          Svc:{" "}
-                          {(memberBreakdown.serviceCharge / 1000).toFixed(0)}k
+                        <div className="flex gap-0.5 justify-between">
+                          <span>Svc:</span>
+                          <div className="text-right">
+                            {formatCurrency(memberBreakdown.serviceCharge)}
+                          </div>
                         </div>
                       )}
                     </div>
-                    <div className="border-t pt-0.5 text-primary font-bold text-sm">
-                      {(memberBreakdown.total / 1000).toFixed(0)}k
+                    <div className="border-t pt-0.5 text-primary font-bold text-xs text-right">
+                      {formatCurrency(memberBreakdown.total)}
                     </div>
                   </div>
                 </div>
@@ -159,7 +178,11 @@ export function ItemAllocationPanel({
                   onCheckedChange={(checked) => {
                     handleItemToggle(item.id, checked as boolean);
                   }}
-                  disabled={effectiveReadOnly || !selectedMember || (isFullyAllocated && !isAllocatedToSelected)}
+                  disabled={
+                    effectiveReadOnly ||
+                    !selectedMember ||
+                    (isFullyAllocated && !isAllocatedToSelected)
+                  }
                   className="mt-0.5 sm:mt-1 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
@@ -169,7 +192,7 @@ export function ItemAllocationPanel({
                     </h4>
                     <div className="text-right flex-shrink-0">
                       <div className="font-semibold text-xs sm:text-sm">
-                        Rp {item.totalPrice.toLocaleString()}
+                        {formatCurrency(item.totalPrice)}
                       </div>
                     </div>
                   </div>
@@ -237,41 +260,40 @@ export function ItemAllocationPanel({
         <div className="space-y-1 text-xs">
           <div className="flex justify-between">
             <span className="text-gray-600">Subtotal:</span>
-            <span>Rp {bill?.subtotal?.toLocaleString() || 0}</span>
+            <span>{formatCurrency(bill?.subtotal)}</span>
           </div>
           {bill?.discounts && bill.discounts.length > 0 && (
             <div className="flex justify-between text-green-600">
               <span>Discount:</span>
               <span>
-                -Rp{" "}
-                {bill.discounts
-                  .reduce((sum, d) => sum + Number(d.amount), 0)
-                  .toLocaleString()}
+                -{" "}
+                {formatCurrency(
+                  bill.discounts.reduce((sum, d) => sum + Number(d.amount), 0)
+                )}
               </span>
             </div>
           )}
           <div className="flex justify-between">
             <span className="text-gray-600">Tax:</span>
-            <span>Rp {bill.tax.toLocaleString()}</span>
+            <span>{formatCurrency(bill.tax)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Service Charge:</span>
-            <span>Rp {bill.serviceCharge.toLocaleString()}</span>
+            <span>{formatCurrency(bill.serviceCharge)}</span>
           </div>
           {bill?.additionalFees && bill.additionalFees.length > 0 && (
             <div className="flex justify-between">
               <span className="text-gray-600">Additional Fees:</span>
               <span>
-                Rp{" "}
-                {bill.additionalFees
-                  .reduce((sum, f) => sum + f.amount, 0)
-                  .toLocaleString()}
+                {formatCurrency(
+                  bill.additionalFees.reduce((sum, f) => sum + f.amount, 0)
+                )}
               </span>
             </div>
           )}
           <div className="border-t pt-1 flex justify-between font-semibold text-primary">
             <span>Total:</span>
-            <span>Rp {bill?.totalAmount?.toLocaleString() || 0}</span>
+            <span>{formatCurrency(bill?.totalAmount)}</span>
           </div>
         </div>
       </div>
@@ -286,7 +308,7 @@ export function ItemAllocationPanel({
           {isLoading ? "Saving..." : "Send to members"}
         </Button>
       )}
-      
+
       {isAllocated && (
         <div className="text-center py-4 text-sm text-gray-600 bg-blue-50 rounded-lg">
           ✅ This group has been allocated. Items are shown for reference only.
