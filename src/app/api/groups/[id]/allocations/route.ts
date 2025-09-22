@@ -92,41 +92,39 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Auto-generate settlements from allocations
     let settlementsCreated = 0;
 
-    // Calculate who owes what to whom based on allocations
-    const memberTotals: Record<string, number> = {};
+    // Get all group members in single query
+    const groupMembers = await prisma.groupMember.findMany({
+      where: { groupId },
+      select: { id: true, userId: true },
+    });
+    
+    const memberIdToUserId = new Map(groupMembers.map(m => [m.id, m.userId]));
 
-    // Calculate each member's total from allocations
+    // Calculate member totals and prepare settlement data
+    const settlementData = [];
     for (const allocation of allocations as MemberAllocation[]) {
       const memberTotal = allocation.breakdown.total;
       if (memberTotal > 0) {
-        // Get user ID from member ID
-        const member = await prisma.groupMember.findUnique({
-          where: { id: allocation.memberId },
-          select: { userId: true },
-        });
-
-        if (member) {
-          memberTotals[member.userId] = memberTotal;
+        const userId = memberIdToUserId.get(allocation.memberId);
+        if (userId && userId !== currentUser.id) {
+          settlementData.push({
+            groupId,
+            payerId: userId,
+            receiverId: currentUser.id,
+            amount: memberTotal,
+            currency: "IDR",
+            status: "pending",
+          });
         }
       }
     }
 
-    // Create settlements: everyone owes to group creator
-    const memberIds = Object.keys(memberTotals);
-    for (const memberId of memberIds) {
-      if (memberId !== currentUser.id && memberTotals[memberId] > 0) {
-        await prisma.settlement.create({
-          data: {
-            groupId,
-            payerId: memberId,
-            receiverId: currentUser.id, // Group creator receives payments
-            amount: memberTotals[memberId],
-            currency: "IDR",
-            status: "pending",
-          },
-        });
-        settlementsCreated++;
-      }
+    // Batch create settlements
+    if (settlementData.length > 0) {
+      await prisma.settlement.createMany({
+        data: settlementData,
+      });
+      settlementsCreated = settlementData.length;
     }
 
     // Store allocation data in group

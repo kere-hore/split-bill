@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { MemberAllocation } from "@/shared/types/allocation";
 
 interface Props {
   params: Promise<{ groupId: string; memberId: string }>;
@@ -26,8 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (group?.allocationData) {
       const allocation = JSON.parse(group.allocationData);
       const member = allocation.allocations?.find(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (a: any) => a.memberId === memberId
+        (a: MemberAllocation) => a.memberId === memberId
       );
 
       if (member) {

@@ -1,9 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import 'swagger-ui-react/swagger-ui.css'
+
+interface SwaggerSpec {
+  openapi: string;
+  info: object;
+  paths: object;
+  components?: object;
+}
+
+interface SwaggerRequest {
+  url: string;
+  method: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
 
 // Dynamically import SwaggerUI to avoid SSR issues and suppress warnings
 const SwaggerUI = dynamic(() => import('swagger-ui-react').then(mod => ({ default: mod.default })), {
@@ -16,7 +29,7 @@ const SwaggerUI = dynamic(() => import('swagger-ui-react').then(mod => ({ defaul
 })
 
 export default function ApiDocsPage() {
-  const [swaggerSpec, setSwaggerSpec] = useState(null)
+  const [swaggerSpec, setSwaggerSpec] = useState<SwaggerSpec | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -46,7 +59,7 @@ export default function ApiDocsPage() {
     defaultModelExpandDepth: 2,
     tryItOutEnabled: true,
     filter: true,
-    requestInterceptor: (request: any) => request
+    requestInterceptor: (request: SwaggerRequest) => request
   }), [])
 
   if (loading) {
@@ -72,7 +85,7 @@ export default function ApiDocsPage() {
       <div className="max-w-6xl mx-auto">
         {swaggerSpec && (
           <SwaggerUI 
-            spec={swaggerSpec as any}
+            spec={swaggerSpec}
             {...swaggerConfig}
           />
         )}

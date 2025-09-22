@@ -12,7 +12,10 @@
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:indexes": "psql $DATABASE_URL -f add_indexes.sql",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset"
   },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.864.0",

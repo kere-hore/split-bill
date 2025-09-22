@@ -33,6 +33,10 @@ model User {
   
   // Bill relations
   bills          Bill[]
+  
+  @@index([clerkId])
+  @@index([email])
+  @@index([createdAt])
 }
 
 model Group {
@@ -50,6 +54,12 @@ model Group {
   bill        Bill?         @relation(fields: [billId], references: [id], onDelete: SetNull)
   members     GroupMember[]
   expenses    Expense[]
+  
+  @@index([createdBy])
+  @@index([status])
+  @@index([createdAt])
+  @@index([createdBy, status])
+  @@index([billId])
 }
 
 model GroupMember {
@@ -63,6 +73,9 @@ model GroupMember {
   user    User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@unique([groupId, userId]) // unique user per group
+  @@index([groupId])
+  @@index([userId])
+  @@index([groupId, role])
 }
 
 model Expense {
@@ -105,6 +118,13 @@ model Settlement {
   
   payer      User @relation("SettlementPayer", fields: [payerId], references: [id])
   receiver   User @relation("SettlementReceiver", fields: [receiverId], references: [id])
+  
+  @@index([groupId])
+  @@index([payerId])
+  @@index([receiverId])
+  @@index([status])
+  @@index([groupId, status])
+  @@index([payerId, status])
 }
 
 model Bill {
@@ -128,6 +148,11 @@ model Bill {
   items         BillItem[]
   discounts     BillDiscount[]
   additionalFees BillFee[]
+  
+  @@index([createdBy])
+  @@index([date])
+  @@index([createdAt])
+  @@index([merchantName])
 }
 
 model BillItem {
@@ -141,6 +166,9 @@ model BillItem {
   
   bill       Bill              @relation(fields: [billId], references: [id], onDelete: Cascade)
   allocations BillItemAllocation[]
+  
+  @@index([billId])
+  @@index([category])
 }
 
 model BillItemAllocation {

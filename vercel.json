@@ -1,7 +1,14 @@
 {
   "functions": {
     "src/app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "src/app/api/groups/**/*.ts": {
+      "maxDuration": 45
+    },
+    "src/app/api/ocr/**/*.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": []
 }

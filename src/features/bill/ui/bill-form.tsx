@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, useFieldArray, useWatch, FieldErrors, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -141,13 +140,13 @@ export function BillForm({
   };
 
   // Handle form submission
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit: SubmitHandler<BillFormData> = (data) => {
     console.log("Form submitted with data:", data);
-    onSubmit(data as BillFormData);
+    onSubmit(data);
   };
 
   // Handle form errors
-  const handleFormError = (errors: any) => {
+  const handleFormError = (errors: FieldErrors<BillFormData>) => {
     console.log("Form validation errors:", errors);
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Bill, BillItem, GroupMember } from "@/entities/group";
@@ -92,19 +92,25 @@ export function useAllocationLogic(
     return allocation?.memberAllocations[memberId] > 0;
   };
 
-  const getMemberSubtotal = (memberId: string) => {
-    return (
-      billItems?.reduce((total: number, item: BillItem) => {
+  const getMemberSubtotal = useMemo(() => {
+    const cache = new Map<string, number>();
+    return (memberId: string) => {
+      if (cache.has(memberId)) {
+        return cache.get(memberId)!;
+      }
+      
+      const subtotal = billItems?.reduce((total: number, item: BillItem) => {
         const allocation = allocations[item.id];
         if (allocation?.memberAllocations[memberId]) {
-          return (
-            total + item.unitPrice * allocation.memberAllocations[memberId]
-          );
+          return total + item.unitPrice * allocation.memberAllocations[memberId];
         }
         return total;
-      }, 0) || 0
-    );
-  };
+      }, 0) || 0;
+      
+      cache.set(memberId, subtotal);
+      return subtotal;
+    };
+  }, [billItems, allocations]);
 
   const getMemberBreakdown = (memberId: string) => {
     const memberSubtotal = getMemberSubtotal(memberId);
