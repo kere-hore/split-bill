@@ -20,7 +20,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let user = null;
-  
+
   try {
     // Sync user to database for all private pages
     user = await getCurrentUser();
@@ -35,11 +35,13 @@ export default async function RootLayout({
     redirect("/sign-in");
   }
 
-  const userData = user ? {
-    name: user.name || "User",
-    email: user.email || "user@example.com",
-    avatar: user.image || "/avatars/default.jpg",
-  } : undefined;
+  const userData = user
+    ? {
+        name: user.name || "User",
+        email: user.email || "user@example.com",
+        avatar: user.image || "/avatars/default.jpg",
+      }
+    : undefined;
 
   return (
     <SidebarProvider

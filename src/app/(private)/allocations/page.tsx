@@ -1,5 +1,5 @@
-import { AllocationsPage } from "@/widgets/allocations";
+import { AllocationsListPage } from "@/widgets/allocations";
 
 export default function Page() {
-  return <AllocationsPage />;
+  return <AllocationsListPage />;
 }

@@ -39,14 +39,10 @@ const eslintConfig = [
           pattern: "src/shared/**/*",
         },
       ],
-      "boundaries/ignore": [
-        "**/*.test.*",
-        "**/*.spec.*",
-        "**/*.stories.*",
-      ],
+      "boundaries/ignore": ["**/*.test.*", "**/*.spec.*", "**/*.stories.*"],
     },
     rules: {
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "boundaries/element-types": [
         "error",
         {

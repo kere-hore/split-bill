@@ -1,6 +1,6 @@
 // Removed circular import - using inline type
 
-import { ApiResponse } from "@/shared/types/api-response";
+import { ApiResponse, ApiSuccessResponse } from "@/shared/types/api-response";
 
 export type SplitMethod = "equal" | "proportional" | "custom";
 
@@ -59,4 +59,15 @@ export interface SaveAllocationsResponse {
   broadcastCount?: number;
 }
 
+export interface AllocationData {
+  group: {
+    id: string;
+    name: string;
+    status: string;
+  };
+  member: MemberAllocation;
+  createdAt: string;
+  updatedAt: string;
+}
+export type GetAllocationsApiResponse = ApiSuccessResponse<AllocationData>;
 export type SaveAllocationsApiResponse = ApiResponse<SaveAllocationsResponse>;

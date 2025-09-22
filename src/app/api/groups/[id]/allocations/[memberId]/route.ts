@@ -1,23 +1,33 @@
-import { NextRequest } from "next/server";
 import {
-  createSuccessResponse,
   createErrorResponse,
+  createSuccessResponse,
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
 import { MemberAllocation } from "@/shared/types/allocation";
-import "@/shared/lib/env-validation";
+import { auth } from "@clerk/nextjs/server";
+import { NextRequest } from "next/server";
 
 interface RouteParams {
   params: Promise<{
-    groupId: string;
+    id: string;
     memberId: string;
   }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { groupId, memberId } = await params;
+  const { id, memberId } = await params;
   try {
-    if (!groupId || !memberId) {
+    const { userId: clerkId } = await auth();
+
+    if (!clerkId) {
+      return createErrorResponse(
+        "Authentication required",
+        401,
+        "User not authenticated",
+        "/api/groups/[id]/members/[memberId]"
+      );
+    }
+    if (!id || !memberId) {
       return createErrorResponse(
         "Group ID and Member ID are required",
         400,
@@ -25,13 +35,39 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         `/api/public/allocations/[groupId]/[memberId]`
       );
     }
+    // Get current user
+    const currentUser = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true },
+    });
+    if (!currentUser) {
+      return createErrorResponse(
+        "User not found",
+        404,
+        "Current user not found in database",
+        "/api/groups/[id]/members"
+      );
+    }
+    // Check if current user is a member of the group
+    const groupMember = await prisma.groupMember.findFirst({
+      where: {
+        groupId: id,
+        id: memberId,
+      },
+    });
 
-    console.log(
-      `[PUBLIC_ALLOCATION] Fetching allocation for group: ${groupId}, member: ${memberId}`
-    );
+    if (currentUser.id !== groupMember?.userId) {
+      return createErrorResponse(
+        "Access denied",
+        403,
+        "User does not have access to read this allocation",
+        `/api/public/allocations/${id}/${memberId}`
+      );
+    }
+
     // Get group with allocation data
     const group = await prisma.group.findUnique({
-      where: { id: groupId },
+      where: { id: id },
       select: {
         id: true,
         name: true,
@@ -45,16 +81,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Group not found",
         404,
         "Group does not exist",
-        `/api/public/allocations/${groupId}/${memberId}`
+        `/api/public/allocations/${id}/${memberId}`
       );
     }
-
     if (!group.allocationData) {
       return createErrorResponse(
         "No allocations found",
         404,
         "Group has no saved allocations",
-        `/api/public/allocations/${groupId}/${memberId}`
+        `/api/public/allocations/${id}/${memberId}`
       );
     }
 
@@ -67,7 +102,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Invalid allocation data",
         500,
         "Failed to parse allocation data",
-        `/api/public/allocations/${groupId}/${memberId}`
+        `/api/public/allocations/${id}/${memberId}`
       );
     }
 
@@ -80,7 +115,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         "Member allocation not found",
         404,
         "No allocation found for this member",
-        `/api/public/allocations/${groupId}/${memberId}`
+        `/api/public/allocations/${id}/${memberId}`
       );
     }
 
@@ -106,7 +141,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       "Failed to retrieve member allocation",
       500,
       error instanceof Error ? error.message : "Unknown error occurred",
-      `/api/public/allocations/${groupId}/${memberId}`
+      `/api/public/allocations/${id}/${memberId}`
     );
   }
 }

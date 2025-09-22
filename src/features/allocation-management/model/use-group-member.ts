@@ -2,7 +2,7 @@
 
 import { useGroupById } from "@/entities/group";
 
-export function useGroupDetail(id: string) {
+export function useGroupMember(id: string) {
   const { data: group, isLoading: loading, error, refetch } = useGroupById(id);
 
   return {

@@ -22,15 +22,15 @@ import { Loader2, Plus, Minus } from "lucide-react";
 import { useRemoveMember, GroupMember } from "@/entities/group";
 import { ItemAllocationPanel } from "./item-allocation-panel";
 import { AddMemberModal } from "./add-member-modal";
-import { useGroupDetail } from "../model/use-group-detail";
+import { useGroupMember } from "../model/use-group-member";
 import { toast } from "sonner";
 
-interface AllocationDetailProps {
+interface AllocationMemberProps {
   groupId: string;
 }
 
-export function AllocationDetail({ groupId }: AllocationDetailProps) {
-  const { group, loading, error, refetch } = useGroupDetail(groupId);
+export function AllocationMember({ groupId }: AllocationMemberProps) {
+  const { group, loading, error, refetch } = useGroupMember(groupId);
   const [showAddModal, setShowAddModal] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<GroupMember | null>(
     null

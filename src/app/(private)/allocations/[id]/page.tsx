@@ -1,4 +1,4 @@
-import { AllocationDetailPage } from "@/widgets/allocation-detail";
+import { AllocationMemberPage } from "@/widgets/allocation-member";
 
 interface AllocationDetailPageProps {
   params: Promise<{
@@ -8,5 +8,5 @@ interface AllocationDetailPageProps {
 
 export default async function Page({ params }: AllocationDetailPageProps) {
   const { id } = await params;
-  return <AllocationDetailPage groupId={id} />;
+  return <AllocationMemberPage groupId={id} />;
 }

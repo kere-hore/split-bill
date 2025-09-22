@@ -338,8 +338,9 @@ export default function PublicBillPage() {
                       >
                         {hasAllocation ? (
                           <Link
-                            href={`/public/allocations/${group.id}/${member.id}`}
+                            href={`/allocation/${group.id}/${member.id}`}
                             className="flex items-center gap-3 w-full"
+                            target="_blank"
                           >
                             <Avatar className="h-8 w-8">
                               <AvatarImage src={member.user?.image} />
