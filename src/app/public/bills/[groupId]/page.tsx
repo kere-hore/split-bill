@@ -136,7 +136,9 @@ export default function PublicBillPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading bill details...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading bill details...
+          </p>
         </div>
       </div>
     );
@@ -147,7 +149,9 @@ export default function PublicBillPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
-            <p className="text-red-600 dark:text-red-400 mb-4">❌ {error || "Bill not found"}</p>
+            <p className="text-red-600 dark:text-red-400 mb-4">
+              ❌ {error || "Bill not found"}
+            </p>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
               This bill link may be invalid or the group doesn&apos;t exist.
             </p>
@@ -166,7 +170,9 @@ export default function PublicBillPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Receipt className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{group.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              {group.name}
+            </h1>
           </div>
           <p className="text-gray-600 dark:text-gray-400 mb-2">
             {bill.merchantName} •{" "}
@@ -191,12 +197,16 @@ export default function PublicBillPage() {
             <div className="max-w-sm mx-auto bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-4 font-mono text-sm shadow-lg">
               {/* Receipt Header */}
               <div className="text-center border-b dark:border-gray-700 pb-3 mb-4">
-                <h2 className="font-bold text-md dark:text-white">{bill.merchantName}</h2>
+                <h2 className="font-bold text-md dark:text-white">
+                  {bill.merchantName}
+                </h2>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   {new Date(bill.date).toLocaleDateString("id-ID")}
                 </p>
                 {bill.receiptNumber && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400">#{bill.receiptNumber}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    #{bill.receiptNumber}
+                  </p>
                 )}
               </div>
 
@@ -205,7 +215,9 @@ export default function PublicBillPage() {
                 {bill.items.map((item) => (
                   <div key={item.id}>
                     <div className="flex justify-between">
-                      <span className="text-xs dark:text-gray-300">{item.name}</span>
+                      <span className="text-xs dark:text-gray-300">
+                        {item.name}
+                      </span>
                     </div>
                     <div className="flex justify-between text-xs dark:text-gray-300">
                       <span>
@@ -307,7 +319,7 @@ export default function PublicBillPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 space-y-3">
+                <div className="grid grid-cols-2">
                   {members.map((member) => {
                     const memberAllocation = allocation?.allocations.find(
                       (a) => a.memberId === member.id
