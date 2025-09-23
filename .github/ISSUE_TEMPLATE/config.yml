@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📚 Documentation
-    url: https://github.com/pradiktabagus/feature-toggle/tree/main/documentation
+    url: https://github.com/pradiktabagus/split-bill/blob/main/README.md
     about: Check our comprehensive documentation before creating an issue
   - name: 💬 Discussions
-    url: https://github.com/pradiktabagus/feature-toggle/discussions
+    url: https://github.com/pradiktabagus/split-bill/discussions
     about: Ask questions and discuss ideas with the community
-  - name: 🚀 Project Roadmap
-    url: https://github.com/pradiktabagus/feature-toggle/blob/main/blueprint.md
-    about: View our development roadmap and planned features
+  - name: 🚀 API Documentation
+    url: https://split-bill-mu.vercel.app/api/docs
+    about: View our API documentation and endpoints

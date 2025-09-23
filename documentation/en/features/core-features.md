@@ -1,396 +1,340 @@
-# ⚡ Core Features Documentation
+# 🎯 Core Features - Split Bill Application
 
-This document describes all implemented features in the Feature Toggle Management System.
+This document describes all implemented features in the Split Bill Application.
 
-## 🎯 Feature Overview
+## 📊 Feature Status Overview
 
-### ✅ Implemented Features (Phase 1 + 1.5)
+| Feature | Status | Description | FSD Layer |
+|---------|--------|-------------|-----------|
+| **User Authentication** | ✅ Complete | Multi-provider authentication system | Entity + Feature |
+| **Group Management** | ✅ Complete | CRUD operations for expense groups | Entity + Feature |
+| **Expense Tracking** | ✅ Complete | Add, edit, delete shared expenses | Entity + Feature |
+| **OCR Integration** | ✅ Complete | Receipt scanning with Google Vision API | Feature + Shared |
+| **Settlement System** | ✅ Complete | Payment tracking between members | Entity + Feature |
+| **WhatsApp Integration** | ✅ Complete | Share allocation summaries via WhatsApp | Feature |
+| **Public Bill Sharing** | ✅ Complete | Share expenses via public URLs | Feature + Widget |
+| **Caching System** | ✅ Complete | CloudFront + S3 hybrid caching | Shared |
+| **Responsive UI** | ✅ Complete | Mobile-first design with dark mode | Widget + Shared |
 
-| Feature | Status | Description | Layer |
-|---------|--------|-------------|-------|
-| **Authentication** | ✅ Complete | OAuth login with Google & GitHub | Entity + Widget |
-| **Toggle Management** | ✅ Complete | CRUD operations for feature toggles | Entity + Feature |
-| **Public API** | ✅ Complete | External toggle consumption API | App Layer |
-| **Caching System** | ✅ Complete | CloudFront + S3 hybrid caching | Entity |
-| **Auto Export** | ✅ Complete | Automatic backup to S3 | Entity |
-| **Cache Invalidation** | ✅ Complete | Real-time cache updates | Entity |
-
-## 🔐 Authentication System
+## 🔐 User Authentication
 
 ### Overview
-OAuth-based authentication supporting multiple providers with session management.
-
-### Implementation
-```
-entities/user/
-├── model/
-│   └── use-current-user.ts    # User session management
-widgets/auth/
-├── auth-guard.tsx             # Route protection
-├── login-widget.tsx           # Login interface
-└── protected-route.tsx        # Route wrapper
-```
+Complete authentication system using Clerk with multiple OAuth providers.
 
 ### Features
-- **OAuth Providers**: Google, GitHub
-- **Session Management**: NextAuth.js integration
-- **Route Protection**: Automatic redirect for unauthenticated users
-- **User Profile**: Basic user information display
+- **Multi-provider Login**: Email, Google, GitHub OAuth
+- **User Management**: Profile management and settings
+- **Session Handling**: Secure JWT token management
+- **Route Protection**: Middleware-based route protection
+
+### Implementation
+```typescript
+// entities/user/
+├── model/use-user.ts          # User state management
+├── api/user-api.ts            # User API calls
+└── index.ts                   # Public exports
+
+// features/auth/
+├── ui/sign-in-form.tsx        # Sign-in UI
+├── ui/sign-up-form.tsx        # Sign-up UI
+└── model/auth-store.ts        # Auth state
+```
+
+### Key Components
+- **Sign-in/Sign-up Pages**: `/sign-in`, `/sign-up`
+- **Protected Routes**: Automatic redirect for unauthenticated users
+- **User Profile**: Profile management in settings
+- **Session Sync**: Clerk user data synced to database
+
+## 👥 Group Management
+
+### Overview
+Complete CRUD operations for expense groups with member management.
+
+### Features
+- **Group Creation**: Create groups with name and description
+- **Member Management**: Add/remove members, invite via email
+- **Group Settings**: Edit group details and preferences
+- **Member Roles**: Basic role system for group management
+
+### Implementation
+```typescript
+// entities/group/
+├── model/use-group.ts         # Group state management
+├── api/group-api.ts           # Group API operations
+└── types/group-types.ts       # Group type definitions
+
+// features/group-management/
+├── ui/group-form.tsx          # Group creation/edit form
+├── ui/member-list.tsx         # Member management UI
+└── model/group-store.ts       # Group state management
+```
 
 ### API Endpoints
-```
-GET  /api/auth/session         # Get current session
-POST /api/auth/signin          # Initiate OAuth flow
-POST /api/auth/signout         # End user session
-```
+- `GET /api/groups` - List user's groups
+- `POST /api/groups` - Create new group
+- `PUT /api/groups/[id]` - Update group
+- `DELETE /api/groups/[id]` - Delete group
+- `GET /api/groups/[id]/members` - Get group members
+- `POST /api/groups/[id]/members` - Add member to group
 
-### Usage Example
-```typescript
-import { useCurrentUser } from '@/entities/user'
-
-export function UserProfile() {
-  const { user, loading } = useCurrentUser()
-  
-  if (loading) return <Loading />
-  if (!user) return <LoginPrompt />
-  
-  return <div>Welcome, {user.name}!</div>
-}
-```
-
-## 🎛️ Toggle Management
+## 💰 Expense Tracking
 
 ### Overview
-Complete CRUD operations for feature toggles with type-safe value handling.
-
-### Implementation
-```
-entities/toggle/
-├── model/
-│   ├── toggle.ts              # Toggle types and interfaces
-│   └── use-toggles.ts         # Toggle business logic
-features/toggle/
-├── model/
-│   ├── schemas.ts             # Validation schemas
-│   ├── use-toggle-actions.ts  # CRUD operations
-│   └── use-toggle-management.ts # Feature orchestration
-└── ui/
-    ├── toggle-table.tsx       # Toggle listing
-    ├── toggle-form-modal.tsx  # Create/edit form
-    └── toggle-action.tsx      # Action buttons
-```
-
-### Toggle Types
-```typescript
-interface Toggle {
-  id: string
-  name: string
-  description?: string
-  key: string                  # Unique identifier
-  value: unknown              # Dynamic value
-  type: 'BOOLEAN' | 'STRING' | 'NUMBER' | 'JSON'
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-  createdBy: string
-  updatedBy?: string
-}
-```
+Comprehensive expense management with receipt upload and categorization.
 
 ### Features
-- **Multiple Value Types**: Boolean, String, Number, JSON
-- **Unique Key Generation**: Automatic key creation
-- **Validation**: Zod schema validation
-- **Pagination**: Server-side pagination
-- **Search & Filter**: Real-time filtering
-- **Audit Trail**: Created/updated by tracking
+- **Expense CRUD**: Add, edit, delete expenses
+- **Receipt Upload**: Image upload to S3 storage
+- **Categorization**: Expense categories and tags
+- **Split Configuration**: Equal or custom split amounts
+- **Expense History**: Complete expense tracking
+
+### Implementation
+```typescript
+// entities/expense/
+├── model/use-expense.ts       # Expense state management
+├── api/expense-api.ts         # Expense API operations
+└── types/expense-types.ts     # Expense type definitions
+
+// features/expense-tracking/
+├── ui/expense-form.tsx        # Expense creation/edit form
+├── ui/expense-list.tsx        # Expense listing
+└── model/expense-store.ts     # Expense state management
+```
+
+### Key Features
+- **Receipt Upload**: Direct upload to S3 with presigned URLs
+- **Expense Validation**: Zod schema validation
+- **Real-time Updates**: Optimistic UI updates
+- **Expense Categories**: Predefined and custom categories
+
+## 📷 OCR Integration
+
+### Overview
+Automatic receipt scanning and expense extraction using Google Cloud Vision API.
+
+### Features
+- **Image Processing**: Support for JPEG, PNG, WebP formats
+- **Text Extraction**: Automatic text recognition from receipts
+- **Data Parsing**: Smart parsing of merchant, amount, date
+- **Manual Correction**: Fallback to manual entry if OCR fails
+
+### Implementation
+```typescript
+// shared/lib/ocr/
+├── vision-api.ts              # Google Vision API integration
+├── text-parser.ts             # Receipt text parsing logic
+└── image-processor.ts         # Image preprocessing
+
+// features/expense-tracking/
+├── ui/receipt-scanner.tsx     # OCR UI component
+└── model/ocr-store.ts         # OCR state management
+```
 
 ### API Endpoints
-```
-GET    /api/toggles           # List toggles (paginated)
-POST   /api/toggles           # Create new toggle
-PUT    /api/toggles/[id]      # Update toggle
-PATCH  /api/toggles/[id]      # Update toggle status
-DELETE /api/toggles/[id]      # Delete toggle
-```
+- `POST /api/ocr/extract` - Extract text from receipt image
 
-### Usage Example
-```typescript
-import { useToggleManagement } from '@/features/toggle'
+### Supported Receipt Formats
+- Restaurant receipts
+- Grocery store receipts
+- Gas station receipts
+- General merchant receipts
 
-export function ToggleManager() {
-  const { 
-    toggles, 
-    loading, 
-    createToggle, 
-    updateToggle, 
-    deleteToggle 
-  } = useToggleManagement()
-  
-  return (
-    <div>
-      <ToggleForm onSubmit={createToggle} />
-      <ToggleTable 
-        data={toggles}
-        onUpdate={updateToggle}
-        onDelete={deleteToggle}
-      />
-    </div>
-  )
-}
-```
-
-## 🌐 Public API
+## 💳 Settlement System
 
 ### Overview
-External API for consuming feature toggles with caching and performance optimization.
-
-### Implementation
-```
-src/app/api/public/toggles/
-├── route.ts                  # List all public toggles
-└── [key]/
-    └── route.ts              # Get specific toggle
-```
+Complete payment tracking and settlement calculation system.
 
 ### Features
-- **Public Access**: No authentication required
-- **Cache-First**: CloudFront + S3 caching
-- **Performance**: <50ms response time (cached)
-- **Type Safety**: Proper value parsing
-- **Error Handling**: Graceful fallbacks
+- **Settlement Calculation**: Automatic calculation of who owes what
+- **Payment Tracking**: Record payments between members
+- **Settlement Status**: Track payment status (pending, paid, verified)
+- **Balance Overview**: Real-time balance calculations
+
+### Implementation
+```typescript
+// entities/settlement/
+├── model/use-settlement.ts    # Settlement state management
+├── api/settlement-api.ts      # Settlement API operations
+└── types/settlement-types.ts  # Settlement type definitions
+
+// features/settlement/
+├── ui/settlement-list.tsx     # Settlement listing
+├── ui/payment-form.tsx        # Payment recording form
+└── model/settlement-store.ts  # Settlement state management
+```
 
 ### API Endpoints
-```
-GET /api/public/toggles       # List all active toggles
-GET /api/public/toggles/[key] # Get specific toggle by key
-```
+- `GET /api/settlements` - List settlements
+- `POST /api/settlements` - Record payment
+- `PATCH /api/settlements/[id]/status` - Update payment status
+- `GET /api/groups/[id]/settlements` - Get group settlements
 
-### Response Format
-```typescript
-// Single toggle response
-{
-  enabled: boolean
-  key: string
-  name: string
-  value: unknown              # Parsed based on type
-  type: string
-}
+### Settlement Algorithm
+1. Calculate total expenses per member
+2. Determine net balances (who owes/is owed)
+3. Optimize payment paths to minimize transactions
+4. Generate settlement recommendations
 
-// Error response
-{
-  enabled: false
-  value: null
-  message: string
-}
-```
-
-### Usage Example
-```typescript
-// External application usage
-const response = await fetch('/api/public/toggles/new-checkout-flow')
-const toggle = await response.json()
-
-if (toggle.enabled && toggle.value === true) {
-  // Show new checkout flow
-} else {
-  // Show old checkout flow
-}
-```
-
-### Cache Headers
-```
-Cache-Control: public, max-age=300, s-maxage=3600
-CDN-Cache-Control: max-age=3600
-X-Cache-Source: S3-Cache | Database
-X-Cache-Status: HIT | MISS
-X-CloudFront-Hit: true | false
-X-CloudFront-Cache: HIT | MISS | UNKNOWN
-```
-
-## 🚀 Caching System
+## 📱 WhatsApp Integration
 
 ### Overview
-Hybrid caching system using AWS CloudFront and S3 for global performance.
-
-### Implementation
-```
-entities/cache/
-├── lib/
-│   ├── cache-sync.ts         # Cache synchronization
-│   └── cloudfront.ts         # CloudFront operations
-└── index.ts                  # Cache entity exports
-```
-
-### Architecture
-```
-Client Request → CloudFront → S3 Cache → Origin API → Database
-                     ↓
-                Cache Hit (50ms)
-                     ↓
-                Cache Miss → Origin (200ms)
-```
+Share expense allocation summaries via WhatsApp with pre-formatted messages.
 
 ### Features
-- **Global CDN**: CloudFront edge locations worldwide
-- **Automatic Sync**: Cache updates on toggle changes
-- **Instant Invalidation**: <30 seconds propagation
-- **Configurable TTL**: Environment-based cache duration
-- **Monitoring**: Cache hit/miss tracking
+- **Message Generation**: Auto-generate allocation summaries
+- **WhatsApp URLs**: Direct WhatsApp sharing links
+- **Custom Messages**: Personalized messages for each member
+- **Broadcast Support**: Share with multiple members at once
+
+### Implementation
+```typescript
+// features/whatsapp-integration/
+├── ui/whatsapp-share.tsx      # WhatsApp sharing UI
+├── lib/message-generator.ts   # Message formatting
+└── lib/whatsapp-urls.ts       # WhatsApp URL generation
+```
+
+### Message Format
+```
+🧾 Split Bill - [Group Name]
+💰 Your share: $XX.XX
+
+📋 Breakdown:
+- Item 1: $XX.XX
+- Item 2: $XX.XX
+- Tax & Service: $XX.XX
+
+💳 Pay to: [Payment Receiver]
+🔗 View details: [Public URL]
+```
+
+## 🌐 Public Bill Sharing
+
+### Overview
+Share expense details via public URLs without requiring authentication.
+
+### Features
+- **Public URLs**: Shareable links for expense summaries
+- **Cached Content**: Fast loading via CloudFront CDN
+- **Mobile Optimized**: Responsive design for mobile sharing
+- **Privacy Controls**: Control what information is shared publicly
+
+### Implementation
+```typescript
+// features/public-bill-sharing/
+├── ui/public-bill-page.tsx    # Public bill display
+├── ui/share-dialog.tsx        # Sharing interface
+└── lib/url-generator.ts       # Public URL generation
+
+// widgets/public-bill/
+├── index.tsx                  # Main public bill widget
+├── receipt-view.tsx           # Receipt display
+└── allocation-view.tsx        # Allocation breakdown
+```
+
+### API Endpoints
+- `GET /api/public/bills/[groupId]` - Get public bill summary
+- `GET /api/public/allocations/[groupId]/[memberId]` - Get member allocation
+
+### Caching Strategy
+- **CloudFront**: Global edge caching for fast access
+- **S3 Storage**: Persistent cache storage
+- **Auto-invalidation**: Real-time cache updates on changes
+
+## ⚡ Caching System
+
+### Overview
+Hybrid caching system using AWS CloudFront and S3 for optimal performance.
+
+### Features
+- **Multi-layer Caching**: Browser, CloudFront, S3 caching
+- **Auto-invalidation**: Automatic cache updates on data changes
+- **Cache Headers**: Configurable cache TTL
+- **Performance Monitoring**: Cache hit/miss tracking
+
+### Implementation
+```typescript
+// shared/lib/cache/
+├── cache-strategy.ts          # Caching logic
+├── s3-cache.ts               # S3 cache operations
+├── cloudfront-invalidation.ts # Cache invalidation
+└── cache-headers.ts          # HTTP cache headers
+```
 
 ### Cache Configuration
-```typescript
-// Environment variables
-BROWSER_CACHE_SECONDS=300      # 5 minutes
-CLOUDFRONT_CACHE_SECONDS=3600  # 1 hour
+- **Browser Cache**: 5 minutes for dynamic content
+- **CloudFront Cache**: 1 hour for public APIs
+- **S3 Cache**: Persistent storage for public data
+- **Database Cache**: React Query for API responses
 
-// Runtime configuration
-const BROWSER_CACHE = parseInt(process.env.BROWSER_CACHE_SECONDS || '300')
-const CLOUDFRONT_CACHE = parseInt(process.env.CLOUDFRONT_CACHE_SECONDS || '3600')
-```
-
-### Cache Operations
-```typescript
-import { syncToggleToCache, removeToggleFromCache } from '@/entities/cache'
-
-// Sync toggle to cache
-await syncToggleToCache('feature-key')
-
-// Remove from cache
-await removeToggleFromCache('feature-key')
-
-// Invalidate CloudFront
-await invalidateCloudFrontCache(['/api/public/toggles/feature-key'])
-```
-
-## 📤 Auto Export System
+## 🎨 Responsive UI
 
 ### Overview
-Automatic backup system that exports toggles to S3 on every change.
-
-### Implementation
-```
-entities/export/
-├── lib/
-│   └── auto-export.ts        # Export functionality
-└── index.ts                  # Export entity exports
-```
+Modern, responsive user interface with dark mode support and mobile-first design.
 
 ### Features
-- **Automatic Backup**: Triggered on CRUD operations
-- **JSON Format**: Structured export data
-- **Metadata**: Export timestamp and user info
-- **S3 Storage**: Reliable cloud storage
-- **Error Handling**: Graceful failure handling
-
-### Export Format
-```json
-{
-  "exportedAt": "2025-01-17T10:30:00Z",
-  "exportedBy": "user@example.com",
-  "toggles": [
-    {
-      "name": "new-checkout-flow",
-      "description": "New checkout process",
-      "value": true,
-      "type": "BOOLEAN",
-      "isActive": true,
-      "key": "new-checkout-flow-abc123"
-    }
-  ]
-}
-```
-
-### Usage
-```typescript
-import { autoExportToggles } from '@/entities/export'
-
-// Automatic export after toggle changes
-await autoExportToggles(userEmail)
-```
-
-## 🔄 Cache Invalidation
-
-### Overview
-Real-time cache invalidation system ensuring immediate consistency.
+- **Mobile-First Design**: Optimized for mobile devices
+- **Dark Mode**: Full dark mode support with system preference detection
+- **Component Library**: shadcn/ui components with Tailwind CSS
+- **Accessibility**: WCAG compliant components
+- **Loading States**: Skeleton loaders and loading indicators
 
 ### Implementation
-Integrated into cache entity with CloudFront invalidation API.
-
-### Features
-- **Automatic Invalidation**: Triggered on toggle updates
-- **Multiple Paths**: Invalidates related cache paths
-- **Error Resilience**: Continues operation on invalidation failure
-- **Performance**: Non-blocking invalidation
-
-### Invalidation Triggers
-- Toggle creation → Cache new toggle
-- Toggle update → Invalidate + re-cache
-- Toggle deletion → Remove from cache
-- Toggle status change → Update cache
-
-### Monitoring
 ```typescript
-// Response headers show cache status
-{
-  'X-Cache-Source': 'S3-Cache' | 'Database',
-  'X-Cache-Status': 'HIT' | 'MISS',
-  'X-CloudFront-Hit': 'true' | 'false',
-  'X-CloudFront-Cache': 'HIT' | 'MISS' | 'UNKNOWN'
-}
+// shared/components/ui/
+├── button.tsx                 # Button component
+├── card.tsx                   # Card component
+├── form.tsx                   # Form components
+└── theme-provider.tsx         # Theme management
+
+// widgets/
+├── dashboard/                 # Dashboard widgets
+├── group-list/               # Group listing widgets
+└── expense-summary/          # Expense summary widgets
 ```
+
+### Design System
+- **Colors**: Consistent color palette with dark mode variants
+- **Typography**: Responsive typography scale
+- **Spacing**: Consistent spacing system
+- **Components**: Reusable UI components
+- **Icons**: Lucide React icon library
 
 ## 📊 Performance Metrics
 
 ### Current Performance
-- **API Response Time**: <200ms (origin), <50ms (cached)
-- **Cache Hit Rate**: >80% for public API
-- **Cache Invalidation**: <30 seconds propagation
-- **UI Performance**: Lighthouse score >90
-- **Type Safety**: 100% TypeScript coverage
+- **Lighthouse Score**: 95+ for performance
+- **First Contentful Paint**: <1.5s
+- **Largest Contentful Paint**: <2.5s
+- **Cache Hit Rate**: >80% for public APIs
+- **Bundle Size**: <500KB gzipped
 
-### Monitoring
-- Real-time cache hit/miss tracking
-- CloudFront analytics integration
-- Error rate monitoring
-- Performance bottleneck identification
+### Optimization Features
+- **Code Splitting**: Automatic route-based splitting
+- **Image Optimization**: Next.js Image component
+- **API Caching**: React Query with stale-while-revalidate
+- **Database Optimization**: Efficient Prisma queries
+- **CDN**: Global content delivery via CloudFront
 
-## 🔮 Upcoming Features (Phase 2+)
+## 🔄 Future Enhancements
 
-### Phase 2: Advanced Toggle Features
-- **Rollout Management**: Percentage-based rollouts
-- **User Targeting**: Rule-based user targeting
-- **Scheduled Toggles**: Time-based activation
-- **Bulk Operations**: Mass toggle management
+### Planned Features
+- **Multi-currency Support**: Handle international expenses
+- **Recurring Expenses**: Automatic recurring expense creation
+- **Advanced Analytics**: Spending insights and reports
+- **Mobile App**: Native mobile application
+- **Offline Support**: Offline functionality with sync
+- **Export Features**: PDF and CSV export options
 
-### Phase 3: Analytics & Monitoring
-- **Usage Analytics**: Toggle usage tracking
-- **Performance Monitoring**: Real-time metrics
-- **Error Tracking**: Comprehensive error logging
-- **Export Analytics**: Data export functionality
+### Technical Improvements
+- **Real-time Updates**: WebSocket integration
+- **Advanced Caching**: More sophisticated cache strategies
+- **Performance**: Further optimization and monitoring
+- **Testing**: Comprehensive test coverage
+- **Documentation**: Enhanced API documentation
 
-## 🛠️ Development Guidelines
+---
 
-### Adding New Features
-1. Follow [FSD Architecture](../architecture/fsd-architecture.md)
-2. Read [Adding Features Guide](../guides/adding-features.md)
-3. Follow [FSD Development Rules](../guides/fsd-rules.md)
-
-### Testing
-- Unit tests for business logic
-- Integration tests for API endpoints
-- Component tests for UI
-- E2E tests for critical flows
-
-### Performance
-- Implement caching where appropriate
-- Use proper loading states
-- Optimize bundle size
-- Monitor performance metrics
-
-## 📚 Related Documentation
-
-- [FSD Architecture](../architecture/fsd-architecture.md)
-- [API Reference](../api/overview.md)
-- [Caching System](./caching-system.md)
-- [Adding Features Guide](../guides/adding-features.md)
+**The Split Bill Application provides a comprehensive solution for group expense management with modern web technologies and best practices.**

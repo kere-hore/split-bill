@@ -39,10 +39,10 @@
 - **Invalidation**: Use CloudFront invalidation, handle permission errors gracefully
 
 ## AWS Resource Naming
-- **S3 Bucket**: `feature-toggle-files` (existing)
-- **CloudFront**: `E18PZOVM8J99OL` (existing)
-- **Cache Keys**: `public/toggles/{key}.json` format
-- **IAM Policies**: Descriptive names like `FeatureToggleCloudFrontPolicy`
+- **S3 Bucket**: `split-bill-cache` (existing)
+- **CloudFront**: `<distribution-id>` (existing)
+- **Cache Keys**: `public/groups/{key}.json` format
+- **IAM Policies**: Descriptive names like `SplitBillCloudFrontPolicy`
 
 ## Security Guidelines
 - **Environment Variables**: Never commit secrets, use `.env.local`

@@ -1,369 +1,293 @@
-# 🔌 API Overview
+# 🔌 API Overview - Split Bill Application
 
-This document provides a comprehensive overview of the Feature Toggle Management System API architecture, conventions, and usage patterns.
+This document provides a comprehensive overview of the Split Bill Application API architecture, conventions, and usage patterns.
 
-## 🏗️ API Architecture
+## 📋 API Architecture
 
-### API Structure
-```
-/api/
-├── auth/                   # Authentication endpoints
-│   └── [...nextauth]/      # NextAuth.js OAuth handlers
-├── toggles/                # Toggle management (admin)
-│   ├── route.ts           # GET, POST /api/toggles
-│   └── [id]/              # PUT, PATCH, DELETE /api/toggles/[id]
-├── public/                 # Public consumption API
-│   └── toggles/           # GET /api/public/toggles/[key]
-├── files/                  # File upload endpoints
-│   └── route.ts           # POST /api/files
-└── cdn/                    # CDN redirect endpoints
-    └── toggles/           # GET /api/cdn/toggles/[key]
-```
+### RESTful Design
+The Split Bill API follows RESTful principles with consistent HTTP methods and status codes.
 
-### API Layers
-```
-Client → API Route → Business Logic → Database
-                  ↓
-               Cache Layer (S3 + CloudFront)
-```
+### Base URL
+- **Development**: `http://localhost:3000/api`
+- **Production**: `https://split-bill-mu.vercel.app/api`
+
+### Authentication
+All protected endpoints require authentication via Clerk JWT tokens.
 
 ## 🔐 Authentication
 
-### Authentication Methods
-- **Admin API**: NextAuth.js session-based authentication
-- **Public API**: No authentication required
-- **File Upload**: Session-based authentication
-
-### Session Management
+### Authentication Flow
 ```typescript
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/shared/lib/auth'
+// Client-side authentication check
+import { auth } from '@clerk/nextjs/server'
 
-export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function GET() {
+  const { userId } = await auth()
+  if (!userId) {
+    return new Response('Unauthorized', { status: 401 })
   }
-  
-  // Authenticated logic
+  // ... protected logic
 }
 ```
 
-### Protected Routes
-All admin endpoints require authentication:
-- `/api/toggles/*` - Toggle management
-- `/api/files/*` - File operations
+### Headers
+```http
+Authorization: Bearer <clerk-jwt-token>
+Content-Type: application/json
+```
 
 ## 📊 Response Format
 
-### Standard Response Structure
+### Success Response
 ```typescript
-interface ApiResponse<T = unknown> {
-  success: boolean
-  message: string
-  data?: T
-  error?: {
-    code: string
-    details?: string
+interface ApiSuccessResponse<T> {
+  success: true
+  data: T
+  message?: string
+}
+```
+
+### Error Response
+```typescript
+interface ApiErrorResponse {
+  success: false
+  error: {
+    message: string      // User-friendly message
+    details?: string     // Technical details
   }
-  pagination?: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
+  debug?: {
+    timestamp: string
+    endpoint: string
+    stack?: string
   }
 }
 ```
 
-### Success Response Example
+### Example Responses
 ```json
+// Success
 {
   "success": true,
-  "message": "Toggles retrieved successfully",
-  "data": [
-    {
-      "id": "toggle-123",
-      "name": "New Checkout Flow",
-      "key": "new-checkout-flow-abc123",
-      "value": true,
-      "type": "BOOLEAN",
-      "isActive": true,
-      "createdAt": "2025-01-17T10:00:00Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 25,
-    "totalPages": 3
-  }
+  "data": {
+    "id": "group-123",
+    "name": "Weekend Trip",
+    "memberCount": 4
+  },
+  "message": "Group retrieved successfully"
 }
-```
 
-### Error Response Example
-```json
+// Error
 {
   "success": false,
-  "message": "Failed to create toggle",
   "error": {
-    "code": "VALIDATION_ERROR",
-    "details": "Name is required"
+    "message": "Group not found",
+    "details": "No group found with ID: group-123"
+  },
+  "debug": {
+    "timestamp": "2024-01-15T10:30:00Z",
+    "endpoint": "/api/groups/group-123"
   }
 }
 ```
 
-## 🎛️ Toggle Management API
+## 🏷️ HTTP Status Codes
 
-### List Toggles
+| Code | Meaning | Usage |
+|------|---------|-------|
+| 200 | OK | Successful GET, PUT, PATCH requests |
+| 201 | Created | Successful POST requests |
+| 400 | Bad Request | Invalid request data or parameters |
+| 401 | Unauthorized | Missing or invalid authentication |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 409 | Conflict | Resource already exists or conflict |
+| 422 | Unprocessable Entity | Validation errors |
+| 500 | Internal Server Error | Server-side errors |
+
+## 📚 API Endpoints Overview
+
+### Authentication Endpoints
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/auth/user` | Get current user info | ✅ |
+| POST | `/api/auth/sync` | Sync Clerk user to database | ✅ |
+
+### Groups API
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/groups` | List user's groups | ✅ |
+| POST | `/api/groups` | Create new group | ✅ |
+| GET | `/api/groups/[id]` | Get group details | ✅ |
+| PUT | `/api/groups/[id]` | Update group | ✅ |
+| DELETE | `/api/groups/[id]` | Delete group | ✅ |
+| GET | `/api/groups/[id]/members` | Get group members | ✅ |
+| POST | `/api/groups/[id]/members` | Add member to group | ✅ |
+| DELETE | `/api/groups/[id]/members/[userId]` | Remove member | ✅ |
+
+### Expenses API
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/groups/[id]/expenses` | List group expenses | ✅ |
+| POST | `/api/groups/[id]/expenses` | Create new expense | ✅ |
+| GET | `/api/expenses/[id]` | Get expense details | ✅ |
+| PUT | `/api/expenses/[id]` | Update expense | ✅ |
+| DELETE | `/api/expenses/[id]` | Delete expense | ✅ |
+
+### Settlements API
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/groups/[id]/settlements` | Get group settlements | ✅ |
+| POST | `/api/settlements` | Record payment | ✅ |
+| PATCH | `/api/settlements/[id]/status` | Update payment status | ✅ |
+
+### OCR API
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/ocr/extract` | Extract text from receipt | ✅ |
+
+### Public API (Cached)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/public/bills/[groupId]` | Get public bill summary | ❌ |
+| GET | `/api/public/allocations/[groupId]/[memberId]` | Get member allocation | ❌ |
+
+### Utility Endpoints
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/health` | Health check | ❌ |
+| GET | `/api/docs` | API documentation | ❌ |
+
+## 🔍 Query Parameters
+
+### Pagination
 ```http
-GET /api/toggles?page=1&limit=10
-Authorization: Session-based
+GET /api/groups?page=1&limit=10
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "toggle-123",
-      "name": "Feature Name",
-      "description": "Feature description",
-      "key": "feature-key-abc123",
-      "value": true,
-      "type": "BOOLEAN",
-      "isActive": true,
-      "createdAt": "2025-01-17T10:00:00Z",
-      "updatedAt": "2025-01-17T10:30:00Z",
-      "user": {
-        "name": "John Doe",
-        "email": "john@example.com"
-      }
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 25,
-    "totalPages": 3
-  }
-}
+### Filtering
+```http
+GET /api/groups?status=active&search=weekend
 ```
 
-### Create Toggle
+### Sorting
 ```http
-POST /api/toggles
-Authorization: Session-based
+GET /api/expenses?sort=date&order=desc
+```
+
+### Common Parameters
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `page` | number | Page number for pagination | 1 |
+| `limit` | number | Items per page | 10 |
+| `sort` | string | Sort field | `createdAt` |
+| `order` | string | Sort order (`asc`, `desc`) | `desc` |
+| `search` | string | Search query | - |
+| `status` | string | Filter by status | - |
+
+## 📝 Request/Response Examples
+
+### Create Group
+```http
+POST /api/groups
 Content-Type: application/json
-```
+Authorization: Bearer <token>
 
-**Request Body:**
-```json
 {
-  "name": "New Feature",
-  "description": "Description of the feature",
-  "value": true,
-  "type": "BOOLEAN"
+  "name": "Weekend Trip",
+  "description": "Expenses for our weekend getaway",
+  "currency": "USD"
 }
 ```
 
-**Response:**
 ```json
 {
   "success": true,
-  "message": "Toggle created successfully",
   "data": {
-    "id": "toggle-456",
-    "name": "New Feature",
-    "key": "new-feature-def456",
-    "value": true,
-    "type": "BOOLEAN",
-    "isActive": true
+    "id": "group-123",
+    "name": "Weekend Trip",
+    "description": "Expenses for our weekend getaway",
+    "currency": "USD",
+    "createdBy": "user-456",
+    "memberCount": 1,
+    "totalExpenses": 0,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "message": "Group created successfully"
+}
+```
+
+### Add Expense
+```http
+POST /api/groups/group-123/expenses
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "description": "Dinner at restaurant",
+  "amount": 120.50,
+  "category": "food",
+  "date": "2024-01-15",
+  "receiptUrl": "https://s3.amazonaws.com/receipts/receipt-123.jpg",
+  "splitType": "equal",
+  "participants": ["user-456", "user-789"]
+}
+```
+
+### Get Settlements
+```http
+GET /api/groups/group-123/settlements
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "settlements": [
+      {
+        "id": "settlement-123",
+        "payerId": "user-456",
+        "receiverId": "user-789",
+        "amount": 60.25,
+        "status": "pending",
+        "description": "Share of dinner expenses",
+        "createdAt": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "summary": {
+      "totalSettlements": 1,
+      "pendingAmount": 60.25,
+      "completedAmount": 0
+    }
   }
 }
 ```
 
-### Update Toggle
+## ⚡ Caching Strategy
+
+### Public API Caching
+Public endpoints are cached using CloudFront + S3:
+
 ```http
-PUT /api/toggles/[id]
-Authorization: Session-based
-Content-Type: application/json
+GET /api/public/bills/group-123
+X-Cache-Source: cloudfront
+X-Cache-Status: hit
+Cache-Control: public, max-age=3600
 ```
-
-**Request Body:**
-```json
-{
-  "name": "Updated Feature Name",
-  "description": "Updated description",
-  "value": false,
-  "type": "BOOLEAN"
-}
-```
-
-### Update Toggle Status
-```http
-PATCH /api/toggles/[id]
-Authorization: Session-based
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "isActive": false
-}
-```
-
-### Delete Toggle
-```http
-DELETE /api/toggles/[id]
-Authorization: Session-based
-```
-
-## 🌐 Public API
-
-### Get Toggle by Key
-```http
-GET /api/public/toggles/[key]
-```
-
-**Response (Toggle Found):**
-```json
-{
-  "enabled": true,
-  "key": "new-checkout-flow",
-  "name": "New Checkout Flow",
-  "value": true,
-  "type": "BOOLEAN"
-}
-```
-
-**Response (Toggle Not Found):**
-```json
-{
-  "enabled": false,
-  "value": null,
-  "message": "Toggle not found or inactive"
-}
-```
-
-### List All Public Toggles
-```http
-GET /api/public/toggles
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "enabled": true,
-      "key": "feature-a",
-      "name": "Feature A",
-      "value": true,
-      "type": "BOOLEAN"
-    },
-    {
-      "enabled": true,
-      "key": "feature-b", 
-      "name": "Feature B",
-      "value": "production",
-      "type": "STRING"
-    }
-  ]
-}
-```
-
-## 🚀 Caching & Performance
 
 ### Cache Headers
-All public API responses include cache headers:
-
-```http
-Cache-Control: public, max-age=300, s-maxage=3600
-CDN-Cache-Control: max-age=3600
-X-Cache-Source: S3-Cache | Database
-X-Cache-Status: HIT | MISS
-X-CloudFront-Hit: true | false
-X-CloudFront-Cache: HIT | MISS | UNKNOWN
-```
-
-### Cache Configuration
-```typescript
-// Configurable via environment variables
-const BROWSER_CACHE = parseInt(process.env.BROWSER_CACHE_SECONDS || '300')    // 5 minutes
-const CLOUDFRONT_CACHE = parseInt(process.env.CLOUDFRONT_CACHE_SECONDS || '3600') // 1 hour
-```
+- `X-Cache-Source`: `cloudfront`, `s3`, or `database`
+- `X-Cache-Status`: `hit`, `miss`, or `stale`
+- `Cache-Control`: Standard HTTP cache control
 
 ### Cache Invalidation
-Cache is automatically invalidated on:
-- Toggle creation
-- Toggle updates
-- Toggle deletion
-- Toggle status changes
+Cache is automatically invalidated when:
+- Group data is updated
+- Expenses are added/modified
+- Settlements are recorded
 
-## 📁 File Upload API
-
-### Upload File
-```http
-POST /api/files
-Authorization: Session-based
-Content-Type: application/json
-```
-
-**Request Body:**
-```json
-{
-  "content": "file content as string",
-  "filename": "backup.json"
-}
-```
-
-**Response:**
-```json
-{
-  "key": "toggles/uuid-backup.json",
-  "url": "https://cloudfront-domain.com/toggles/uuid-backup.json",
-  "message": "File uploaded successfully"
-}
-```
-
-## 🔄 CDN Redirect API
-
-### Get CloudFront URL
-```http
-GET /api/cdn/toggles/[key]
-```
-
-**Response:**
-```http
-HTTP/1.1 302 Found
-Location: https://cloudfront-domain.com/public/toggles/[key].json
-```
-
-## ⚡ Performance Optimization
-
-### Response Times
-- **Cached Requests**: <50ms (CloudFront)
-- **Origin Requests**: <200ms (Database)
-- **Cache Miss**: <300ms (Database + Cache Update)
-
-### Rate Limiting
-- **Public API**: Rate limited via CloudFront
-- **Admin API**: Session-based throttling
-- **File Upload**: Size and frequency limits
-
-### Monitoring Headers
-```http
-X-Response-Time: 45ms
-X-Cache-Hit-Rate: 85%
-X-Database-Query-Time: 12ms
-X-Cache-Update-Time: 8ms
-```
-
-## 🛡️ Security
+## 🔒 Security
 
 ### Input Validation
 All endpoints use Zod schemas for validation:
@@ -371,168 +295,153 @@ All endpoints use Zod schemas for validation:
 ```typescript
 import { z } from 'zod'
 
-const createToggleSchema = z.object({
+const createGroupSchema = z.object({
   name: z.string().min(1).max(100),
-  description: z.string().max(500).optional(),
-  value: z.unknown(),
-  type: z.enum(['BOOLEAN', 'STRING', 'NUMBER', 'JSON'])
+  description: z.string().optional(),
+  currency: z.string().length(3).default('USD')
 })
 ```
 
-### Error Handling
-```typescript
-try {
-  // API logic
-} catch (error) {
-  console.error('API Error:', error)
-  
-  if (error instanceof z.ZodError) {
-    return NextResponse.json({
-      success: false,
-      message: 'Validation error',
-      error: {
-        code: 'VALIDATION_ERROR',
-        details: error.errors[0].message
-      }
-    }, { status: 400 })
-  }
-  
-  return NextResponse.json({
-    success: false,
-    message: 'Internal server error',
-    error: { code: 'INTERNAL_ERROR' }
-  }, { status: 500 })
-}
-```
+### Rate Limiting
+- **Authenticated endpoints**: 100 requests/minute per user
+- **Public endpoints**: 1000 requests/minute per IP
+- **OCR endpoints**: 10 requests/minute per user
 
 ### CORS Configuration
 ```typescript
-// Next.js handles CORS automatically
-// Custom CORS for specific endpoints if needed
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+  'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
+    ? 'https://split-bill-mu.vercel.app' 
+    : '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization'
 }
 ```
 
-## 📊 API Usage Examples
+## 📊 Error Handling
 
-### JavaScript/TypeScript Client
-```typescript
-class ToggleClient {
-  private baseUrl: string
-  
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl
-  }
-  
-  async getToggle(key: string) {
-    const response = await fetch(`${this.baseUrl}/api/public/toggles/${key}`)
-    return response.json()
-  }
-  
-  async isEnabled(key: string): Promise<boolean> {
-    const toggle = await this.getToggle(key)
-    return toggle.enabled && toggle.value === true
-  }
-}
-
-// Usage
-const client = new ToggleClient('https://your-domain.com')
-const isNewFeatureEnabled = await client.isEnabled('new-feature')
-```
-
-### React Hook
-```typescript
-import { useState, useEffect } from 'react'
-
-export function useToggle(key: string) {
-  const [toggle, setToggle] = useState(null)
-  const [loading, setLoading] = useState(true)
-  
-  useEffect(() => {
-    fetch(`/api/public/toggles/${key}`)
-      .then(res => res.json())
-      .then(data => {
-        setToggle(data)
-        setLoading(false)
-      })
-  }, [key])
-  
-  return { 
-    enabled: toggle?.enabled || false,
-    value: toggle?.value,
-    loading 
-  }
-}
-
-// Usage in component
-function FeatureComponent() {
-  const { enabled, loading } = useToggle('new-feature')
-  
-  if (loading) return <Loading />
-  
-  return enabled ? <NewFeature /> : <OldFeature />
-}
-```
-
-### cURL Examples
-```bash
-# Get toggle
-curl -X GET "https://your-domain.com/api/public/toggles/feature-key"
-
-# Create toggle (requires authentication)
-curl -X POST "https://your-domain.com/api/toggles" \
-  -H "Content-Type: application/json" \
-  -H "Cookie: next-auth.session-token=..." \
-  -d '{
-    "name": "New Feature",
-    "value": true,
-    "type": "BOOLEAN"
-  }'
-
-# Update toggle status
-curl -X PATCH "https://your-domain.com/api/toggles/toggle-id" \
-  -H "Content-Type: application/json" \
-  -H "Cookie: next-auth.session-token=..." \
-  -d '{"isActive": false}'
-```
-
-## 🔍 Debugging & Monitoring
-
-### Debug Headers
-Enable debug mode to get additional headers:
-```http
-X-Debug-Mode: true
-X-Execution-Time: 45ms
-X-Database-Queries: 3
-X-Cache-Operations: 1
-X-Memory-Usage: 12MB
-```
-
-### Health Check
-```http
-GET /api/health
-```
-
-**Response:**
+### Validation Errors
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2025-01-17T10:00:00Z",
-  "services": {
-    "database": "connected",
-    "cache": "operational",
-    "cloudfront": "active"
+  "success": false,
+  "error": {
+    "message": "Validation failed",
+    "details": "Name is required and must be at least 1 character"
+  },
+  "validationErrors": [
+    {
+      "field": "name",
+      "message": "String must contain at least 1 character(s)"
+    }
+  ]
+}
+```
+
+### Database Errors
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Database operation failed",
+    "details": "Unable to connect to database"
+  },
+  "debug": {
+    "timestamp": "2024-01-15T10:30:00Z",
+    "endpoint": "/api/groups",
+    "error": "Connection timeout"
   }
 }
 ```
 
-## 📚 Related Documentation
+## 🧪 Testing
 
-- [Toggle API Details](./toggle-api.md)
-- [Public API Guide](./public-api.md)
-- [Cache API Reference](./cache-api.md)
-- [Core Features](../features/core-features.md)
-- [Caching System](../features/caching-system.md)
+### API Testing
+```bash
+# Health check
+curl https://split-bill-mu.vercel.app/api/health
+
+# Get groups (requires auth)
+curl -H "Authorization: Bearer <token>" \
+     https://split-bill-mu.vercel.app/api/groups
+
+# Test public API
+curl https://split-bill-mu.vercel.app/api/public/bills/group-123
+```
+
+### Integration Tests
+```typescript
+import { testApiHandler } from 'next-test-api-route-handler'
+import handler from '@/app/api/groups/route'
+
+describe('/api/groups', () => {
+  it('should create group successfully', async () => {
+    await testApiHandler({
+      handler,
+      test: async ({ fetch }) => {
+        const res = await fetch({
+          method: 'POST',
+          body: JSON.stringify({
+            name: 'Test Group',
+            description: 'Test description'
+          })
+        })
+        
+        expect(res.status).toBe(201)
+        const data = await res.json()
+        expect(data.success).toBe(true)
+      }
+    })
+  })
+})
+```
+
+## 📚 SDK and Client Libraries
+
+### TypeScript Client
+```typescript
+import { SplitBillClient } from '@/shared/api/client'
+
+const client = new SplitBillClient({
+  baseUrl: 'https://split-bill-mu.vercel.app/api',
+  auth: () => getAuthToken()
+})
+
+// Usage
+const groups = await client.groups.list()
+const group = await client.groups.create({
+  name: 'Weekend Trip',
+  description: 'Our weekend expenses'
+})
+```
+
+### React Hooks
+```typescript
+import { useGroups, useCreateGroup } from '@/entities/group'
+
+function GroupList() {
+  const { data: groups, isLoading } = useGroups()
+  const createGroup = useCreateGroup()
+  
+  const handleCreate = (data) => {
+    createGroup.mutate(data)
+  }
+  
+  // ... component logic
+}
+```
+
+## 🔄 Versioning
+
+### API Versioning Strategy
+- **Current Version**: v1 (implicit)
+- **Future Versions**: `/api/v2/...` when breaking changes needed
+- **Backward Compatibility**: Maintain v1 for existing clients
+
+### Deprecation Policy
+- **Notice Period**: 6 months before deprecation
+- **Migration Guide**: Provided for breaking changes
+- **Support**: Legacy versions supported for 1 year
+
+---
+
+**For detailed endpoint documentation, visit the [Live API Documentation](https://split-bill-mu.vercel.app/api/docs).**
