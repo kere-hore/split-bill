@@ -69,6 +69,7 @@ export interface Group {
   members: GroupMember[];
   bill: Bill | null;
   paymentStats: PaymentStats;
+  paymentReceiverId: string | null;
 }
 
 export interface GetGroupsRequest {

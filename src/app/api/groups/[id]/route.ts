@@ -5,7 +5,6 @@ import {
   createErrorResponse,
 } from "@/shared/lib/api-response";
 import { prisma } from "@/shared/lib/prisma";
-import { withCache, CacheKeys, CacheTTL } from "@/shared/lib/cache-strategy";
 
 interface RouteParams {
   params: Promise<{
@@ -42,137 +41,132 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Use cache for group detail
-    const cacheKey = CacheKeys.groupDetail(id);
-    
-    const result = await withCache(
-      cacheKey,
-      async () => {
-        // Query group with bill data
-        const group = await prisma.group.findFirst({
-          where: {
-            id,
-            createdBy: dbUser.id,
-          },
+    // Query group with bill data
+    const group = await prisma.group.findFirst({
+      where: {
+        id,
+        createdBy: dbUser.id,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        billId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        createdBy: true,
+        paymentReceiverId: true,
+      },
+    });
+
+    if (!group) {
+      throw new Error("Group not found");
+    }
+
+    // Fetch bill data if billId exists
+    let billData = null;
+    if (group.billId) {
+      const bill = await prisma.bill.findUnique({
+        where: { id: group.billId },
+        include: {
+          items: true,
+          discounts: true,
+          additionalFees: true,
+        },
+      });
+
+      if (bill) {
+        billData = {
+          id: bill.id,
+          merchantName: bill.merchantName,
+          receiptNumber: bill.receiptNumber,
+          date: bill.date.toISOString().split("T")[0],
+          time: bill.time,
+          subtotal: Number(bill.subtotal),
+          serviceCharge: Number(bill.serviceCharge),
+          tax: Number(bill.tax),
+          totalAmount: Number(bill.totalAmount),
+          paymentMethod: bill.paymentMethod,
+          currency: bill.currency,
+          items: bill.items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            unitPrice: Number(item.unitPrice),
+            totalPrice: Number(item.totalPrice),
+            category: item.category,
+          })),
+          discounts: bill.discounts.map((discount) => ({
+            id: discount.id,
+            name: discount.name,
+            amount: Number(discount.amount),
+            type: discount.type,
+          })),
+          additionalFees: bill.additionalFees.map((fee) => ({
+            id: fee.id,
+            name: fee.name,
+            amount: Number(fee.amount),
+          })),
+        };
+      }
+    }
+
+    // Get group members
+    const members = await prisma.groupMember.findMany({
+      where: { groupId: id },
+      include: {
+        user: {
           select: {
             id: true,
             name: true,
-            description: true,
-            billId: true,
-            status: true,
-            createdAt: true,
-            updatedAt: true,
-            createdBy: true,
+            email: true,
+            image: true,
           },
-        });
-
-        if (!group) {
-          throw new Error("Group not found");
-        }
-
-        // Fetch bill data if billId exists
-        let billData = null;
-        if (group.billId) {
-          const bill = await prisma.bill.findUnique({
-            where: { id: group.billId },
-            include: {
-              items: true,
-              discounts: true,
-              additionalFees: true,
-            },
-          });
-
-          if (bill) {
-            billData = {
-              id: bill.id,
-              merchantName: bill.merchantName,
-              receiptNumber: bill.receiptNumber,
-              date: bill.date.toISOString().split("T")[0],
-              time: bill.time,
-              subtotal: Number(bill.subtotal),
-              serviceCharge: Number(bill.serviceCharge),
-              tax: Number(bill.tax),
-              totalAmount: Number(bill.totalAmount),
-              paymentMethod: bill.paymentMethod,
-              currency: bill.currency,
-              items: bill.items.map((item) => ({
-                id: item.id,
-                name: item.name,
-                quantity: item.quantity,
-                unitPrice: Number(item.unitPrice),
-                totalPrice: Number(item.totalPrice),
-                category: item.category,
-              })),
-              discounts: bill.discounts.map((discount) => ({
-                id: discount.id,
-                name: discount.name,
-                amount: Number(discount.amount),
-                type: discount.type,
-              })),
-              additionalFees: bill.additionalFees.map((fee) => ({
-                id: fee.id,
-                name: fee.name,
-                amount: Number(fee.amount),
-              })),
-            };
-          }
-        }
-
-        // Get group members
-        const members = await prisma.groupMember.findMany({
-          where: { groupId: id },
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                image: true,
-              },
-            },
-          },
-        });
-
-        // Transform response with bill data and members
-        return {
-          id: group.id,
-          name: group.name,
-          description: group.description,
-          memberCount: members.length,
-          status: group.status,
-          createdAt: group.createdAt.toISOString(),
-          updatedAt: group.updatedAt.toISOString(),
-          createdBy: group.createdBy,
-          currentUserId: dbUser.id,
-          isCurrentUserAdmin: group.createdBy === dbUser.id,
-          bill: billData,
-          members: members.map((member) => ({
-            id: member.id,
-            role:
-              member.userId && member.userId === group.createdBy
-                ? "admin"
-                : "member",
-            user: member.user
-              ? {
-                  id: member.user.id,
-                  name: member.user.name,
-                  email: member.user.email,
-                  image: member.user.image,
-                }
-              : {
-                  id: null,
-                  name: member.name,
-                  email: null,
-                  image: null,
-                },
-          })),
-        };
+        },
       },
-      CacheTTL.groupDetail
+    });
+
+    const transformedGroup = {
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      memberCount: members.length,
+      status: group.status,
+      createdAt: group.createdAt.toISOString(),
+      updatedAt: group.updatedAt.toISOString(),
+      createdBy: group.createdBy,
+      currentUserId: dbUser.id,
+      isCurrentUserAdmin: group.createdBy === dbUser.id,
+      paymentReceiverId: group.paymentReceiverId,
+      bill: billData,
+      members: members.map((member) => ({
+        id: member.id,
+        role:
+          member.userId && member.userId === group.createdBy
+            ? "admin"
+            : "member",
+        user: member.user
+          ? {
+              id: member.user.id,
+              name: member.user.name,
+              email: member.user.email,
+              image: member.user.image,
+            }
+          : {
+              id: null,
+              name: member.name,
+              email: null,
+              image: null,
+            },
+      })),
+    };
+
+    const response = createSuccessResponse(
+      transformedGroup,
+      "Group retrieved successfully"
     );
 
-    const response = createSuccessResponse(result, "Group retrieved successfully");
-    response.headers.set('X-Cache-Key', cacheKey);
     return response;
   } catch (error) {
     // Handle authentication errors

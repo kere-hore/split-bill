@@ -56,9 +56,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get settlements for this group
+    // Get settlements where current user is the receiver
     const settlements = await prisma.settlement.findMany({
-      where: { groupId },
+      where: { 
+        groupId,
+        receiverId: currentUser.id
+      },
       include: {
         payer: {
           select: {

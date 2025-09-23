@@ -65,7 +65,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Get group with allocation data
+    // Get group with allocation data and payment receiver
     const group = await prisma.group.findUnique({
       where: { id: id },
       select: {
@@ -73,8 +73,33 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         name: true,
         allocationData: true,
         status: true,
+        paymentReceiverId: true,
       },
     });
+    // Get payment receiver info if exists
+    let paymentReceiver = null;
+    if (group?.paymentReceiverId) {
+      const receiverMember = await prisma.groupMember.findUnique({
+        where: { id: group.paymentReceiverId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+      });
+
+      if (receiverMember) {
+        paymentReceiver = {
+          id: receiverMember.id,
+          name: receiverMember.name,
+          user: receiverMember.user,
+        };
+      }
+    }
 
     if (!group) {
       return createErrorResponse(
@@ -119,6 +144,28 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Get settlement status for this member
+    let settlement = null;
+    const memberSettlement = await prisma.settlement.findFirst({
+      where: {
+        groupId: id,
+        payerId: groupMember.userId,
+      },
+      select: {
+        id: true,
+        status: true,
+        amount: true,
+      },
+    });
+
+    if (memberSettlement) {
+      settlement = {
+        id: memberSettlement.id,
+        status: memberSettlement.status,
+        amount: Number(memberSettlement.amount),
+      };
+    }
+
     // Return member-specific data with group context
     const response = {
       group: {
@@ -127,6 +174,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         status: group.status,
       },
       member: memberAllocation,
+      paymentReceiver,
+      settlement,
       createdAt: allocationData.createdAt,
       updatedAt: allocationData.updatedAt,
     };

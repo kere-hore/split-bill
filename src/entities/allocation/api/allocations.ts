@@ -23,7 +23,7 @@ export const useAllocationDetail = (groupId: string, memberId: string) => {
     queryFn: async () => {
       try {
         const response = await getAllocationDetails(groupId, memberId);
-        console.log({ response });
+
         return response.data;
       } catch (error) {
         // Parse error and re-throw with consistent format

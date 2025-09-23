@@ -54,7 +54,7 @@ const eslintConfig = [
             },
             {
               from: "widgets",
-              allow: ["features", "entities", "shared"],
+              allow: ["widgets", "features", "entities", "shared"],
             },
             {
               from: "features",

@@ -91,10 +91,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    return createSuccessResponse(
-      { memberId },
-      "Member removed successfully"
-    );
+    return createSuccessResponse({ memberId }, "Member removed successfully");
   } catch (error) {
     console.error("Error removing member:", error);
     return createErrorResponse(

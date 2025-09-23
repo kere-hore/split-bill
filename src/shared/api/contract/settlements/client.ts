@@ -18,3 +18,14 @@ export async function updateSettlementStatus(
   });
   return response.data;
 }
+
+export async function getMemberSettlement(
+  groupId: string,
+  memberId: string
+): Promise<any> {
+  const response = await api.get(`/groups/${groupId}/settlements`);
+  const settlements = response.data.data?.settlements || [];
+  return settlements.find((s: any) => 
+    s.payer?.id === memberId || s.payerId === memberId
+  ) || null;
+}

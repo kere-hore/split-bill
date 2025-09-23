@@ -1,6 +1,12 @@
 "use client";
 
-import { useForm, useFieldArray, useWatch, FieldErrors, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  useWatch,
+  FieldErrors,
+  SubmitHandler,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -29,7 +35,7 @@ export function BillForm({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(billFormSchema),
     mode: "onChange",
@@ -245,10 +251,6 @@ export function BillForm({
     watchedTax,
     initialData,
   ]);
-
-  // Debug form state
-  console.log("Form errors:", errors);
-  console.log("Form isValid:", isValid);
 
   return (
     <div className="max-w-sm mx-auto dark:bg-black bg-white border border-gray-200 rounded-lg p-4 font-mono text-sm">

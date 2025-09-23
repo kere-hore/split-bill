@@ -46,6 +46,7 @@ model Group {
   billId         String?  // Link to Bill for allocation
   status         String   @default("outstanding") // outstanding, allocated
   allocationData String?  // JSON string containing allocation breakdown
+  paymentReceiverId String? // Member ID who will receive payments
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   createdBy      String

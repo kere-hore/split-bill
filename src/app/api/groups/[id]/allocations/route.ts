@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { id: groupId } = await params;
     const requestBody = await request.json();
-    const { allocations, billId } = requestBody;
+    const { allocations, billId, paymentReceiverId } = requestBody;
 
     // Verify user is group admin
     const currentUser = await prisma.user.findUnique({
@@ -92,13 +92,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Auto-generate settlements from allocations
     let settlementsCreated = 0;
 
-    // Get all group members in single query
+    // Get all group members and payment receiver info
     const groupMembers = await prisma.groupMember.findMany({
       where: { groupId },
       select: { id: true, userId: true },
     });
     
     const memberIdToUserId = new Map(groupMembers.map(m => [m.id, m.userId]));
+    
+    // Get payment receiver's userId
+    let paymentReceiverUserId = currentUser.id; // fallback to creator
+    if (paymentReceiverId) {
+      const paymentReceiverMember = groupMembers.find(m => m.id === paymentReceiverId);
+      if (paymentReceiverMember) {
+        paymentReceiverUserId = paymentReceiverMember.userId;
+      }
+    }
 
     // Calculate member totals and prepare settlement data
     const settlementData = [];
@@ -106,11 +115,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       const memberTotal = allocation.breakdown.total;
       if (memberTotal > 0) {
         const userId = memberIdToUserId.get(allocation.memberId);
-        if (userId && userId !== currentUser.id) {
+        // Skip if this member is the payment receiver (they don't pay to themselves)
+        if (userId && userId !== paymentReceiverUserId) {
           settlementData.push({
             groupId,
             payerId: userId,
-            receiverId: currentUser.id,
+            receiverId: paymentReceiverUserId, // Payment receiver gets the money
             amount: memberTotal,
             currency: "IDR",
             status: "pending",
@@ -133,6 +143,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       data: {
         allocationData: JSON.stringify(allocationData),
         status: "allocated",
+        paymentReceiverId,
       },
       include: {
         bill: {

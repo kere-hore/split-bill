@@ -40,6 +40,7 @@ export interface MemberAllocation {
 export interface SaveAllocationsRequest {
   allocations: MemberAllocation[];
   billId?: string;
+  paymentReceiverId?: string | null;
 }
 
 export interface WhatsAppBroadcast {
@@ -66,6 +67,18 @@ export interface AllocationData {
     status: string;
   };
   member: MemberAllocation;
+  paymentReceiver?: {
+    id: string;
+    name: string;
+    user?: {
+      image?: string;
+    };
+  } | null;
+  settlement?: {
+    id: string;
+    status: string;
+    amount: number;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

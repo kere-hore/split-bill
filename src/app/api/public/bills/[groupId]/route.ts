@@ -55,6 +55,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     });
 
+    // Get payment receiver info if exists
+    let paymentReceiver = null;
+    if (group?.paymentReceiverId) {
+      const receiverMember = group.members.find(m => m.id === group.paymentReceiverId);
+      if (receiverMember) {
+        paymentReceiver = {
+          id: receiverMember.id,
+          name: receiverMember.name,
+          user: receiverMember.user,
+        };
+      }
+    }
+
     if (!group) {
       return createErrorResponse(
         "Group not found",
@@ -98,6 +111,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         role: member.role,
         user: member.user,
       })),
+      paymentReceiver,
       allocation: allocationData,
     };
 

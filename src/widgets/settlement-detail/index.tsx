@@ -13,7 +13,6 @@ import {
   useSettlementManagement,
   SettlementList,
 } from "@/features/settlement-management";
-// eslint-disable-next-line boundaries/element-types
 import { SettlementSummary } from "@/widgets/settlement-summary";
 
 interface SettlementDetailWidgetProps {

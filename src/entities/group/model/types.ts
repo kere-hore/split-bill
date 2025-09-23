@@ -59,6 +59,7 @@ export interface Group {
   createdBy: string;
   currentUserId: string;
   isCurrentUserAdmin: boolean;
+  paymentReceiverId: string | null;
   bill: Bill | null;
   members: GroupMember[];
 }

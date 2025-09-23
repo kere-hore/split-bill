@@ -162,7 +162,7 @@ export function useAllocationLogic(
     };
   };
 
-  const handleSaveAndSend = async () => {
+  const handleSaveAndSend = async (paymentReceiverId?: string | null) => {
     const allocationData: MemberAllocation[] = members
       .map((member) => {
         const memberSubtotal = getMemberSubtotal(member.id);
@@ -197,6 +197,7 @@ export function useAllocationLogic(
       {
         allocations: allocationData,
         billId: bill?.id,
+        paymentReceiverId,
       },
       {
         onSuccess: (response) => {

@@ -1,6 +1,6 @@
 import {
   useGroupSettlements,
-  useUpdateSettlementStatus,
+  useUpdateSettlementStatusApi,
 } from "@/entities/settlement";
 import type { Settlement } from "@/shared/api/contract/settlements/types";
 
@@ -10,10 +10,14 @@ export function useSettlementManagement(groupId: string) {
     isLoading,
     error,
   } = useGroupSettlements(groupId);
-  const updateStatusMutation = useUpdateSettlementStatus(groupId);
+  const updateStatusMutation = useUpdateSettlementStatusApi();
 
-  const settlements = (settlementsData?.success ? settlementsData.data.settlements : []) as Settlement[];
-  const paymentStats = settlementsData?.success ? settlementsData.data.paymentStats : null;
+  const settlements = (
+    settlementsData?.success ? settlementsData.data.settlements : []
+  ) as Settlement[];
+  const paymentStats = settlementsData?.success
+    ? settlementsData.data.paymentStats
+    : null;
 
   // Business logic calculations
   const totalAmount = settlements.reduce(
@@ -23,11 +27,17 @@ export function useSettlementManagement(groupId: string) {
 
   const pendingAmount = settlements
     .filter((s: Settlement) => s.status === "pending")
-    .reduce((sum: number, settlement: Settlement) => sum + Number(settlement.amount), 0);
+    .reduce(
+      (sum: number, settlement: Settlement) => sum + Number(settlement.amount),
+      0
+    );
 
   const paidAmount = settlements
     .filter((s: Settlement) => s.status === "paid")
-    .reduce((sum: number, settlement: Settlement) => sum + Number(settlement.amount), 0);
+    .reduce(
+      (sum: number, settlement: Settlement) => sum + Number(settlement.amount),
+      0
+    );
 
   const uniqueMembers = Array.from(
     new Set([

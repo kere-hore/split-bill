@@ -202,6 +202,7 @@ export function AllocationMember({ groupId }: AllocationMemberProps) {
         groupId={groupId}
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
+        existingMembers={group.members}
       />
 
       {/* Remove Member Confirmation */}
