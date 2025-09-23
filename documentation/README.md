@@ -1,74 +1,109 @@
-# 📚 Feature Toggle Management System - Documentation
+# 📚 Split Bill Application - Documentation
 
-Welcome to the comprehensive documentation for the Feature Toggle Management System. This documentation covers architecture, features, development guides, and API references.
+Welcome to the comprehensive documentation for the Split Bill Application. This documentation covers architecture, features, development guides, and API references.
 
-## 🌐 Language / Bahasa
+## 🌍 Language Options
 
-- **🇺🇸 [English Documentation](./en/README.md)**
-- **🇮🇩 [Dokumentasi Bahasa Indonesia](./id/README.md)**
+- **[English Documentation](./en/README.md)** - Complete English documentation
+- **[Dokumentasi Bahasa Indonesia](./id/README.md)** - Dokumentasi lengkap dalam Bahasa Indonesia
 
----
+## 📖 Quick Navigation
 
-## 📖 Documentation Structure
+### 🏗️ Architecture
+- [FSD Architecture Overview](./en/architecture/fsd-architecture.md)
+- [System Architecture](./en/architecture/system-architecture.md)
+- [Database Schema](./en/architecture/database-schema.md)
 
-### 🏗️ Architecture / Arsitektur
-- **EN**: [FSD Architecture Guide](./en/architecture/fsd-architecture.md) - Feature-Sliced Design implementation
-- **ID**: [Panduan Arsitektur FSD](./id/architecture/fsd-architecture.md) - Implementasi Feature-Sliced Design
+### 🚀 Getting Started
+- [Installation Guide](./en/guides/getting-started.md)
+- [Development Setup](./en/guides/development-setup.md)
+- [Deployment Guide](./en/guides/deployment.md)
 
-### ⚡ Features / Fitur
-- **EN**: [Core Features](./en/features/core-features.md) - Current implemented features
-- **ID**: [Fitur Utama](./id/features/core-features.md) - Fitur yang telah diimplementasi
+### 🎯 Features
+- [Core Features](./en/features/core-features.md)
+- [API Endpoints](./en/api/overview.md)
+- [Authentication](./en/features/authentication.md)
 
-### 📋 Development Guides / Panduan Pengembangan
-- **EN**: [Getting Started](./en/guides/getting-started.md) - Setup and installation guide
-- **ID**: [Memulai](./id/guides/getting-started.md) - Panduan setup dan instalasi
-- **EN**: [Adding New Features](./en/guides/adding-features.md) - Step-by-step feature development
-- **ID**: [Menambah Fitur Baru](./id/guides/adding-features.md) - Panduan pengembangan fitur langkah demi langkah
-- **EN**: [FSD Development Rules](./en/guides/fsd-rules.md) - Development guidelines and best practices
-- **ID**: [Aturan Pengembangan FSD](./id/guides/fsd-rules.md) - Panduan dan best practices pengembangan
+### 🛠️ Development
+- [Adding New Features](./en/guides/adding-features.md)
+- [FSD Development Rules](./en/guides/fsd-rules.md)
+- [Testing Guidelines](./en/guides/testing.md)
 
-### 🔌 API Reference / Referensi API
-- **EN**: [API Overview](./en/api/overview.md) - API architecture and conventions
-- **ID**: [Gambaran Umum API](./id/api/overview.md) - Arsitektur dan konvensi API
+## 🎯 What is Split Bill Application?
 
-## 🚀 Quick Navigation
+Split Bill is a modern expense tracking and bill splitting application that helps groups manage shared expenses efficiently. Built with Next.js, TypeScript, and PostgreSQL, it provides:
 
-### For Developers / Untuk Developer
-1. **New to the project?** → **EN**: [Getting Started](./en/guides/getting-started.md) | **ID**: [Memulai](./id/guides/getting-started.md)
-2. **Want to add features?** → **EN**: [Adding New Features](./en/guides/adding-features.md) | **ID**: [Menambah Fitur Baru](./id/guides/adding-features.md)
-3. **Need to understand architecture?** → **EN**: [FSD Architecture Guide](./en/architecture/fsd-architecture.md) | **ID**: [Panduan Arsitektur FSD](./id/architecture/fsd-architecture.md)
+- **Group Management**: Create and manage expense groups
+- **Expense Tracking**: Add, edit, and categorize shared expenses
+- **OCR Integration**: Scan receipts automatically with Google Vision API
+- **Settlement System**: Track payments between group members
+- **WhatsApp Integration**: Share allocation summaries via WhatsApp
+- **Public Bill Sharing**: Share expense details with public URLs
+- **Real-time Calculations**: Automatic split calculations and balance tracking
 
-### For API Users / Untuk Pengguna API
-1. **Using toggles in your app?** → **EN**: [API Overview](./en/api/overview.md) | **ID**: [Gambaran Umum API](./id/api/overview.md)
-2. **Understanding caching?** → **EN**: [Core Features](./en/features/core-features.md) | **ID**: [Fitur Utama](./id/features/core-features.md)
+## 🏗️ Architecture Overview
 
-### For DevOps/Infrastructure / Untuk DevOps/Infrastructure
-1. **Deployment setup?** → **EN**: [Getting Started](./en/guides/getting-started.md) | **ID**: [Memulai](./id/guides/getting-started.md)
-2. **Performance monitoring?** → **EN**: [API Overview](./en/api/overview.md) | **ID**: [Gambaran Umum API](./id/api/overview.md)
+The application follows **Feature-Sliced Design (FSD)** architecture:
 
-## 📊 Project Status
+```
+src/
+├── app/           # Next.js App Router (routing only)
+├── widgets/       # Complex UI blocks
+├── features/      # Business features
+├── entities/      # Business entities
+└── shared/        # Shared utilities
+```
 
-- **Current Phase**: Phase 1.5 Complete ✅ (Core MVP + CDN Caching)
-- **Next Phase**: Phase 2 - Advanced Toggle Features 🚧
-- **Architecture**: Feature-Sliced Design (FSD) ✅
-- **Tech Stack**: Next.js 15 + TypeScript + MongoDB + AWS ✅
+## 🚀 Key Technologies
+
+- **Frontend**: Next.js 15, TypeScript, React Query, shadcn/ui
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL (Neon/Supabase)
+- **Authentication**: Clerk (Email, Google, GitHub OAuth)
+- **OCR**: Google Cloud Vision API
+- **CDN**: AWS CloudFront + S3 caching
+- **Deployment**: Vercel
+
+## 📊 Current Status
+
+### ✅ Implemented Features
+- User authentication with multiple providers
+- Group creation and management
+- Expense tracking with receipt upload
+- OCR receipt scanning
+- Settlement calculation and tracking
+- WhatsApp integration for sharing
+- Public bill sharing with cached URLs
+- Responsive UI with dark mode support
+
+### 🔄 In Development
+- Advanced settlement tracking
+- Multi-currency support
+- Analytics dashboard
+- Mobile app optimization
+- Performance improvements
 
 ## 🤝 Contributing
 
-Before contributing, please read / Sebelum berkontribusi, silakan baca:
-1. **EN**: [FSD Development Rules](./en/guides/fsd-rules.md) | **ID**: [Aturan Pengembangan FSD](./id/guides/fsd-rules.md)
-2. **EN**: [Adding New Features](./en/guides/adding-features.md) | **ID**: [Menambah Fitur Baru](./id/guides/adding-features.md)
-3. **EN**: [FSD Architecture Guide](./en/architecture/fsd-architecture.md) | **ID**: [Panduan Arsitektur FSD](./id/architecture/fsd-architecture.md)
+We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md) for details on:
+
+- Development setup
+- FSD architecture guidelines
+- Code standards
+- Pull request process
+- Issue creation guidelines
 
 ## 📞 Support
 
-For questions or issues / Untuk pertanyaan atau masalah:
-1. Check the relevant documentation section / Periksa bagian dokumentasi yang relevan
-2. Review the API Reference / Tinjau referensi API: **EN**: [API Overview](./en/api/overview.md) | **ID**: [Gambaran Umum API](./id/api/overview.md)
-3. Create an issue with detailed information / Buat issue dengan informasi detail
+- **Issues**: [GitHub Issues](https://github.com/pradiktabagus/split-bill/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/pradiktabagus/split-bill/discussions)
+- **API Docs**: [Live API Documentation](https://split-bill-mu.vercel.app/api/docs)
+- **Demo**: [Live Application](https://split-bill-mu.vercel.app)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
 
 ---
 
-**Last Updated**: January 2025  
-**Documentation Version**: 1.0  
-**Project Version**: Phase 1.5
+**Built with ❤️ using modern web technologies and FSD architecture principles.**

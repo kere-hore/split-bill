@@ -1,27 +1,26 @@
-# 🚀 Getting Started Guide
+# 🚀 Getting Started with Split Bill Application
 
-This guide will help you set up and run the Feature Toggle Management System locally and understand the project structure.
+This guide will help you set up and run the Split Bill Application locally and understand the project structure.
 
 ## 📋 Prerequisites
 
 ### Required Software
 - **Node.js** 18+ or **Bun** (recommended)
 - **Git** for version control
-- **Code Editor** (VS Code recommended)
+- **PostgreSQL** database (local or cloud)
 
 ### Required Services
-1. **MongoDB Atlas** - Database hosting
-2. **Google OAuth App** - Authentication provider
-3. **GitHub OAuth App** - Authentication provider  
-4. **AWS Account** - S3 storage and CloudFront CDN
-5. **Vercel Account** - Deployment platform (optional)
+1. **Clerk Account** - For authentication
+2. **Google Cloud Platform** - For OCR functionality
+3. **AWS Account** - For S3 storage and CloudFront CDN
+4. **Database** - PostgreSQL (Neon, Supabase, or local)
 
-## ⚡ Quick Setup
+## 🛠️ Installation
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/pradiktabagus/feature-toggle.git
-cd feature-toggle
+git clone https://github.com/pradiktabagus/split-bill.git
+cd split-bill
 ```
 
 ### 2. Install Dependencies
@@ -39,35 +38,32 @@ npm install
 cp .env.example .env.local
 ```
 
-Fill in your environment variables in `.env.local`:
+Fill in your environment variables:
+
 ```env
 # Database
-DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/database"
+DATABASE_URL="postgresql://username:password@localhost:5432/split-bill"
 
-# NextAuth.js
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-here"
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL="/dashboard"
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL="/dashboard"
 
-# Google OAuth
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# GitHub OAuth
-GITHUB_ID="your-github-client-id"
-GITHUB_SECRET="your-github-client-secret"
+# Google Cloud Vision API
+GOOGLE_CLOUD_PROJECT_ID="your-project-id"
+GOOGLE_CLOUD_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_CLOUD_CLIENT_EMAIL="your-service-account@project.iam.gserviceaccount.com"
 
 # AWS Configuration
 AWS_ACCESS_KEY_ID="your-aws-access-key"
 AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
-AWS_REGION="us-east-1"
-AWS_S3_BUCKET="your-s3-bucket-name"
-
-# CloudFront Configuration
+AWS_REGION="ap-southeast-1"
+S3_BUCKET_NAME="split-bill-cache"
 CLOUDFRONT_DISTRIBUTION_ID="your-cloudfront-distribution-id"
-
-# Cache Configuration (in seconds)
-BROWSER_CACHE_SECONDS=300      # Browser cache: 5 minutes
-CLOUDFRONT_CACHE_SECONDS=3600  # CloudFront cache: 1 hour
+NEXT_PUBLIC_CLOUDFRONT_URL="https://your-domain.cloudfront.net"
 ```
 
 ### 4. Database Setup
@@ -82,272 +78,222 @@ bun run db:push
 bun run db:studio
 ```
 
-### 5. Run Development Server
+### 5. Start Development Server
 ```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-## 🔧 Detailed Setup
-
-### MongoDB Atlas Setup
-
-1. **Create Account**
-   - Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
-   - Create free account
-   - Create new cluster
-
-2. **Database Configuration**
-   - Choose cloud provider and region
-   - Select free tier (M0)
-   - Create cluster
-
-3. **Network Access**
-   - Add IP address (0.0.0.0/0 for development)
-   - Create database user
-   - Get connection string
-
-4. **Connection String**
-   ```
-   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/<database>?retryWrites=true&w=majority
-   ```
-
-### Google OAuth Setup
-
-1. **Google Cloud Console**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create new project or select existing
-   - Enable Google+ API
-
-2. **OAuth Credentials**
-   - Go to Credentials → Create Credentials → OAuth 2.0 Client ID
-   - Application type: Web application
-   - Authorized redirect URIs:
-     - Development: `http://localhost:3000/api/auth/callback/google`
-     - Production: `https://your-domain.com/api/auth/callback/google`
-
-3. **Get Credentials**
-   - Copy Client ID and Client Secret
-   - Add to `.env.local`
-
-### GitHub OAuth Setup
-
-1. **GitHub Settings**
-   - Go to [GitHub Settings → Developer settings](https://github.com/settings/developers)
-   - Click "New OAuth App"
-
-2. **Application Configuration**
-   - Application name: Feature Toggle System
-   - Homepage URL: `http://localhost:3000`
-   - Authorization callback URL:
-     - Development: `http://localhost:3000/api/auth/callback/github`
-     - Production: `https://your-domain.com/api/auth/callback/github`
-
-3. **Get Credentials**
-   - Copy Client ID and Client Secret
-   - Add to `.env.local`
-
-### AWS Setup
-
-1. **Create AWS Account**
-   - Sign up at [AWS Console](https://aws.amazon.com/)
-   - Get access keys from IAM
-
-2. **S3 Bucket Setup**
-   ```bash
-   # Create S3 bucket
-   aws s3 mb s3://your-bucket-name --region us-east-1
-   
-   # Set bucket policy for public read access
-   aws s3api put-bucket-policy --bucket your-bucket-name --policy file://bucket-policy.json
-   ```
-
-3. **CloudFront Distribution**
-   - Create CloudFront distribution
-   - Origin: Your API domain
-   - Cache behaviors: `/api/public/toggles/*`
-   - Get distribution ID
-
-4. **IAM Permissions**
-   Use the policy from `aws-iam-policy.json`:
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": [
-           "s3:GetObject",
-           "s3:PutObject", 
-           "s3:DeleteObject"
-         ],
-         "Resource": "arn:aws:s3:::your-bucket-name/*"
-       },
-       {
-         "Effect": "Allow",
-         "Action": [
-           "cloudfront:CreateInvalidation"
-         ],
-         "Resource": "arn:aws:cloudfront::*:distribution/your-distribution-id"
-       }
-     ]
-   }
-   ```
-
-## 📁 Project Structure
-
-### High-Level Overview
-```
-feature-toggle/
-├── src/                    # Source code
-│   ├── app/               # Next.js App Router
-│   ├── entities/          # Business entities (FSD)
-│   ├── features/          # Business features (FSD)
-│   ├── widgets/           # Complex UI blocks (FSD)
-│   └── shared/            # Shared utilities (FSD)
-├── prisma/                # Database schema
-├── documentation/         # Project documentation
-├── public/               # Static assets
-└── configuration files
-```
+## 🏗️ Project Structure
 
 ### FSD Architecture
-The project follows **Feature-Sliced Design (FSD)** architecture:
-
 ```
-src/
-├── app/           # Application layer (Next.js)
-├── widgets/       # Complex UI blocks
-├── features/      # Business features
-├── entities/      # Business entities
-└── shared/        # Shared utilities
+split-bill/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── (auth)/            # Authentication pages
+│   │   ├── (private)/         # Protected pages
+│   │   ├── public/            # Public pages
+│   │   └── api/               # API routes
+│   ├── entities/              # Business entities
+│   │   ├── user/              # User entity
+│   │   ├── group/             # Group entity
+│   │   ├── expense/           # Expense entity
+│   │   └── settlement/        # Settlement entity
+│   ├── features/              # Business features
+│   │   ├── auth/              # Authentication features
+│   │   ├── group-management/  # Group management
+│   │   ├── expense-tracking/  # Expense tracking
+│   │   └── settlement/        # Settlement management
+│   ├── widgets/               # UI widgets
+│   │   ├── dashboard/         # Dashboard widgets
+│   │   ├── group-list/        # Group listing
+│   │   └── expense-summary/   # Expense summaries
+│   └── shared/                # Shared utilities
+│       ├── api/               # API utilities
+│       ├── components/ui/     # shadcn/ui components
+│       ├── hooks/             # Custom React hooks
+│       ├── lib/               # Utilities
+│       └── types/             # TypeScript types
+├── prisma/                    # Database schema
+├── public/                    # Static assets
+└── documentation/             # Project documentation
 ```
 
-Learn more: [FSD Architecture Guide](../architecture/fsd-architecture.md)
+### Key Directories
 
-## 🛠️ Available Scripts
+#### `/src/app/`
+Next.js App Router with route groups:
+- `(auth)/` - Sign in/up pages
+- `(private)/` - Protected dashboard pages
+- `public/` - Public bill sharing pages
+- `api/` - API endpoints
 
-### Development
+#### `/src/entities/`
+Business entities with their own models and APIs:
+- `user/` - User management
+- `group/` - Group operations
+- `expense/` - Expense handling
+- `settlement/` - Payment tracking
+
+#### `/src/features/`
+Business features that use entities:
+- `auth/` - Authentication flows
+- `group-management/` - Group CRUD operations
+- `expense-tracking/` - Expense management
+- `settlement/` - Payment settlement
+
+#### `/src/widgets/`
+Complex UI components:
+- `dashboard/` - Main dashboard
+- `group-list/` - Group listing widget
+- `expense-summary/` - Expense summary widget
+
+#### `/src/shared/`
+Shared utilities and components:
+- `api/` - API client and contracts
+- `components/ui/` - shadcn/ui components
+- `lib/` - Utility functions
+- `types/` - TypeScript type definitions
+
+## 🔧 Configuration
+
+### Clerk Setup
+1. Create account at [Clerk](https://clerk.com)
+2. Create new application
+3. Configure OAuth providers (Google, GitHub)
+4. Set redirect URLs:
+   - Sign-in URL: `/sign-in`
+   - Sign-up URL: `/sign-up`
+   - After sign-in: `/dashboard`
+   - After sign-up: `/dashboard`
+
+### Google Cloud Vision API
+1. Create project in [Google Cloud Console](https://console.cloud.google.com)
+2. Enable Vision API
+3. Create service account
+4. Download service account key
+5. Extract credentials to environment variables
+
+### AWS Setup
+1. Create S3 bucket for file storage
+2. Create CloudFront distribution
+3. Set up IAM user with appropriate permissions
+4. Configure environment variables
+
+### Database Options
+
+#### Option 1: Neon (Recommended)
+1. Create account at [Neon](https://neon.tech)
+2. Create new database
+3. Copy connection string to `DATABASE_URL`
+
+#### Option 2: Supabase
+1. Create account at [Supabase](https://supabase.com)
+2. Create new project
+3. Get database URL from settings
+
+#### Option 3: Local PostgreSQL
+1. Install PostgreSQL locally
+2. Create database: `createdb split-bill`
+3. Use: `postgresql://username:password@localhost:5432/split-bill`
+
+## 🧪 Testing the Setup
+
+### 1. Authentication Test
+1. Navigate to `/sign-in`
+2. Sign in with configured provider
+3. Should redirect to `/dashboard`
+
+### 2. Database Test
 ```bash
+# Check database connection
+bun run db:studio
+```
+
+### 3. OCR Test
+1. Create a group
+2. Add an expense
+3. Upload a receipt image
+4. Verify OCR extraction works
+
+### 4. API Test
+```bash
+# Test API endpoints
+curl http://localhost:3000/api/health
+```
+
+## 🚀 Available Scripts
+
+```bash
+# Development
 bun dev              # Start development server
 bun build            # Build for production
 bun start            # Start production server
-bun lint             # Run ESLint
-bun type-check       # Run TypeScript check
-```
 
-### Database
-```bash
+# Database
 bun run db:generate  # Generate Prisma client
 bun run db:push      # Push schema to database
 bun run db:studio    # Open Prisma Studio
-bun run db:reset     # Reset database (development only)
-```
+bun run db:migrate   # Run database migrations
 
-### Testing
-```bash
+# Code Quality
+bun run lint         # Run ESLint
+bun run type-check   # Run TypeScript check
+
+# Testing
 bun test             # Run tests
 bun test:watch       # Run tests in watch mode
-bun test:coverage    # Run tests with coverage
 ```
-
-## 🎯 First Steps After Setup
-
-### 1. Verify Installation
-- [ ] Development server runs without errors
-- [ ] Database connection works
-- [ ] OAuth login works (Google/GitHub)
-- [ ] Can create/view toggles
-
-### 2. Explore the Application
-1. **Login** with Google or GitHub
-2. **Navigate** to Toggle Features page
-3. **Create** a new toggle
-4. **Test** the public API endpoint
-5. **Check** cache headers in browser dev tools
-
-### 3. Test Public API
-```bash
-# Test public API
-curl http://localhost:3000/api/public/toggles
-
-# Test specific toggle
-curl http://localhost:3000/api/public/toggles/your-toggle-key
-```
-
-### 4. Understand the Codebase
-1. Read [FSD Architecture Guide](../architecture/fsd-architecture.md)
-2. Explore [Core Features](../features/core-features.md)
-3. Check [API Documentation](../api/overview.md)
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
 #### Database Connection Error
-```bash
-Error: P1001: Can't reach database server
-```
-**Solution**: Check MongoDB Atlas network access and connection string
+- Verify `DATABASE_URL` is correct
+- Check database server is running
+- Ensure database exists
 
-#### OAuth Error
-```bash
-Error: Invalid client_id
-```
-**Solution**: Verify OAuth credentials and callback URLs
+#### Clerk Authentication Error
+- Verify Clerk keys are correct
+- Check redirect URLs match configuration
+- Ensure domain is added to Clerk dashboard
 
-#### Build Error
-```bash
-Module not found: Can't resolve '@/...'
-```
-**Solution**: Check TypeScript paths in `tsconfig.json`
+#### OCR Not Working
+- Verify Google Cloud credentials
+- Check Vision API is enabled
+- Ensure service account has proper permissions
 
-#### Cache Not Working
-```bash
-X-Cache-Status: MISS (always)
-```
-**Solution**: Verify AWS credentials and CloudFront configuration
-
-### Debug Mode
-```bash
-# Enable debug logging
-DEBUG=* bun dev
-
-# Check environment variables
-bun run env-check
-```
+#### Build Errors
+- Clear `.next` directory: `rm -rf .next`
+- Reinstall dependencies: `rm -rf node_modules && bun install`
+- Check TypeScript errors: `bun run type-check`
 
 ### Getting Help
-1. Check [documentation](../README.md)
-2. Review [API reference](../api/overview.md)
-3. Look at existing code examples
-4. Create issue with error details
+- Check [GitHub Issues](https://github.com/pradiktabagus/split-bill/issues)
+- Review [API Documentation](https://split-bill-mu.vercel.app/api/docs)
+- Join [GitHub Discussions](https://github.com/pradiktabagus/split-bill/discussions)
 
-## 🚀 Next Steps
+## 🎯 Next Steps
 
-### For Developers
-1. **Learn FSD**: Read [FSD Architecture Guide](../architecture/fsd-architecture.md)
-2. **Add Features**: Follow [Adding Features Guide](./adding-features.md)
-3. **Follow Rules**: Check [FSD Development Rules](./fsd-rules.md)
+1. **Explore the Application**
+   - Create your first group
+   - Add some expenses
+   - Try the OCR feature
+   - Test settlement calculations
 
-### For API Users
-1. **API Reference**: Read [API Documentation](../api/overview.md)
-2. **Public API**: Check [Public API Guide](../api/public-api.md)
-3. **Caching**: Understand [Caching System](../features/caching-system.md)
+2. **Read the Documentation**
+   - [FSD Architecture](../architecture/fsd-architecture.md)
+   - [Core Features](../features/core-features.md)
+   - [API Reference](../api/overview.md)
 
-### For DevOps
-1. **Deployment**: Set up production environment
-2. **Monitoring**: Configure performance monitoring
-3. **Scaling**: Plan for traffic growth
-
-## 📚 Additional Resources
-
-- [Project Blueprint](../../blueprint.md) - Development roadmap
-- [Configuration Files](../architecture/project-structure.md) - File explanations
-- [Tech Stack](../architecture/tech-stack.md) - Technologies used
-- [Core Features](../features/core-features.md) - Feature documentation
+3. **Start Contributing**
+   - Read [Contributing Guidelines](../../../CONTRIBUTING.md)
+   - Check [Open Issues](https://github.com/pradiktabagus/split-bill/issues)
+   - Review [Development Guidelines](./adding-features.md)
 
 ---
 
-**Need help?** Check the [documentation](../README.md) or create an issue with detailed information about your problem.
+**Welcome to Split Bill Application development! 🎉**

@@ -1,260 +1,241 @@
-# 🔧 GitHub Project Setup - Step by Step
+# GitHub Project Setup for Split Bill Application
 
-This guide provides exact steps to set up GitHub Projects and fix the automation error.
+This guide provides step-by-step instructions for setting up GitHub Projects to manage the Split Bill Application development workflow.
 
-## 🚨 Fixing the Current Error
+## 📋 Overview
 
-The error `Could not resolve to a ProjectV2 with the number 1` occurs because:
-1. GitHub Project hasn't been created yet
-2. Wrong project URL format
-3. Missing permissions
+GitHub Projects provides a powerful way to organize and track development work for the Split Bill Application. This setup integrates with issues, pull requests, and provides visibility into development progress.
 
-## 📋 Step-by-Step Setup
+## 🚀 Project Creation
 
-### Step 1: Create GitHub Project
+### 1. Access GitHub Projects
+1. Navigate to: `https://github.com/pradiktabagus/split-bill`
+2. Click on the **Projects** tab
+3. Click **New Project** button
 
-1. **Go to your GitHub profile** (not repository)
-   - Visit: `https://github.com/pradiktabagus`
-   - Click **Projects** tab
-   - Click **New project**
+### 2. Project Configuration
+- **Template**: Start from scratch
+- **Project name**: `Split Bill Development`
+- **Description**: `Development tracking for Split Bill expense management application`
+- **Visibility**: Public (for open source) or Private
+- **README**: Enable to document project workflow
 
-2. **Project Configuration**
-   - **Template**: Board
-   - **Project name**: `Feature Toggle Development`
-   - **Description**: `Development tracking for Feature Toggle Management System`
-   - Click **Create project**
+## 🏗️ Project Structure Setup
 
-3. **Note the Project URL**
-   - After creation, copy the URL (e.g., `https://github.com/users/pradiktabagus/projects/2`)
-   - The number at the end is your project ID
+### 1. Create Views
 
-### Step 2: Configure Project Board
+#### Board View (Default)
+- **Name**: Development Board
+- **Layout**: Board
+- **Group by**: Status
+- **Sort by**: Priority (High to Low)
 
-#### Add Columns (in this order):
-1. **📋 Backlog** 
-   - Description: "New issues and planned features"
-2. **🔄 Ready**
-   - Description: "Issues ready for development"  
-3. **🚧 In Progress**
-   - Description: "Currently being worked on"
-4. **👀 In Review** 
-   - Description: "Pull requests under review"
-5. **✅ Done**
-   - Description: "Completed items"
+#### Table View
+- **Name**: All Issues
+- **Layout**: Table
+- **Fields**: Title, Status, Priority, Assignee, Labels, Milestone
+- **Filter**: All items
 
-#### Configure Column Automation:
-1. Click **⚙️** on each column
-2. Set up automation:
-   - **📋 Backlog**: Auto-add items → Issues, Pull requests
-   - **🚧 In Progress**: Auto-add items → Issues (when assigned)
-   - **👀 In Review**: Auto-add items → Pull requests (when opened)
-   - **✅ Done**: Auto-add items → Pull requests (when merged)
+#### Roadmap View
+- **Name**: Feature Roadmap
+- **Layout**: Roadmap
+- **Date field**: Target date
+- **Group by**: Milestone
 
-### Step 3: Create Repository Labels
+### 2. Configure Fields
 
-Go to your repository → **Issues** → **Labels** → **New label**
+#### Status Field (Single Select)
+- 📋 **Backlog** - New issues and ideas
+- 🔄 **In Progress** - Currently being worked on
+- 👀 **In Review** - Pull requests under review
+- ✅ **Done** - Completed work
+- 🚀 **Released** - Deployed to production
 
-#### Phase Labels:
-```
-phase-2          #FEF08A    Advanced Toggle Features
-phase-3          #93C5FD    Analytics & Monitoring  
-phase-4          #C4B5FD    Testing & Quality
-phase-5          #FDBA74    Enterprise Features
-```
+#### Priority Field (Single Select)
+- 🔴 **High** - Critical features, security issues, major bugs
+- 🟡 **Medium** - Standard features, minor bugs
+- 🟢 **Low** - Nice-to-have features, optimizations
 
-#### Priority Labels:
-```
-priority-high    #EF4444    High priority
-priority-medium  #F59E0B    Medium priority
-priority-low     #10B981    Low priority
-```
+#### Component Field (Single Select)
+- **Entities** - Business logic (User, Group, Expense, Settlement)
+- **Features** - Business features (group management, expense tracking)
+- **Widgets** - UI components (dashboard, forms, lists)
+- **Shared** - Utilities, API contracts, UI components
+- **Infrastructure** - AWS, deployment, performance
 
-#### Component Labels:
-```
-entities         #8B5CF6    Entity layer changes
-features         #F59E0B    Feature layer changes
-widgets          #EC4899    Widget layer changes
-shared           #6B7280    Shared layer changes
-api              #10B981    API changes
-ui               #EC4899    UI/UX changes
-```
+#### Effort Field (Number)
+- **1** - Small task (1-2 days)
+- **3** - Medium task (3-5 days)
+- **5** - Large task (1-2 weeks)
+- **8** - Epic (2+ weeks)
 
-### Step 4: Configure GitHub Actions
+#### Target Date Field (Date)
+- For milestone planning and roadmap visualization
 
-#### Option A: Manual Setup (Recommended)
-1. **Disable the automation workflow** for now:
-   ```bash
-   # Rename the file to disable it
-   mv .github/workflows/project-automation.yml .github/workflows/project-automation.yml.disabled
-   ```
+## 🔄 Workflow Automation
 
-2. **Manually add issues to project**:
-   - Create issues using templates
-   - Manually add them to the project board
-   - Move through columns as work progresses
+### 1. Built-in Automations
 
-#### Option B: Fix Automation (Advanced)
-If you want to keep automation:
+#### Auto-add Items
+- **Trigger**: Issue created in repository
+- **Action**: Add to project with status "Backlog"
 
-1. **Create Personal Access Token**:
-   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-   - Generate new token with scopes: `repo`, `project`
-   - Copy the token
+#### Status Updates
+- **Trigger**: Pull request created
+- **Action**: Move linked issues to "In Review"
 
-2. **Add Repository Secrets**:
-   - Go to repository → Settings → Secrets and variables → Actions
-   - Add secret: `ADD_TO_PROJECT_PAT` = your token
+- **Trigger**: Pull request merged
+- **Action**: Move linked issues to "Done"
 
-3. **Add Repository Variables**:
-   - In same section, go to Variables tab
-   - Add variable: `PROJECT_URL` = your project URL (e.g., `https://github.com/users/pradiktabagus/projects/2`)
+### 2. Custom Automations (GitHub Actions)
 
-4. **Re-enable workflow**:
-   ```bash
-   mv .github/workflows/project-automation.yml.disabled .github/workflows/project-automation.yml
-   ```
+Create `.github/workflows/project-automation.yml`:
 
-### Step 5: Create Initial Issues
+```yaml
+name: Project Automation
 
-Use the issue templates to create these Phase 2 issues:
+on:
+  issues:
+    types: [opened, closed, reopened]
+  pull_request:
+    types: [opened, closed, merged]
 
-#### Issue 1: Rollout Entity
-```markdown
-Title: [FEATURE] Create Rollout Entity for Percentage-based Rollouts
-Labels: enhancement, phase-2, priority-high, entities
-
-Use the 🚀 Feature Request template and fill in:
-- Phase: Phase 2
-- Priority: High
-- FSD layers: [x] Entities
+jobs:
+  update-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update project status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Custom automation logic
+            const { context } = require('@actions/github');
+            
+            if (context.eventName === 'issues') {
+              // Handle issue events
+              if (context.payload.action === 'opened') {
+                // Add to backlog
+              }
+            }
+            
+            if (context.eventName === 'pull_request') {
+              // Handle PR events
+              if (context.payload.action === 'opened') {
+                // Move to in review
+              }
+            }
 ```
 
-#### Issue 2: Rollout Feature
-```markdown
-Title: [FEATURE] Implement Percentage Rollout Management  
-Labels: enhancement, phase-2, priority-high, features
+## 📊 Milestone Setup
 
-Use the 🚀 Feature Request template and fill in:
-- Phase: Phase 2
-- Priority: High
-- FSD layers: [x] Features
-```
+### 1. Create Milestones
 
-#### Issue 3: User Targeting Entity
-```markdown
-Title: [FEATURE] Create User Targeting Entity
-Labels: enhancement, phase-2, priority-high, entities
+#### v1.1 - Enhanced Core Features
+- **Due Date**: End of current quarter
+- **Description**: OCR improvements, WhatsApp integration, public sharing enhancements
+- **Issues**: 15-20 issues
 
-Use the 🚀 Feature Request template and fill in:
-- Phase: Phase 2
-- Priority: High
-- FSD layers: [x] Entities
-```
+#### v1.2 - Advanced Features
+- **Due Date**: Next quarter
+- **Description**: Multi-currency support, analytics dashboard, mobile optimization
+- **Issues**: 20-25 issues
 
-#### Issue 4: User Targeting Feature
-```markdown
-Title: [FEATURE] Implement User Targeting Rules
-Labels: enhancement, phase-2, priority-medium, features
+#### v2.0 - Major Release
+- **Due Date**: Next major release cycle
+- **Description**: Mobile app, advanced analytics, enterprise features
+- **Issues**: 30+ issues
 
-Use the 🚀 Feature Request template and fill in:
-- Phase: Phase 2
-- Priority: Medium
-- FSD layers: [x] Features
-```
+### 2. Milestone Planning
+- Assign issues to appropriate milestones
+- Set realistic due dates
+- Balance feature work with technical debt
+- Include buffer time for testing and bug fixes
 
-### Step 6: Create Milestone
+## 🏷️ Label Integration
 
-1. Go to repository → **Issues** → **Milestones** → **New milestone**
-2. **Title**: `Phase 2: Advanced Toggle Features`
-3. **Due date**: 4 weeks from today
-4. **Description**: 
-   ```markdown
-   Advanced toggle features including:
-   - Percentage-based rollouts
-   - User targeting rules
-   - Scheduled toggle activation
-   - Bulk operations
-   ```
+### 1. Repository Labels
+Ensure these labels exist in the repository:
 
-### Step 7: Assign Issues to Milestone
-
-1. Open each created issue
-2. On the right sidebar, click **Milestone**
-3. Select `Phase 2: Advanced Toggle Features`
-4. Assign to project if not auto-added
-
-## 🎯 Quick Start Commands
-
-### Create Issues via GitHub CLI (Optional)
 ```bash
-# Install GitHub CLI if not installed
-# brew install gh  # macOS
-# sudo apt install gh  # Ubuntu
+# Priority labels
+gh label create "priority-high" --color "d73a4a" --description "High priority items"
+gh label create "priority-medium" --color "fbca04" --description "Medium priority items"
+gh label create "priority-low" --color "0e8a16" --description "Low priority items"
 
-# Login
-gh auth login
+# Type labels
+gh label create "enhancement" --color "a2eeef" --description "New feature or request"
+gh label create "bug" --color "d73a4a" --description "Something isn't working"
+gh label create "task" --color "7057ff" --description "Development task"
 
-# Create issues
-gh issue create --title "[FEATURE] Create Rollout Entity" --body-file .github/ISSUE_TEMPLATE/feature-request.md --label "enhancement,phase-2,priority-high,entities"
-
-gh issue create --title "[FEATURE] Implement Percentage Rollout Management" --body-file .github/ISSUE_TEMPLATE/feature-request.md --label "enhancement,phase-2,priority-high,features"
+# Component labels
+gh label create "entities" --color "0052cc" --description "Business entities"
+gh label create "features" --color "0052cc" --description "Business features"
+gh label create "widgets" --color "0052cc" --description "UI widgets"
+gh label create "shared" --color "0052cc" --description "Shared utilities"
 ```
 
-## 🔍 Troubleshooting
+### 2. Label Automation
+- Auto-apply labels based on file paths in PRs
+- Use label-based filtering in project views
+- Create saved filters for common label combinations
 
-### Common Issues:
+## 📈 Reporting and Analytics
 
-#### 1. "Could not resolve to a ProjectV2"
-- **Cause**: Project doesn't exist or wrong URL
-- **Fix**: Create project first, use correct URL format
+### 1. Built-in Insights
+- **Burndown charts**: Track milestone progress
+- **Velocity tracking**: Team productivity metrics
+- **Issue aging**: Identify stale issues
+- **Pull request metrics**: Review time and merge rates
 
-#### 2. "Resource not accessible by integration"  
-- **Cause**: Missing permissions
-- **Fix**: Use Personal Access Token with correct scopes
+### 2. Custom Reports
+Create custom views for:
+- **Bug triage**: All open bugs by priority
+- **Feature progress**: Features by status and assignee
+- **Technical debt**: Tasks labeled as technical debt
+- **Release planning**: Issues by milestone and status
 
-#### 3. "Project URL not found"
-- **Cause**: Wrong URL format or private project
-- **Fix**: Use format `https://github.com/users/USERNAME/projects/NUMBER`
+## 🎯 Team Collaboration
 
-#### 4. Issues not auto-adding to project
-- **Cause**: Automation not configured
-- **Fix**: Set up column automation in project settings
+### 1. Project Roles
+- **Admin**: Full project management access
+- **Write**: Can edit project items and settings
+- **Read**: Can view project but not edit
 
-### Verification Steps:
+### 2. Notification Settings
+- **Mentions**: Notify when mentioned in project items
+- **Assignments**: Notify when assigned to items
+- **Status changes**: Notify on status updates
 
-1. **Check project exists**: Visit project URL in browser
-2. **Check permissions**: Ensure PAT has `project` scope
-3. **Check automation**: Test by creating a test issue
-4. **Check labels**: Ensure all labels are created in repository
+### 3. Integration with Development
+- Link issues to pull requests
+- Reference issues in commit messages
+- Use project board during stand-ups and planning
 
-## 📊 Project Management Workflow
+## 🔧 Maintenance
 
-### Daily Workflow:
-1. **Check project board** for current status
-2. **Move issues** through columns as work progresses
-3. **Update issue comments** with progress
-4. **Create PRs** linking to issues
+### 1. Regular Reviews
+- **Weekly**: Review board status and update priorities
+- **Monthly**: Analyze project metrics and adjust workflow
+- **Quarterly**: Review milestone progress and plan ahead
 
-### Weekly Workflow:
-1. **Review milestone progress**
-2. **Groom backlog** for next sprint
-3. **Update issue priorities** if needed
-4. **Plan next week's work**
+### 2. Cleanup Tasks
+- Archive completed milestones
+- Close stale issues
+- Update project documentation
+- Review and update automation rules
 
-### Sprint Workflow (2 weeks):
-1. **Sprint planning**: Select issues for sprint
-2. **Daily standups**: Check progress
-3. **Sprint review**: Demo completed features
-4. **Sprint retrospective**: Improve process
+## 📚 Resources
 
-## 🚀 Next Steps
+### GitHub Documentation
+- [GitHub Projects Documentation](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
+- [Project Automation](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project)
+- [GitHub Actions for Projects](https://docs.github.com/en/actions/managing-issues-and-pull-requests)
 
-1. **Create GitHub Project** following Step 1
-2. **Set up project board** with columns and automation
-3. **Create repository labels** for organization
-4. **Create initial issues** for Phase 2
-5. **Start development** with first issue
+### Split Bill Specific
+- [Project Setup Guide](./PROJECT_SETUP.md)
+- [Contributing Guidelines](./CONTRIBUTING.md)
+- [Issue Creation Guide](./CREATE_ISSUES.md)
 
-Choose **Option A (Manual Setup)** for simplicity, or **Option B (Automation)** if you want full automation.
+---
 
-The manual approach is recommended initially to get familiar with the workflow before adding automation complexity.
+This GitHub Project setup provides a comprehensive development management system for the Split Bill Application, enabling efficient tracking, collaboration, and delivery of features.

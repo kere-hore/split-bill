@@ -1,273 +1,220 @@
-# 🚀 GitHub Project Management Setup
+# Split Bill Application - Project Setup Guide
 
-This guide explains how to set up GitHub Projects and Issues for managing the Feature Toggle Management System development based on our blueprint.
+This guide explains how to set up GitHub Projects and Issues for managing the Split Bill Application development.
 
-## 📋 GitHub Project Setup
+## 📋 Overview
 
-### 1. Create GitHub Project
+The Split Bill Application is a modern expense tracking and bill splitting system built with Next.js, TypeScript, and PostgreSQL. This setup guide helps organize development workflow using GitHub's native tools while following FSD architecture principles.
 
-1. Go to your GitHub repository
-2. Click on **Projects** tab
+## 🚀 GitHub Project Setup
+
+### 1. Create New Project
+1. Go to your repository: `https://github.com/pradiktabagus/split-bill`
+2. Click **Projects** tab
 3. Click **New Project**
 4. Choose **Board** layout
-5. Name: `Feature Toggle Development`
+5. Name: `Split Bill Development`
+6. Description: `Development tracking for Split Bill expense management application`
 
-### 2. Project Columns Setup
+### 2. Configure Project Columns
 
-Create these columns in order:
+#### Column Structure
+- **📋 Backlog** - New issues and feature requests
+- **🔄 In Progress** - Currently being worked on
+- **👀 In Review** - Pull requests under review
+- **✅ Done** - Completed items
+- **🚀 Released** - Deployed to production
 
-| Column | Purpose | Automation |
-|--------|---------|------------|
-| **📋 Backlog** | New issues and planned features | Auto-add new issues |
-| **🔄 Ready** | Issues ready for development | Manual move |
-| **🚧 In Progress** | Currently being worked on | Auto-move when assigned |
-| **👀 In Review** | Pull requests under review | Auto-move when PR opened |
-| **✅ Done** | Completed items | Auto-move when PR merged |
+### 3. Project Settings
+- **Visibility**: Public (if open source) or Private
+- **Template**: None (custom setup)
+- **Automation**: Enable GitHub Actions integration
 
-### 3. Labels Setup
+## 🏷️ Issue Labels Setup
 
-Create these labels for better organization:
+### Priority Labels
+- `priority-high` - Critical issues, bugs, or important features
+- `priority-medium` - Standard features and improvements
+- `priority-low` - Nice-to-have features and minor enhancements
 
-#### Phase Labels
-- `phase-2` - Advanced Toggle Features (🟡 Yellow)
-- `phase-3` - Analytics & Monitoring (🔵 Blue) 
-- `phase-4` - Testing & Quality (🟣 Purple)
-- `phase-5` - Enterprise Features (🟠 Orange)
+### Type Labels
+- `enhancement` - New features and improvements
+- `bug` - Bug reports and fixes
+- `task` - Development tasks and chores
+- `documentation` - Documentation updates
 
-#### Priority Labels
-- `priority-high` - High priority (🔴 Red)
-- `priority-medium` - Medium priority (🟡 Yellow)
-- `priority-low` - Low priority (🟢 Green)
+### Component Labels
+- `entities` - Business entities (User, Group, Expense, Settlement)
+- `features` - Business features (group management, expense tracking)
+- `widgets` - UI widgets (dashboard, group list, expense summary)
+- `shared` - Shared utilities and components
+- `api` - API endpoints and backend logic
+- `ui` - User interface components
 
-#### Type Labels
-- `enhancement` - New features (🚀 Blue)
-- `bug` - Bug reports (🐛 Red)
-- `task` - Development tasks (📋 Gray)
-- `documentation` - Documentation updates (📚 Blue)
+### Technology Labels
+- `nextjs` - Next.js related issues
+- `typescript` - TypeScript improvements
+- `prisma` - Database and ORM issues
+- `clerk` - Authentication related
+- `aws` - CloudFront, S3, and AWS services
+- `cache` - Caching implementation
 
-#### Component Labels
-- `entities` - Entity layer changes (🏗️ Brown)
-- `features` - Feature layer changes (⚡ Yellow)
-- `widgets` - Widget layer changes (🎨 Purple)
-- `shared` - Shared layer changes (🔧 Gray)
-- `api` - API changes (🔌 Green)
-- `ui` - UI/UX changes (🎨 Pink)
+## 📝 Issue Templates
 
-## 🎯 Issue Management Strategy
-
-### Phase 2 Issues (Immediate)
-
-#### Epic: Advanced Toggle Features
+### Feature Request Template
 ```markdown
-**Parent Issue**: Advanced Toggle Features Implementation
-**Phase**: Phase 2
-**Priority**: High
+## 📋 Feature Description
+**Feature Name:** [Name]
+**Priority:** High/Medium/Low
+**Component:** entities/features/widgets/shared/api
 
-**Child Issues**:
-- [ ] #1 Create Rollout Entity
-- [ ] #2 Implement Percentage Rollout Feature  
-- [ ] #3 Create User Targeting Entity
-- [ ] #4 Implement User Targeting Rules
-- [ ] #5 Create Scheduled Toggle Entity
-- [ ] #6 Implement Time-based Activation
-- [ ] #7 Create Rollout Management Widget
-- [ ] #8 Add Bulk Operations Feature
+### What feature would you like to see?
+[Description]
+
+### Which FSD layer(s) will be affected?
+- [ ] Entities
+- [ ] Features  
+- [ ] Widgets
+- [ ] Shared
+- [ ] App
+
+## 🎯 User Story
+As a [user type], I want [goal] so that [benefit].
+
+## 📊 Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## 🔧 Technical Requirements
+### Database Changes
+- [ ] New Prisma models needed
+- [ ] Schema migrations required
+
+### API Endpoints
+- [ ] New endpoints required
+- [ ] Existing endpoints to modify
+
+## ✅ Definition of Done
+- [ ] Feature implemented following FSD architecture
+- [ ] Tests written and passing
+- [ ] Documentation updated
 ```
 
-#### Sample Issues to Create:
-
-**Issue #1: Create Rollout Entity**
+### Bug Report Template
 ```markdown
-**Title**: [FEATURE] Create Rollout Entity for Percentage-based Rollouts
-**Labels**: enhancement, phase-2, priority-high, entities
-**Assignee**: [Developer]
+## 🐛 Bug Description
+**Component:** [entities/features/widgets/shared/api]
+**Priority:** High/Medium/Low
+**Environment:** Development/Staging/Production
 
-**Description**:
-Create the rollout entity following FSD architecture to support percentage-based feature rollouts.
+### Describe the bug
+[Clear description]
 
-**Acceptance Criteria**:
-- [ ] `entities/rollout/model/rollout.ts` created with proper types
-- [ ] `entities/rollout/api/rollout-api.ts` implemented
-- [ ] `entities/rollout/lib/rollout-helpers.ts` with utility functions
-- [ ] Prisma schema updated with Rollout model
-- [ ] Unit tests for rollout entity
+### Steps to Reproduce
+1. Go to '...'
+2. Click on '....'
+3. See error
+
+### Expected behavior
+[What should happen]
+
+### Actual behavior
+[What actually happens]
+
+### Screenshots
+[If applicable]
+
+### Environment Details
+- OS: [e.g. macOS, Windows, Linux]
+- Browser: [e.g. Chrome, Firefox, Safari]
+- Version: [e.g. 22]
+
+### Additional context
+[Any other context]
 ```
 
-**Issue #2: Implement Percentage Rollout Feature**
-```markdown
-**Title**: [FEATURE] Implement Percentage Rollout Management
-**Labels**: enhancement, phase-2, priority-high, features
-**Depends on**: #1
+## 🔄 Workflow Setup
 
-**Description**:
-Implement the percentage rollout feature that allows gradual feature releases.
+### 1. Development Workflow
+1. **Issue Creation** → Backlog
+2. **Assignment** → In Progress
+3. **Pull Request** → In Review
+4. **Merge** → Done
+5. **Deploy** → Released
 
-**Acceptance Criteria**:
-- [ ] `features/rollout/model/use-rollout.ts` business logic
-- [ ] `features/rollout/ui/rollout-controls.tsx` UI component
-- [ ] API endpoints for rollout management
-- [ ] Integration with existing toggle system
-```
+### 2. Automation Rules
+- Auto-move to "In Progress" when PR is created
+- Auto-move to "In Review" when PR is ready for review
+- Auto-move to "Done" when PR is merged
+- Auto-close issue when linked PR is merged
 
-### Issue Templates Usage
+## 📊 Milestones
 
-#### For New Features:
-1. Use **🚀 Feature Request** template
-2. Fill in Phase and Priority
-3. Specify FSD layers affected
-4. Add to appropriate project column
+### Current Development Phases
 
-#### For Bug Reports:
-1. Use **🐛 Bug Report** template
-2. Specify affected component
-3. Include reproduction steps
-4. Add environment details
+#### Phase 1: Core Features ✅
+- [x] User authentication (Clerk)
+- [x] Group management
+- [x] Basic expense tracking
+- [x] Settlement calculation
 
-#### For Development Tasks:
-1. Use **📋 Task** template
-2. Specify task type and priority
-3. List files to be modified
-4. Define clear acceptance criteria
+#### Phase 2: Enhanced Features 🔄
+- [ ] OCR receipt scanning
+- [ ] WhatsApp integration
+- [ ] Public bill sharing
+- [ ] Advanced settlement tracking
 
-## 🔄 Workflow Automation
+#### Phase 3: Optimization 📋
+- [ ] Performance improvements
+- [ ] Advanced caching
+- [ ] Analytics dashboard
+- [ ] Mobile optimization
 
-### Automated Actions
+#### Phase 4: Advanced Features 📋
+- [ ] Multi-currency support
+- [ ] Recurring expenses
+- [ ] Export functionality
+- [ ] Advanced reporting
 
-The project includes GitHub Actions that automatically:
+## 🎯 Project Metrics
 
-1. **Add new issues/PRs to project**
-2. **Extract and assign phase labels** from issue body
-3. **Extract and assign priority labels** from issue body
-4. **Move items between columns** based on status changes
+### Key Performance Indicators
+- **Issue Resolution Time**: Average time from creation to closure
+- **Pull Request Review Time**: Time from creation to merge
+- **Bug Fix Rate**: Percentage of bugs fixed within SLA
+- **Feature Delivery**: Features delivered per sprint/milestone
 
-### Manual Workflow
+### Tracking
+- Use GitHub Insights for automatic metrics
+- Weekly review of project board
+- Monthly milestone assessment
+- Quarterly roadmap updates
 
-1. **Issue Creation** → Automatically added to **📋 Backlog**
-2. **Ready for Development** → Manually move to **🔄 Ready**
-3. **Start Development** → Assign developer → Auto-move to **🚧 In Progress**
-4. **Create PR** → Auto-move to **👀 In Review**
-5. **Merge PR** → Auto-move to **✅ Done**
+## 🤝 Team Collaboration
 
-## 📊 Project Milestones
+### Roles and Responsibilities
+- **Maintainer**: Project oversight, architecture decisions
+- **Contributors**: Feature development, bug fixes
+- **Reviewers**: Code review, quality assurance
 
-### Phase 2 Milestone: Advanced Toggle Features
-**Target Date**: 4 weeks from start
-**Issues**: 8-10 issues
-**Key Deliverables**:
-- Rollout management system
-- User targeting capabilities
-- Scheduled toggle activation
-- Bulk operations
+### Communication
+- **Issues**: For bugs, features, and tasks
+- **Discussions**: For questions and ideas
+- **Pull Requests**: For code changes
+- **Project Board**: For progress tracking
 
-### Phase 3 Milestone: Analytics & Monitoring  
-**Target Date**: 6 weeks from Phase 2 completion
-**Issues**: 6-8 issues
-**Key Deliverables**:
-- Usage analytics dashboard
-- Performance monitoring
-- Error tracking system
+## 📚 Resources
 
-## 🎯 Sprint Planning
+### Documentation
+- [README.md](./README.md) - Project overview
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
+- [API Documentation](./src/app/docs/page.tsx) - API reference
 
-### 2-Week Sprint Structure
+### External Links
+- [GitHub Projects Documentation](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
+- [FSD Architecture](https://feature-sliced.design/)
+- [Next.js Documentation](https://nextjs.org/docs)
 
-**Sprint 1 (Phase 2.1): Rollout Foundation**
-- Create rollout entity
-- Implement basic percentage rollouts
-- Add rollout API endpoints
+---
 
-**Sprint 2 (Phase 2.2): User Targeting**
-- Create targeting entity
-- Implement user targeting rules
-- Add targeting UI components
-
-**Sprint 3 (Phase 2.3): Advanced Features**
-- Scheduled toggles
-- Bulk operations
-- Rollout management widget
-
-## 📈 Progress Tracking
-
-### Key Metrics to Track
-
-1. **Velocity**: Issues completed per sprint
-2. **Cycle Time**: Time from Ready to Done
-3. **Bug Rate**: Bugs per feature implemented
-4. **Code Coverage**: Test coverage percentage
-5. **Documentation**: Docs updated per feature
-
-### Weekly Reviews
-
-Every week, review:
-- Sprint progress
-- Blocked issues
-- Priority changes
-- Resource allocation
-
-## 🔧 Tools Integration
-
-### Recommended Tools
-- **GitHub Projects** - Project management
-- **GitHub Issues** - Task tracking
-- **GitHub Actions** - Automation
-- **GitHub Discussions** - Team communication
-- **GitHub Wiki** - Additional documentation
-
-### External Integrations (Optional)
-- **Slack/Discord** - Notifications
-- **Linear** - Advanced project management
-- **Notion** - Documentation and planning
-
-## 📚 Best Practices
-
-### Issue Management
-1. **Clear titles** with prefixes ([FEATURE], [BUG], [TASK])
-2. **Detailed descriptions** with acceptance criteria
-3. **Proper labeling** for easy filtering
-4. **Regular updates** on progress
-5. **Link related issues** for context
-
-### Pull Request Management
-1. **Reference issues** in PR description
-2. **Use PR template** for consistency
-3. **Request reviews** from team members
-4. **Update documentation** when needed
-5. **Test thoroughly** before merging
-
-### Project Maintenance
-1. **Weekly grooming** of backlog
-2. **Regular milestone reviews**
-3. **Update project status** in README
-4. **Archive completed milestones**
-5. **Plan future phases** based on progress
-
-## 🚀 Getting Started
-
-⚠️ **Important**: If you're getting GitHub Actions errors, follow the [Detailed Setup Guide](./GITHUB_PROJECT_SETUP.md) first.
-
-### Quick Setup:
-1. **Set up GitHub Project** with columns and labels
-2. **Create Phase 2 milestone** with target date
-3. **Create initial issues** for rollout features
-4. **Assign team members** to issues
-5. **Start first sprint** with rollout entity
-
-### Recommended Approach:
-1. **Manual Setup First**: Use [GITHUB_PROJECT_SETUP.md](./GITHUB_PROJECT_SETUP.md) for step-by-step instructions
-2. **Add Automation Later**: Once comfortable with the workflow
-
-This setup will provide a solid foundation for managing the Feature Toggle project development using GitHub's native tools while following our established blueprint and FSD architecture principles.
-
-## 🔧 Troubleshooting
-
-If you encounter the error:
-```
-Error: Request failed due to following response errors:
- - Could not resolve to a ProjectV2 with the number 1.
-```
-
-This means the GitHub Project hasn't been created yet. Follow these steps:
-1. Read [GITHUB_PROJECT_SETUP.md](./GITHUB_PROJECT_SETUP.md)
-2. Create the GitHub Project first
-3. Configure the automation (or use manual workflow)
-4. Then create issues using the templates
+This setup provides a solid foundation for managing the Split Bill Application development using GitHub's native tools while following established FSD architecture principles and modern development practices.

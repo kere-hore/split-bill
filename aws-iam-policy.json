@@ -8,7 +8,7 @@
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::feature-toggle-files/*"
+      "Resource": "arn:aws:s3:::split-bill-cache/*"
     },
     {
       "Effect": "Allow",

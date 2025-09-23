@@ -1,70 +1,187 @@
-# 📚 Feature Toggle Management System - English Documentation
+# 📚 Split Bill Application - English Documentation
 
-Welcome to the comprehensive English documentation for the Feature Toggle Management System. This documentation covers architecture, features, development guides, and API references.
+Welcome to the comprehensive English documentation for the Split Bill Application. This documentation covers architecture, features, development guides, and API references.
 
-## 📖 Documentation Structure
+## 📖 Table of Contents
 
 ### 🏗️ Architecture
-- [FSD Architecture Guide](./architecture/fsd-architecture.md) - Feature-Sliced Design implementation
-- [Project Structure](./architecture/project-structure.md) - Complete folder structure explanation
-- [Tech Stack](./architecture/tech-stack.md) - Technologies and tools used
+- [FSD Architecture](./architecture/fsd-architecture.md) - Feature-Sliced Design implementation
+- [System Architecture](./architecture/system-architecture.md) - Overall system design
+- [Database Schema](./architecture/database-schema.md) - Database structure and relationships
 
-### ⚡ Features
-- [Core Features](./features/core-features.md) - Current implemented features
-- [Caching System](./features/caching-system.md) - CloudFront + S3 caching architecture
-- [Authentication](./features/authentication.md) - OAuth implementation details
+### 🚀 Getting Started
+- [Installation Guide](./guides/getting-started.md) - Setup and installation
+- [Development Setup](./guides/development-setup.md) - Local development environment
+- [Deployment Guide](./guides/deployment.md) - Production deployment
 
-### 📋 Development Guides
-- [Getting Started](./guides/getting-started.md) - Setup and installation guide
-- [Adding New Features](./guides/adding-features.md) - Step-by-step feature development
-- [FSD Development Rules](./guides/fsd-rules.md) - Development guidelines and best practices
-- [Testing Guide](./guides/testing.md) - Testing strategies and implementation
+### 🎯 Features
+- [Core Features](./features/core-features.md) - Implemented features overview
+- [Authentication](./features/authentication.md) - User authentication system
+- [Group Management](./features/group-management.md) - Group creation and management
+- [Expense Tracking](./features/expense-tracking.md) - Expense management system
+- [Settlement System](./features/settlement-system.md) - Payment tracking and settlement
 
 ### 🔌 API Reference
 - [API Overview](./api/overview.md) - API architecture and conventions
-- [Toggle API](./api/toggle-api.md) - Toggle management endpoints
-- [Public API](./api/public-api.md) - Public toggle consumption API
-- [Cache API](./api/cache-api.md) - Cache management endpoints
+- [Authentication API](./api/authentication.md) - Auth endpoints
+- [Groups API](./api/groups.md) - Group management endpoints
+- [Expenses API](./api/expenses.md) - Expense tracking endpoints
+- [Settlements API](./api/settlements.md) - Settlement management endpoints
 
-## 🚀 Quick Navigation
+### 🛠️ Development
+- [Adding Features](./guides/adding-features.md) - How to add new features
+- [FSD Rules](./guides/fsd-rules.md) - FSD architecture guidelines
+- [Testing Guidelines](./guides/testing.md) - Testing standards and practices
+- [Performance Optimization](./guides/performance.md) - Performance best practices
 
-### For Developers
-1. **New to the project?** → Start with [Getting Started](./guides/getting-started.md)
-2. **Want to add features?** → Read [Adding New Features](./guides/adding-features.md)
-3. **Need to understand architecture?** → Check [FSD Architecture Guide](./architecture/fsd-architecture.md)
+## 🎯 Quick Start
 
-### For API Users
-1. **Using toggles in your app?** → See [API Overview](./api/overview.md)
-2. **Understanding caching?** → Read [Core Features](./features/core-features.md)
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/pradiktabagus/split-bill.git
+   cd split-bill
+   ```
 
-### For DevOps/Infrastructure
-1. **Deployment setup?** → See [Getting Started](./guides/getting-started.md)
-2. **Performance monitoring?** → Read [API Overview](./api/overview.md)
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
 
-## 📊 Project Status
+3. **Setup environment**
+   ```bash
+   cp .env.example .env.local
+   # Fill in your environment variables
+   ```
 
-- **Current Phase**: Phase 1.5 Complete ✅ (Core MVP + CDN Caching)
-- **Next Phase**: Phase 2 - Advanced Toggle Features 🚧
-- **Architecture**: Feature-Sliced Design (FSD) ✅
-- **Tech Stack**: Next.js 15 + TypeScript + MongoDB + AWS ✅
+4. **Setup database**
+   ```bash
+   bun run db:generate
+   bun run db:push
+   ```
+
+5. **Start development server**
+   ```bash
+   bun dev
+   ```
+
+## 🏗️ Architecture Overview
+
+The Split Bill Application follows **Feature-Sliced Design (FSD)** methodology:
+
+### Layer Structure
+```
+src/
+├── app/           # Next.js App Router - routing and providers
+├── widgets/       # Complex UI blocks - dashboard, forms, lists
+├── features/      # Business features - group management, expense tracking
+├── entities/      # Business entities - User, Group, Expense, Settlement
+└── shared/        # Shared utilities - API, components, utils
+```
+
+### Dependency Rules
+- **Allowed**: `app → widgets → features → entities → shared`
+- **Forbidden**: Any reverse dependencies
+
+## 🚀 Key Features
+
+### ✅ Current Features
+- **Multi-provider Authentication** - Clerk with Email, Google, GitHub
+- **Group Management** - Create, edit, manage expense groups
+- **Expense Tracking** - Add expenses with receipt upload
+- **OCR Integration** - Automatic receipt scanning with Google Vision API
+- **Settlement System** - Track payments between members
+- **WhatsApp Integration** - Share allocation summaries
+- **Public Bill Sharing** - Share expenses via public URLs
+- **Caching System** - CloudFront + S3 for performance
+- **Responsive Design** - Mobile-first with dark mode
+
+### 🔄 Roadmap
+- Multi-currency support
+- Advanced analytics dashboard
+- Recurring expenses
+- Mobile app
+- Enterprise features
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript (strict mode)
+- **UI Library**: shadcn/ui + Tailwind CSS
+- **State Management**: React Query + Zustand
+- **Forms**: React Hook Form + Zod validation
+
+### Backend
+- **API**: Next.js API Routes
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Clerk
+- **File Storage**: AWS S3
+- **CDN**: AWS CloudFront
+
+### External Services
+- **OCR**: Google Cloud Vision API
+- **Messaging**: WhatsApp URL generation
+- **Deployment**: Vercel
+- **Monitoring**: Vercel Analytics
+
+## 📊 Performance
+
+### Caching Strategy
+- **Browser Cache**: 5 minutes for dynamic content
+- **CloudFront Cache**: 1 hour for public APIs
+- **S3 Cache**: Persistent storage for public data
+- **Auto-invalidation**: Real-time cache updates
+
+### Optimization Features
+- Code splitting with Next.js
+- Image optimization
+- API response caching
+- Database query optimization
+- Bundle size monitoring
+
+## 🔒 Security
+
+### Authentication & Authorization
+- OAuth 2.0 with multiple providers
+- JWT token management
+- Role-based access control
+- Session management
+
+### Data Protection
+- Input validation with Zod schemas
+- SQL injection prevention with Prisma
+- XSS protection
+- CORS configuration
+- Environment variable security
 
 ## 🤝 Contributing
 
-Before contributing, please read:
-1. [FSD Development Rules](./guides/fsd-rules.md)
-2. [Adding New Features](./guides/adding-features.md)
-3. [FSD Architecture Guide](./architecture/fsd-architecture.md)
+We welcome contributions! Please read our [Contributing Guide](../../CONTRIBUTING.md) for:
 
-## 📞 Support
+- Development setup instructions
+- FSD architecture guidelines
+- Code quality standards
+- Pull request process
+- Issue creation templates
 
-For questions or issues:
-1. Check the relevant documentation section
-2. Review the [API Reference](./api/overview.md)
-3. Create an issue with detailed information
+## 📞 Support & Resources
+
+### Documentation
+- [Live API Documentation](https://split-bill-mu.vercel.app/api/docs)
+- [GitHub Repository](https://github.com/pradiktabagus/split-bill)
+- [Contributing Guidelines](../../CONTRIBUTING.md)
+
+### Community
+- [GitHub Issues](https://github.com/pradiktabagus/split-bill/issues)
+- [GitHub Discussions](https://github.com/pradiktabagus/split-bill/discussions)
+- [Live Demo](https://split-bill-mu.vercel.app)
+
+### External Resources
+- [Feature-Sliced Design](https://feature-sliced.design/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Clerk Documentation](https://clerk.com/docs)
 
 ---
 
-**Language**: English  
-**Last Updated**: January 2025  
-**Documentation Version**: 1.0  
-**Project Version**: Phase 1.5
+**Happy coding! 🚀**

@@ -1,6 +1,6 @@
-# 🤝 Contributing to Feature Toggle Management System
+# 🤝 Contributing to Split Bill Application
 
-Thank you for your interest in contributing! This guide will help you get started with contributing to the Feature Toggle Management System.
+Thank you for your interest in contributing! This guide will help you get started with contributing to the Split Bill expense tracking application.
 
 ## 📋 Table of Contents
 
@@ -14,15 +14,15 @@ Thank you for your interest in contributing! This guide will help you get starte
 ## 🚀 Getting Started
 
 ### Prerequisites
-1. Read the [Getting Started Guide](./documentation/en/guides/getting-started.md)
-2. Understand [FSD Architecture](./documentation/en/architecture/fsd-architecture.md)
-3. Review [FSD Development Rules](./documentation/en/guides/fsd-rules.md)
+1. Read the [README.md](./README.md) for project overview
+2. Understand [FSD Architecture](https://feature-sliced.design/)
+3. Review project rules in `.amazonq/rules/` directory
 
 ### Setup Development Environment
 ```bash
 # Clone the repository
-git clone https://github.com/pradiktabagus/feature-toggle.git
-cd feature-toggle
+git clone https://github.com/pradiktabagus/split-bill.git
+cd split-bill
 
 # Install dependencies
 bun install
@@ -42,7 +42,7 @@ bun dev
 ## 🔄 Development Process
 
 ### 1. Choose an Issue
-- Browse [open issues](https://github.com/pradiktabagus/feature-toggle/issues)
+- Browse [open issues](https://github.com/pradiktabagus/split-bill/issues)
 - Look for issues labeled `good first issue` for beginners
 - Check the project board for current priorities
 - Comment on the issue to get assigned
@@ -53,8 +53,8 @@ bun dev
 git checkout -b feature/issue-number-short-description
 
 # Examples:
-git checkout -b feature/123-rollout-entity
-git checkout -b bugfix/456-cache-invalidation
+git checkout -b feature/123-group-management
+git checkout -b bugfix/456-expense-calculation
 git checkout -b task/789-update-docs
 ```
 
@@ -76,7 +76,7 @@ src/
 // entities/[entity-name]/
 ├── model/           # Business logic and types
 ├── api/             # API calls
-├── lib/             # Pure functions
+├── ui/              # Entity UI components
 └── index.ts         # Public exports
 ```
 
@@ -91,9 +91,8 @@ src/
 #### Widget Development
 ```typescript
 // widgets/[widget-name]/
-├── [widget-name].tsx    # Main widget
-├── components/          # Widget components
-└── index.ts             # Widget exports
+├── index.tsx        # Main widget component
+└── [components]/    # Sub-components if needed
 ```
 
 ## 🏗️ FSD Architecture Guidelines
@@ -107,21 +106,21 @@ src/
 ### Import Examples
 ```typescript
 // ✅ Correct imports
-// In features/toggle/
+// In features/group-management/
 import { Button } from '@/shared/components/ui/button'
-import { useToggle } from '@/entities/toggle'
+import { useGroup } from '@/entities/group'
 
 // ❌ Wrong imports
-// In entities/toggle/
-import { ToggleForm } from '@/features/toggle/ui/toggle-form' // ❌
+// In entities/group/
+import { GroupForm } from '@/features/group-management/ui/group-form' // ❌
 ```
 
 ### Layer Responsibilities
-- **Entities**: Business logic, data models, API calls
-- **Features**: Use cases, feature-specific logic
-- **Widgets**: Complex UI compositions
-- **Shared**: Pure utilities, UI components
-- **App**: Routing, global configuration
+- **Entities**: Business logic, data models, API calls (User, Group, Expense, Settlement)
+- **Features**: Use cases, feature-specific logic (group management, expense tracking, settlement)
+- **Widgets**: Complex UI blocks (dashboard, group list, expense summary)
+- **Shared**: Pure utilities, UI components, API contracts
+- **App**: Next.js routing, global configuration
 
 ## 📏 Code Standards
 
@@ -133,15 +132,18 @@ import { ToggleForm } from '@/features/toggle/ui/toggle-form' // ❌
 
 ```typescript
 // ✅ Good
-interface Toggle {
+interface Expense {
   id: string
-  value: unknown  // Use unknown for dynamic values
+  amount: number
+  description: string
+  metadata?: unknown  // Use unknown for dynamic values
 }
 
 // ❌ Bad
-interface Toggle {
+interface Expense {
   id: string
-  value: any      // Avoid any
+  amount: any      // Avoid any
+  description: any
 }
 ```
 
@@ -160,9 +162,9 @@ interface Toggle {
 
 ```typescript
 // Example test structure
-describe('useToggle', () => {
-  describe('createToggle', () => {
-    it('should create toggle successfully', () => {
+describe('useGroup', () => {
+  describe('createGroup', () => {
+    it('should create group successfully', () => {
       // Test implementation
     })
   })
@@ -233,16 +235,17 @@ Use the **📋 Task** template:
 
 ## 🎯 Contribution Areas
 
-### High Priority (Phase 2)
-- **Rollout Management**: Percentage-based rollouts
-- **User Targeting**: Rule-based user targeting  
-- **Scheduled Toggles**: Time-based activation
-- **Bulk Operations**: Mass toggle management
+### High Priority Areas
+- **Group Management**: Create, edit, delete expense groups
+- **Expense Tracking**: Add, edit, delete shared expenses
+- **Settlement System**: Track payments between members
+- **OCR Integration**: Receipt scanning and expense extraction
 
-### Medium Priority (Phase 3)
-- **Analytics Dashboard**: Usage tracking and metrics
-- **Performance Monitoring**: Real-time monitoring
-- **Error Tracking**: Comprehensive error logging
+### Medium Priority Areas
+- **WhatsApp Integration**: Share allocation summaries
+- **Public Bill Sharing**: Share expense details via public URLs
+- **Analytics Dashboard**: Expense tracking and insights
+- **Performance Optimization**: Caching and CDN improvements
 
 ### Documentation
 - **API Documentation**: Endpoint documentation
@@ -277,10 +280,10 @@ Use the **📋 Task** template:
 ### Architecture Violations
 ```typescript
 // ❌ Don't import features in entities
-import { ToggleForm } from '@/features/toggle/ui/toggle-form'
+import { GroupForm } from '@/features/group-management/ui/group-form'
 
 // ❌ Don't put business logic in UI components
-export function ToggleForm() {
+export function ExpenseForm() {
   const handleSubmit = async (data) => {
     // Complex business logic here ❌
   }
@@ -300,10 +303,10 @@ import { prisma } from '@/shared/lib/prisma'
 ## 📚 Resources
 
 ### Documentation
-- [FSD Architecture Guide](./documentation/en/architecture/fsd-architecture.md)
-- [Adding New Features](./documentation/en/guides/adding-features.md)
-- [FSD Development Rules](./documentation/en/guides/fsd-rules.md)
-- [API Overview](./documentation/en/api/overview.md)
+- [Project README](./README.md)
+- [API Documentation](./src/app/docs/page.tsx)
+- [Architecture Patterns](./.amazonq/rules/architecture-patterns.md)
+- [Development Standards](./.amazonq/rules/development-standards.md)
 
 ### External Resources
 - [Feature-Sliced Design](https://feature-sliced.design/)
@@ -335,4 +338,4 @@ For questions or support:
 
 ---
 
-Thank you for contributing to the Feature Toggle Management System! Your contributions help make this project better for everyone. 🚀
+Thank you for contributing to the Split Bill Application! Your contributions help make expense tracking and bill splitting easier for everyone. 🚀

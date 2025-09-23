@@ -1,6 +1,6 @@
 ---
 name: 🚀 Feature Request
-about: Suggest a new feature for the Feature Toggle Management System
+about: Suggest a new feature for the Split Bill Application
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
 assignees: ''
