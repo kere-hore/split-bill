@@ -10,5 +10,9 @@
       "maxDuration": 60
     }
   },
-  "crons": []
+  "crons": [],
+  "github": {
+    "enabled": true,
+    "autoAlias": false
+  }
 }
