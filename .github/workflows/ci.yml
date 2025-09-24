@@ -30,7 +30,7 @@ jobs:
           NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
           NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
           SKIP_ENV_VALIDATION: true
-          
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
           restore-keys: ${{ runner.os }}-node-
       - run: bun install
       - run: bun run lint
-      
+
   test:
     runs-on: ubuntu-latest
     steps:

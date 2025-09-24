@@ -1,0 +1,13 @@
+# Global code owners
+* @pradiktabagus
+
+# API routes require review
+/src/app/api/ @pradiktabagus
+
+# Database schema changes
+/prisma/ @pradiktabagus
+
+# Configuration files
+*.json @pradiktabagus
+*.yml @pradiktabagus
+*.yaml @pradiktabagus
