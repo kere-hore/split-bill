@@ -1,4 +1,3 @@
-
 <img width="1200" height="720" alt="Screenshot from 2025-09-21 15-31-10" src="https://github.com/user-attachments/assets/a594ebd8-74d0-4e5d-afb3-a4661885ebda" />
 <img width="1200" height="720" alt="Screenshot from 2025-09-21 15-32-00" src="https://github.com/user-attachments/assets/03b75446-2a2e-470c-844d-f43b4b4077cb" />
 
@@ -47,6 +46,7 @@ A modern, full-stack split bill management application built with Next.js, TypeS
 ## 📋 Prerequisites
 
 ### Required Services
+
 1. **PostgreSQL Database** - Database hosting (Neon, Supabase, or local)
 2. **Clerk Account** - Authentication service
 3. **Google Cloud Platform** - Vision API for OCR
@@ -56,18 +56,21 @@ A modern, full-stack split bill management application built with Next.js, TypeS
 7. **AWS CloudFront Distribution** - Global CDN
 
 ### Development Tools
+
 - Node.js 18+ or Bun
 - Git
 
 ## 🚀 Quick Start
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/pradiktabagus/split-bill.git
 cd split-bill
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 bun install
 # or
@@ -75,12 +78,15 @@ npm install
 ```
 
 ### 3. Environment Setup
+
 Copy `.env.example` to `.env.local`:
+
 ```bash
 cp .env.example .env.local
 ```
 
 Fill in your environment variables:
+
 ```env
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/split-bill"
@@ -112,6 +118,7 @@ CLOUDFRONT_CACHE_SECONDS=3600  # CloudFront cache: 1 hour
 ```
 
 ### 4. Database Setup
+
 ```bash
 # Generate Prisma client
 bun run db:generate
@@ -121,6 +128,7 @@ bun run db:push
 ```
 
 ### 5. Run Development Server
+
 ```bash
 bun dev
 ```
@@ -130,6 +138,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📄 Configuration Files
 
 ### Core Configuration
+
 - **`package.json`** - Dependencies, scripts, and project metadata
 - **`tsconfig.json`** - TypeScript compiler configuration
 - **`next.config.ts`** - Next.js framework configuration
@@ -137,12 +146,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **`prisma/schema.prisma`** - Database schema and ORM configuration
 
 ### UI & Components
+
 - **`components.json`** - shadcn/ui component library configuration
   - Defines component paths and aliases
   - Sets up Tailwind integration
   - Configures icon library (Lucide)
 
 ### Deployment & Infrastructure
+
 - **`vercel.json`** - Vercel deployment configuration
   - Sets API function timeout (30s)
   - Optimizes serverless function performance
@@ -152,23 +163,28 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
   - Use this to create IAM policy in AWS Console
 
 ### Environment Files
+
 - **`.env.local`** - Local development environment variables
 - **`.env.example`** - Template for required environment variables
 - **`.gitignore`** - Files and folders excluded from Git
 
 ### Development Tools
+
 - **`.eslintrc.json`** - Code linting rules and configuration
 - **`bun.lockb`** - Dependency lock file for Bun package manager
 
 ## 🔧 Setup Guide
 
 ### PostgreSQL Database Setup
+
 1. **Option 1 - Neon (Recommended)**:
+
    - Create account at [Neon](https://neon.tech/)
    - Create new database
    - Copy connection string to `DATABASE_URL`
 
 2. **Option 2 - Supabase**:
+
    - Create account at [Supabase](https://supabase.com/)
    - Create new project
    - Get database URL from settings
@@ -179,6 +195,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - Use: `postgresql://username:password@localhost:5432/split-bill`
 
 ### Clerk Setup
+
 1. Go to [Clerk Dashboard](https://dashboard.clerk.com/)
 2. Create new application
 3. Choose authentication methods:
@@ -193,6 +210,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 5. Copy API keys to `.env.local`
 
 ### Google Cloud Vision API Setup
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create new project or select existing one
 3. Enable Vision API
@@ -201,6 +219,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 6. Extract credentials to environment variables
 
 ### AWS Setup
+
 1. Create AWS account and get access keys
 2. Create S3 bucket for file storage
 3. Create CloudFront distribution pointing to your API
@@ -226,41 +245,125 @@ bun run deploy       # Deploy to Vercel
 
 ## 🚀 Deployment
 
-### Vercel Deployment (Recommended)
+This project uses a **release-based deployment strategy** with multiple environments:
+
+```
+Development → Master (Staging) → Release Tag → Production
+```
+
+### Deployment Environments
+
+#### 1. **Preview Deployments**
+
+- **Trigger**: Pull Request to master
+- **Environment**: Vercel Preview
+- **Purpose**: Feature testing before merge
+
+#### 2. **Staging Deployment**
+
+- **Trigger**: Push to `master` branch
+- **Environment**: Vercel Preview (staging)
+- **Purpose**: Integration testing and UAT
+
+#### 3. **Production Deployment**
+
+- **Trigger**: Release tag published
+- **Environment**: Vercel Production
+- **URL**: https://split-bill-mu.vercel.app/
+
+### How to Deploy to Production
+
+#### Method 1: Automated Release (Recommended)
+
+1. **Create Release via GitHub Actions**:
+
+   - Go to GitHub → Actions → "Create Release"
+   - Click "Run workflow"
+   - Enter version (e.g., `v1.2.0`)
+   - Add release notes (optional)
+   - Click "Run workflow"
+
+2. **Automated Process**:
+   - Runs tests and build validation
+   - Generates changelog from commits
+   - Creates release tag
+   - Triggers production deployment
+
+#### Method 2: Manual Release
+
+1. **Create and push tag**:
+
+   ```bash
+   git tag -a v1.2.0 -m "Release version 1.2.0"
+   git push origin v1.2.0
+   ```
+
+2. **Create GitHub Release**:
+   - Go to GitHub → Releases → "Create a new release"
+   - Select the tag
+   - Add release notes
+   - Click "Publish release"
+
+### Environment Variables Setup
+
+Set these in GitHub Secrets for CI/CD:
+
+```bash
+# Production
+DATABASE_URL
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+CLERK_SECRET_KEY
+VERCEL_TOKEN
+VERCEL_ORG_ID
+VERCEL_PROJECT_ID
+
+# Staging (Optional)
+STAGING_DATABASE_URL
+STAGING_CLERK_PUBLISHABLE_KEY
+STAGING_CLERK_SECRET_KEY
+
+# Shared
+GEMINI_API_KEY
+DEEPSEEK_API_KEY
+```
+
+### Manual Vercel Setup (First Time)
 
 1. **Install Vercel CLI**:
+
    ```bash
    bun add -g vercel
    ```
 
-2. **Login and Deploy**:
+2. **Login and Link Project**:
+
    ```bash
    vercel login
-   vercel --prod
+   vercel link
    ```
 
 3. **Set Environment Variables**:
    ```bash
-   vercel env add DATABASE_URL
-   vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-   vercel env add CLERK_SECRET_KEY
-   vercel env add GOOGLE_CLOUD_PROJECT_ID
-   vercel env add GOOGLE_CLOUD_PRIVATE_KEY
-   vercel env add GOOGLE_CLOUD_CLIENT_EMAIL
-   vercel env add AWS_ACCESS_KEY_ID
-   vercel env add AWS_SECRET_ACCESS_KEY
-   vercel env add S3_BUCKET_NAME
-   vercel env add CLOUDFRONT_DISTRIBUTION_ID
+   vercel env add DATABASE_URL production
+   vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production
+   # ... add other variables
    ```
 
-4. **Update OAuth Callback URLs** with your Vercel domain
+### Release Process Documentation
 
-### Auto-Deploy Setup
-Connect your GitHub repository to Vercel for automatic deployments on every push to main branch.
+For detailed release process, see [Release Process Guide](./.github/RELEASE_PROCESS.md).
+
+### Rollback Process
+
+If issues occur in production:
+
+1. **Quick Rollback**: Deploy previous release tag via GitHub Actions
+2. **Hotfix**: Create hotfix branch, merge to master, create patch release
 
 ## 🎯 Usage
 
 ### Managing Split Bills
+
 1. Login with Email, Google, or GitHub
 2. Create a new group for shared expenses
 3. Invite members to the group via email or username
@@ -275,6 +378,7 @@ Connect your GitHub repository to Vercel for automatic deployments on every push
 9. View dashboard for overview of all groups and balances
 
 ### API Endpoints
+
 - `GET /api/groups` - List user's groups
 - `POST /api/groups` - Create new group
 - `PUT /api/groups/[id]` - Update group
@@ -292,6 +396,7 @@ Connect your GitHub repository to Vercel for automatic deployments on every push
 - `GET /api/docs` - Swagger API documentation
 
 ### Caching Strategy
+
 - **Public API**: Cached via CloudFront + S3 hybrid
 - **Auto-Invalidation**: Cache cleared on bill/allocation updates
 - **Cache Headers**: Configurable via environment variables
@@ -332,6 +437,7 @@ This project is licensed under the MIT License.
 ## 🆘 Support
 
 If you encounter any issues:
+
 1. Check the [Issues](https://github.com/pradiktabagus/split-bill/issues) page
 2. Review the comprehensive API documentation at `/api/docs`
 3. Check troubleshooting guide in project rules
@@ -345,6 +451,7 @@ Live demo: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 ## 🎯 Key Features Highlights
 
 ### 📷 OCR Receipt Scanning
+
 - Upload receipt images (JPEG, PNG, WebP)
 - Automatic text extraction using Google Vision API
 - Smart parsing of merchant, amount, and date
@@ -352,6 +459,7 @@ Live demo: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 - Support for various receipt formats
 
 ### 📱 WhatsApp Integration
+
 - Generate WhatsApp broadcast URLs
 - Pre-filled messages with allocation summaries
 - One-click sharing with group members
@@ -359,6 +467,7 @@ Live demo: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 - Auto-open WhatsApp with payment details
 
 ### 🌐 Public Bill Sharing
+
 - Generate public URLs for bill summaries
 - Share expense details without requiring login
 - Cached for fast loading worldwide
@@ -366,6 +475,7 @@ Live demo: [https://split-bill-mu.vercel.app](https://split-bill-mu.vercel.app)
 - Individual member allocation views
 
 ### 📚 Comprehensive API Documentation
+
 - Complete Swagger/OpenAPI specification
 - Interactive API explorer
 - Detailed request/response examples
