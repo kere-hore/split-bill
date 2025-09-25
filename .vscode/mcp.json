@@ -21,17 +21,6 @@
       "env": {
         "PERPLEXITY_API_KEY": "${input:perplexity-key}"
       }
-    },
-    "MongoDB": {
-        "type": "stdio",
-        "command": "npx",
-        "args": [
-          "-y",
-          "mongodb-mcp-server",
-          "--connectionString",
-          "mongodb+srv://sabana:sabanamerbabu@split-bill-cluster.kebcrrc.mongodb.net/",
-          "--readOnly"
-        ]
-      }
+    }
   }
 }
