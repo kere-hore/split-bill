@@ -43,11 +43,8 @@ export default function BillFormModal() {
 
   const handleBillSubmit = useCallback(
     (data: BillFormData) => {
-      console.log("handleBillSubmit called with data:", data);
-
       createBill(data, {
         onSuccess: (response) => {
-          console.log("Bill creation success:", response);
           if (response.success && response.data.groupId) {
             toast.success("Bill saved successfully!");
             router.push(`/allocations/${response.data.groupId}`);

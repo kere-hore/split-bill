@@ -4,6 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ProfileForm } from "@/features/user-profile-management";
+import { SlackSettingsSection } from "@/features/slack-integration";
 
 export function UserSettingsWidget() {
   return (
@@ -26,7 +27,12 @@ export function UserSettingsWidget() {
           </p>
         </div>
 
-        <ProfileForm />
+        <div className="space-y-8">
+          <div className="space-y-8">
+            <ProfileForm />
+            <SlackSettingsSection />
+          </div>
+        </div>
       </div>
     </div>
   );

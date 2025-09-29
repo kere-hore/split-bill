@@ -64,31 +64,55 @@ export async function GET(
 
     // Get existing mappings
     const existingMappings = await prisma.slackUserMapping.findMany({
-      where: { groupId },
+      where: { userId },
     });
 
-    // Create mappings for members who don't have them
-    const membersToMap = group.members.filter(
-      (member) =>
-        !existingMappings.find((mapping) => mapping.userId === member.userId)
-    );
+    // Get user's Slack configs to create mappings
+    const slackConfigs = await prisma.slackConfig.findMany({
+      where: { userId, isActive: true },
+    });
 
-    if (membersToMap.length > 0) {
-      await prisma.slackUserMapping.createMany({
-        data: membersToMap.map((member) => ({
-          userId: member.userId,
-          groupId,
-          memberName: member.name,
-          memberEmail: member.user?.email,
-          mappingStatus: "pending",
-        })),
-        skipDuplicates: true,
-      });
+    if (slackConfigs.length === 0) {
+      return createSuccessResponse(
+        { mappings: [] },
+        "No active Slack configurations found"
+      );
     }
 
-    // Get all mappings
+    // Create mappings for members who don't have them for each config
+    for (const config of slackConfigs) {
+      const membersToMap = group.members.filter(
+        (member) =>
+          !existingMappings.find(
+            (mapping) => 
+              mapping.userId === member.userId && 
+              mapping.slackConfigId === config.id
+          )
+      );
+
+      if (membersToMap.length > 0) {
+        await prisma.slackUserMapping.createMany({
+          data: membersToMap.map((member) => ({
+            slackConfigId: config.id,
+            userId: member.userId,
+            memberName: member.name,
+            memberEmail: member.user?.email,
+            mappingStatus: "pending",
+          })),
+          skipDuplicates: true,
+        });
+      }
+    }
+
+    // Get all mappings for user's configs
     const mappings = await prisma.slackUserMapping.findMany({
-      where: { groupId },
+      where: {
+        slackConfigId: { in: slackConfigs.map(c => c.id) },
+      },
+      include: {
+        SlackConfig: true,
+        User: true,
+      },
       orderBy: { memberName: "asc" },
     });
 
@@ -153,7 +177,7 @@ export async function POST(
     const updatePromises = Object.entries(validatedData.mappings).map(
       ([mappingId, data]) =>
         prisma.slackUserMapping.update({
-          where: { id: mappingId, groupId },
+          where: { id: mappingId },
           data: {
             ...data,
             updatedAt: new Date(),
@@ -163,9 +187,20 @@ export async function POST(
 
     await Promise.all(updatePromises);
 
+    // Get user's Slack configs
+    const slackConfigs = await prisma.slackConfig.findMany({
+      where: { userId, isActive: true },
+    });
+
     // Get updated mappings
     const mappings = await prisma.slackUserMapping.findMany({
-      where: { groupId },
+      where: {
+        slackConfigId: { in: slackConfigs.map(c => c.id) },
+      },
+      include: {
+        SlackConfig: true,
+        User: true,
+      },
       orderBy: { memberName: "asc" },
     });
 

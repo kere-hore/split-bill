@@ -24,7 +24,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    console.log(`[PUBLIC_BILLS] Fetching bill for group: ${groupId}`);
     // Get group with bill and allocation data
     const group = await prisma.group.findUnique({
       where: { id: groupId },
@@ -58,7 +57,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Get payment receiver info if exists
     let paymentReceiver = null;
     if (group?.paymentReceiverId) {
-      const receiverMember = group.members.find(m => m.id === group.paymentReceiverId);
+      const receiverMember = group.members.find(
+        (m) => m.id === group.paymentReceiverId
+      );
       if (receiverMember) {
         paymentReceiver = {
           id: receiverMember.id,

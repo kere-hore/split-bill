@@ -13,11 +13,7 @@ const createConfigSchema = z.object({
   channelName: z.string().min(1, "Channel name is required"),
 });
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
@@ -25,34 +21,30 @@ export async function GET(
         "Authentication required",
         401,
         "User not authenticated",
-        "/api/groups/[id]/slack/configs"
+        "/api/user/slack/configs"
       );
     }
 
-    const groupId = id;
-
-    // Verify user has access to group
-    const group = await prisma.group.findFirst({
-      where: {
-        id: groupId,
-        OR: [
-          { createdBy: userId },
-          { members: { some: { user: { clerkId: userId } } } },
-        ],
-      },
+    // Get database user first
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
     });
 
-    if (!group) {
+    if (!dbUser) {
       return createErrorResponse(
-        "Group not found",
+        "User not found",
         404,
-        "Group does not exist or user has no access",
-        "/api/groups/[id]/slack/configs"
+        "User does not exist in database",
+        "/api/user/slack/configs"
       );
     }
 
+    // Get user's Slack configs
     const configs = await prisma.slackConfig.findMany({
-      where: { userId, isActive: true },
+      where: {
+        userId: dbUser.id,
+        isActive: true,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -61,21 +53,17 @@ export async function GET(
       "Slack configurations retrieved successfully"
     );
   } catch (error) {
-    console.error("Error fetching Slack configs:", error);
+    console.error("Error fetching user Slack configs:", error);
     return createErrorResponse(
       "Failed to fetch Slack configurations",
       500,
       error instanceof Error ? error.message : "Unknown error",
-      "/api/groups/[id]/slack/configs"
+      "/api/user/slack/configs"
     );
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
     if (!userId) {
@@ -83,33 +71,26 @@ export async function POST(
         "Authentication required",
         401,
         "User not authenticated",
-        "/api/groups/[id]/slack/configs"
+        "/api/user/slack/configs"
       );
     }
 
-    const groupId = id;
     const body = await request.json();
 
     // Validate input
     const validatedData = createConfigSchema.parse(body);
 
-    // Verify user is group admin
-    const group = await prisma.group.findFirst({
-      where: {
-        id: groupId,
-        OR: [
-          { createdBy: userId },
-          { members: { some: { user: { clerkId: userId }, role: "admin" } } },
-        ],
-      },
+    // Get database user
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
     });
 
-    if (!group) {
+    if (!dbUser) {
       return createErrorResponse(
-        "Insufficient permissions",
-        403,
-        "User is not group admin",
-        "/api/groups/[id]/slack/configs"
+        "User not found",
+        404,
+        "User does not exist in database",
+        "/api/user/slack/configs"
       );
     }
 
@@ -129,14 +110,14 @@ export async function POST(
         "Webhook URL test failed",
         400,
         "Unable to connect to Slack webhook",
-        "/api/groups/[id]/slack/configs"
+        "/api/user/slack/configs"
       );
     }
 
     // Create config
     const config = await prisma.slackConfig.create({
       data: {
-        userId,
+        userId: dbUser.id,
         name: validatedData.name,
         webhookUrl: validatedData.webhookUrl,
         channelName: validatedData.channelName,
@@ -155,15 +136,15 @@ export async function POST(
         "Validation failed",
         400,
         error.message,
-        "/api/groups/[id]/slack/configs"
+        "/api/user/slack/configs"
       );
     }
-    console.error("Error creating Slack config:", error);
+    console.error("Error creating user Slack config:", error);
     return createErrorResponse(
       "Failed to create Slack configuration",
       500,
       error instanceof Error ? error.message : "Unknown error",
-      "/api/groups/[id]/slack/configs"
+      "/api/user/slack/configs"
     );
   }
 }

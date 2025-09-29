@@ -35,13 +35,27 @@ export async function POST(
     // Validate input
     const { configId, mappings } = shareSchema.parse(body);
 
+    // Get database user first
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!dbUser) {
+      return createErrorResponse(
+        "User not found",
+        404,
+        "User does not exist in database",
+        "/api/groups/[id]/slack/share"
+      );
+    }
+
     // Verify user has access to group
     const group = await prisma.group.findFirst({
       where: {
         id: groupId,
         OR: [
-          { createdBy: userId },
-          { members: { some: { user: { clerkId: userId } } } },
+          { createdBy: dbUser.id },
+          { members: { some: { userId: dbUser.id } } },
         ],
       },
       include: {
@@ -63,9 +77,9 @@ export async function POST(
       );
     }
 
-    // Get Slack config
+    // Get Slack config (verify user owns it)
     const config = await prisma.slackConfig.findFirst({
-      where: { id: configId, groupId, isActive: true },
+      where: { id: configId, userId: dbUser.id, isActive: true },
     });
 
     if (!config) {
@@ -77,43 +91,41 @@ export async function POST(
       );
     }
 
-    // Get or update mappings
-    let slackMappings = await prisma.slackUserMapping.findMany({
-      where: { groupId },
+    // Get mappings for this config
+    const slackMappings = await prisma.slackUserMapping.findMany({
+      where: { slackConfigId: configId },
     });
 
-    // Update mappings if provided
-    if (mappings) {
-      const updatePromises = Object.entries(mappings).map(
-        ([mappingId, slackUsername]) =>
-          prisma.slackUserMapping.update({
-            where: { id: mappingId },
-            data: {
-              slackUsername,
-              mappingStatus: slackUsername ? "active" : "skipped",
-              updatedAt: new Date(),
-            },
-          })
-      );
-      await Promise.all(updatePromises);
+    // Create mapping lookup (by userId, memberName, and email)
+    const mappingLookup = new Map();
+    const nameMappingLookup = new Map();
+    const emailMappingLookup = new Map();
 
-      // Refresh mappings
-      slackMappings = await prisma.slackUserMapping.findMany({
-        where: { groupId },
-      });
-    }
+    slackMappings.forEach((mapping) => {
+      if (mapping.userId && mapping.slackUsername) {
+        mappingLookup.set(mapping.userId, mapping.slackUsername);
+      }
+      if (mapping.memberName && mapping.slackUsername) {
+        nameMappingLookup.set(
+          mapping.memberName.toLowerCase(),
+          mapping.slackUsername
+        );
+      }
+      if (mapping.memberEmail && mapping.slackUsername) {
+        emailMappingLookup.set(
+          mapping.memberEmail.toLowerCase(),
+          mapping.slackUsername
+        );
+      }
+    });
 
-    // Transform mappings to match interface
-    const transformedMappings = slackMappings.map(mapping => ({
-      ...mapping,
-      userId: mapping.userId || undefined,
-      memberEmail: mapping.memberEmail || undefined,
-      slackUsername: mapping.slackUsername || undefined,
-      mappingStatus: mapping.mappingStatus as 'pending' | 'active' | 'skipped'
-    }));
-
-    // Generate Slack message
-    const slackMessage = generateSlackMessage(group, transformedMappings);
+    // Generate Slack message with all mapping lookups
+    const slackMessage = generateSlackMessage(
+      group,
+      mappingLookup,
+      nameMappingLookup,
+      emailMappingLookup
+    );
 
     // Send to Slack
     let sentToSlack = false;

@@ -8,18 +8,28 @@ import {
   SlackShareResponse
 } from './types'
 
-export async function getSlackConfigs(groupId: string): Promise<SlackConfigsResponse> {
-  const response = await api.get(`/groups/${groupId}/slack/configs`)
+export async function getSlackConfigs(): Promise<SlackConfigsResponse> {
+  const response = await api.get('/user/slack/configs')
   return response.data
 }
 
-export async function createSlackConfig(groupId: string, data: CreateSlackConfigRequest): Promise<SlackConfigsResponse> {
-  const response = await api.post(`/groups/${groupId}/slack/configs`, data)
+export async function createSlackConfig(data: CreateSlackConfigRequest): Promise<SlackConfigsResponse> {
+  const response = await api.post('/user/slack/configs', data)
   return response.data
 }
 
-export async function deleteSlackConfig(groupId: string, configId: string): Promise<{ success: boolean; message: string }> {
-  const response = await api.delete(`/groups/${groupId}/slack/configs/${configId}`)
+export async function deleteSlackConfig(configId: string): Promise<{ success: boolean; message: string }> {
+  const response = await api.delete(`/user/slack/configs/${configId}`)
+  return response.data
+}
+
+export async function getConfigMappings(configId: string): Promise<{ success: boolean; data: { mappings: any[] } }> {
+  const response = await api.get(`/slack/configs/${configId}/mappings`)
+  return response.data
+}
+
+export async function updateConfigMappings(configId: string, mappings: Array<{ userId: string; slackUsername?: string }>): Promise<{ success: boolean; message: string }> {
+  const response = await api.post(`/slack/configs/${configId}/mappings`, { mappings })
   return response.data
 }
 

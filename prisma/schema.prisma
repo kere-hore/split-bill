@@ -27,6 +27,7 @@ model User {
   settlements         Settlement[]       @relation("SettlementPayer")
   receivedSettlements Settlement[]       @relation("SettlementReceiver")
   SlackUserMapping    SlackUserMapping[]
+  SlackConfigs        SlackConfig[]
 
   @@index([clerkId])
   @@index([email])
@@ -48,8 +49,6 @@ model Group {
   bill              Bill?              @relation(fields: [billId], references: [id])
   creator           User               @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: Cascade)
   members           GroupMember[]
-  SlackConfigs      SlackConfig[]
-  SlackUserMapping  SlackUserMapping[]
 
   @@index([createdBy])
   @@index([status])
@@ -190,42 +189,43 @@ model BillFee {
 }
 
 model SlackConfig {
-  id                 String   @id @default(cuid())
-  groupId            String
-  name               String   // Channel/webhook name for selection
+  id                 String             @id @default(cuid())
+  userId             String             // Owner of the config
+  name               String             // Channel/webhook name for selection
   webhookUrl         String
-  channelName        String   // #general, #food-orders, etc
+  channelName        String             // #general, #food-orders, etc
   enabledEvents      String[]
-  messageFormat      String   @default("rich")
-  rateLimitPerMinute Int      @default(10)
-  isActive           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  Group              Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  messageFormat      String             @default("rich")
+  rateLimitPerMinute Int                @default(10)
+  isActive           Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  UserMappings       SlackUserMapping[]
 
-  @@index([groupId])
+  @@index([userId])
   @@index([isActive])
-  @@index([groupId, isActive])
+  @@index([userId, isActive])
 }
 
 model SlackUserMapping {
-  id            String    @id @default(cuid())
-  userId        String?   // Nullable for custom members
-  groupId       String
-  memberName    String    // Display name for all members
-  memberEmail   String?   // Email for auto-matching
-  slackUsername String?   // @username for mention
-  mappingStatus String    @default("pending") // pending, active, skipped
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id            String      @id @default(cuid())
+  slackConfigId String      // Tied to specific Slack config
+  userId        String?     // Nullable for custom members
+  memberName    String      // Display name for all members
+  memberEmail   String?     // Email for auto-matching
+  slackUsername String?     // @username for mention
+  mappingStatus String      @default("pending") // pending, active, skipped
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   
-  Group         Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  User          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SlackConfig   SlackConfig @relation(fields: [slackConfigId], references: [id], onDelete: Cascade)
+  User          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([groupId, userId])
-  @@unique([groupId, memberName])
-  @@index([groupId])
-  @@index([groupId, mappingStatus])
+  @@unique([slackConfigId, userId])
+  @@unique([slackConfigId, memberName])
+  @@index([slackConfigId])
+  @@index([slackConfigId, mappingStatus])
   @@index([mappingStatus])
   @@index([memberEmail])
 }

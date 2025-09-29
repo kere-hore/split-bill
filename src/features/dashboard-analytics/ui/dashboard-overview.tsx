@@ -39,26 +39,28 @@ export function DashboardOverview() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Overview of your split bill activities
-          </p>
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Overview of your split bill activities
+            </p>
+          </div>
+          <Button asChild className="self-start sm:self-auto">
+            <Link href="?bill=true">
+              <Plus className="w-4 h-4 mr-2" />
+              New Receipt
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/receipts/new">
-            <Plus className="w-4 h-4 mr-2" />
-            New Receipt
-          </Link>
-        </Button>
       </div>
 
       {/* Stats Cards */}
       {data?.stats && <DashboardStatsCards stats={data.stats} />}
 
       {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Recent Activities */}
         {data?.recentActivities && (
           <RecentActivitiesCard activities={data.recentActivities} />
