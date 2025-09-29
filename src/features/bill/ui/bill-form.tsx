@@ -147,7 +147,6 @@ export function BillForm({
 
   // Handle form submission
   const handleFormSubmit: SubmitHandler<BillFormData> = (data) => {
-    console.log("Form submitted with data:", data);
     onSubmit(data);
   };
 

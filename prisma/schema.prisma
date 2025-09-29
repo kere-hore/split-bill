@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
@@ -13,49 +10,46 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  username  String   @unique
-  name      String
-  email     String   @unique
-  phone     String?
-  image     String?
-  provider  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Split bill relations
-  groups         GroupMember[]
-  createdGroups  Group[]       @relation("CreatedByUser")
-  expenses       Expense[]
-  settlements    Settlement[]  @relation("SettlementPayer")
-  receivedSettlements Settlement[] @relation("SettlementReceiver")
-  
-  // Bill relations
-  bills          Bill[]
-  
+  id                  String             @id @default(cuid())
+  clerkId             String             @unique
+  username            String             @unique
+  name                String
+  email               String             @unique
+  phone               String?
+  image               String?
+  provider            String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  bills               Bill[]
+  expenses            Expense[]
+  createdGroups       Group[]            @relation("CreatedByUser")
+  groups              GroupMember[]
+  settlements         Settlement[]       @relation("SettlementPayer")
+  receivedSettlements Settlement[]       @relation("SettlementReceiver")
+  SlackUserMapping    SlackUserMapping[]
+  SlackConfigs        SlackConfig[]
+
   @@index([clerkId])
   @@index([email])
   @@index([createdAt])
 }
 
 model Group {
-  id             String   @id @default(cuid())
-  name           String
-  description    String?
-  billId         String?  // Link to Bill for allocation
-  status         String   @default("outstanding") // outstanding, allocated
-  allocationData String?  // JSON string containing allocation breakdown
-  paymentReceiverId String? // Member ID who will receive payments
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  createdBy      String
-  
-  creator     User          @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: Cascade)
-  bill        Bill?         @relation(fields: [billId], references: [id], onDelete: SetNull)
-  members     GroupMember[]
-  expenses    Expense[]
-  
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  billId            String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  createdBy         String
+  allocationData    String?
+  status            String             @default("outstanding")
+  paymentReceiverId String?
+  expenses          Expense[]
+  bill              Bill?              @relation(fields: [billId], references: [id])
+  creator           User               @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: Cascade)
+  members           GroupMember[]
+
   @@index([createdBy])
   @@index([status])
   @@index([createdAt])
@@ -66,32 +60,30 @@ model Group {
 model GroupMember {
   id      String @id @default(cuid())
   groupId String
-  userId  String // generated ID for both registered and custom users
-  name    String // name for all members
-  role    String @default("member") // member, admin
-  
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user    User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([groupId, userId]) // unique user per group
+  userId  String
+  name    String
+  role    String @default("member")
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
   @@index([groupId])
   @@index([userId])
   @@index([groupId, role])
 }
 
 model Expense {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
-  amount      Decimal  @db.Decimal(10, 2)
-  currency    String   @default("IDR")
+  amount      Decimal        @db.Decimal(10, 2)
+  currency    String         @default("IDR")
   groupId     String
   paidBy      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  group       Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  payer       User          @relation(fields: [paidBy], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  group       Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  payer       User           @relation(fields: [paidBy], references: [id])
   splits      ExpenseSplit[]
 }
 
@@ -100,9 +92,8 @@ model ExpenseSplit {
   expenseId String
   userId    String
   amount    Decimal @db.Decimal(10, 2)
-  
   expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  
+
   @@unique([expenseId, userId])
 }
 
@@ -113,13 +104,12 @@ model Settlement {
   receiverId String
   amount     Decimal  @db.Decimal(10, 2)
   currency   String   @default("IDR")
-  status     String   @default("pending") // pending, paid
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt @default(now())
-  
-  payer      User @relation("SettlementPayer", fields: [payerId], references: [id])
-  receiver   User @relation("SettlementReceiver", fields: [receiverId], references: [id])
-  
+  status     String   @default("pending")
+  updatedAt  DateTime @default(now()) @updatedAt
+  payer      User     @relation("SettlementPayer", fields: [payerId], references: [id])
+  receiver   User     @relation("SettlementReceiver", fields: [receiverId], references: [id])
+
   @@index([groupId])
   @@index([payerId])
   @@index([receiverId])
@@ -129,27 +119,26 @@ model Settlement {
 }
 
 model Bill {
-  id            String   @id @default(cuid())
-  merchantName  String
-  receiptNumber String?
-  date          DateTime
-  time          String?
-  subtotal      Decimal  @db.Decimal(10, 2)
-  serviceCharge Decimal  @db.Decimal(10, 2) @default(0)
-  tax           Decimal  @db.Decimal(10, 2) @default(0)
-  totalAmount   Decimal  @db.Decimal(10, 2)
-  paymentMethod String?
-  currency      String   @default("IDR")
-  createdBy     String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  creator       User           @relation(fields: [createdBy], references: [clerkId])
-  groups        Group[]        // Groups that use this bill for allocation
-  items         BillItem[]
-  discounts     BillDiscount[]
+  id             String         @id @default(cuid())
+  merchantName   String
+  receiptNumber  String?
+  date           DateTime
+  time           String?
+  subtotal       Decimal        @db.Decimal(10, 2)
+  serviceCharge  Decimal        @default(0) @db.Decimal(10, 2)
+  tax            Decimal        @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal        @db.Decimal(10, 2)
+  paymentMethod  String?
+  currency       String         @default("IDR")
+  createdBy      String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  creator        User           @relation(fields: [createdBy], references: [clerkId])
+  discounts      BillDiscount[]
   additionalFees BillFee[]
-  
+  items          BillItem[]
+  groups         Group[]
+
   @@index([createdBy])
   @@index([date])
   @@index([createdAt])
@@ -157,30 +146,28 @@ model Bill {
 }
 
 model BillItem {
-  id         String  @id @default(cuid())
-  billId     String
-  name       String
-  quantity   Int
-  unitPrice  Decimal @db.Decimal(10, 2)
-  totalPrice Decimal @db.Decimal(10, 2)
-  category   String?
-  
-  bill       Bill              @relation(fields: [billId], references: [id], onDelete: Cascade)
+  id          String               @id @default(cuid())
+  billId      String
+  name        String
+  quantity    Int
+  unitPrice   Decimal              @db.Decimal(10, 2)
+  totalPrice  Decimal              @db.Decimal(10, 2)
+  category    String?
+  bill        Bill                 @relation(fields: [billId], references: [id], onDelete: Cascade)
   allocations BillItemAllocation[]
-  
+
   @@index([billId])
   @@index([category])
 }
 
 model BillItemAllocation {
-  id         String  @id @default(cuid())
+  id         String   @id @default(cuid())
   billItemId String
-  memberId   String  // GroupMember ID
-  quantity   Int     // How many of this item the member consumed
-  amount     Decimal @db.Decimal(10, 2) // Calculated amount for this member
-  
+  memberId   String
+  quantity   Int
+  amount     Decimal  @db.Decimal(10, 2)
   billItem   BillItem @relation(fields: [billItemId], references: [id], onDelete: Cascade)
-  
+
   @@unique([billItemId, memberId])
 }
 
@@ -190,7 +177,6 @@ model BillDiscount {
   name   String
   amount Decimal @db.Decimal(10, 2)
   type   String
-  
   bill   Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
 }
 
@@ -199,6 +185,47 @@ model BillFee {
   billId String
   name   String
   amount Decimal @db.Decimal(10, 2)
-  
   bill   Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+}
+
+model SlackConfig {
+  id                 String             @id @default(cuid())
+  userId             String             // Owner of the config
+  name               String             // Channel/webhook name for selection
+  webhookUrl         String
+  channelName        String             // #general, #food-orders, etc
+  enabledEvents      String[]
+  messageFormat      String             @default("rich")
+  rateLimitPerMinute Int                @default(10)
+  isActive           Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  User               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  UserMappings       SlackUserMapping[]
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([userId, isActive])
+}
+
+model SlackUserMapping {
+  id            String      @id @default(cuid())
+  slackConfigId String      // Tied to specific Slack config
+  userId        String?     // Nullable for custom members
+  memberName    String      // Display name for all members
+  memberEmail   String?     // Email for auto-matching
+  slackUsername String?     // @username for mention
+  mappingStatus String      @default("pending") // pending, active, skipped
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  SlackConfig   SlackConfig @relation(fields: [slackConfigId], references: [id], onDelete: Cascade)
+  User          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([slackConfigId, userId])
+  @@unique([slackConfigId, memberName])
+  @@index([slackConfigId])
+  @@index([slackConfigId, mappingStatus])
+  @@index([mappingStatus])
+  @@index([memberEmail])
 }

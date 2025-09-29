@@ -1,19 +1,23 @@
-'use client'
+"use client";
 
-import { ClerkProvider } from '@clerk/nextjs'
-import { ThemeProvider } from 'next-themes'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState } from 'react'
+import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "next-themes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000, // 1 minute
-        refetchOnWindowFocus: false,
-      },
-    },
-  }))
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000, // 1 minute
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  );
 
   return (
     <ClerkProvider>
@@ -25,8 +29,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           disableTransitionOnChange
         >
           {children}
+          <Toaster richColors position="top-center" />
         </ThemeProvider>
       </QueryClientProvider>
     </ClerkProvider>
-  )
+  );
 }

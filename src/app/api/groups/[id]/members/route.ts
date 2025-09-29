@@ -10,6 +10,7 @@ import { prisma } from "@/shared/lib/prisma";
 const addMemberSchema = z.object({
   userId: z.string().nullable(), // null for non-registered users
   name: z.string().min(1, "Name is required"),
+  email: z.string().email().optional(), // optional email for matching
   // role is always "member" - only creator is admin
 });
 
