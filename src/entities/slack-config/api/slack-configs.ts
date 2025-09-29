@@ -14,36 +14,35 @@ export const slackConfigKeys = {
 }
 
 // React Query Hooks
-export function useSlackConfigs(groupId: string) {
+export function useSlackConfigs() {
   return useQuery({
-    queryKey: slackConfigKeys.list(groupId),
+    queryKey: slackConfigKeys.lists(),
     queryFn: async () => {
-      const response = await getSlackConfigs(groupId)
+      const response = await getSlackConfigs()
       return response.data.configs
     },
-    enabled: !!groupId,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
-export function useCreateSlackConfig(groupId: string) {
+export function useCreateSlackConfig() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (data: CreateSlackConfigRequest) => createSlackConfig(groupId, data),
+    mutationFn: (data: CreateSlackConfigRequest) => createSlackConfig(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: slackConfigKeys.list(groupId) })
+      queryClient.invalidateQueries({ queryKey: slackConfigKeys.lists() })
     },
   })
 }
 
-export function useDeleteSlackConfig(groupId: string) {
+export function useDeleteSlackConfig() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: (configId: string) => deleteSlackConfig(groupId, configId),
+    mutationFn: (configId: string) => deleteSlackConfig(configId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: slackConfigKeys.list(groupId) })
+      queryClient.invalidateQueries({ queryKey: slackConfigKeys.lists() })
     },
   })
 }

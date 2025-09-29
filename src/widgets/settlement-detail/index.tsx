@@ -14,6 +14,7 @@ import {
   SettlementList,
 } from "@/features/settlement-management";
 import { SettlementSummary } from "@/widgets/settlement-summary";
+import { SlackShareWidget } from "@/widgets/slack-share";
 
 interface SettlementDetailWidgetProps {
   groupId: string;
@@ -75,9 +76,9 @@ export function SettlementDetailWidget({
           </Button>
         </div>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Settlement Details</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Settlement Details</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             View who owes what to whom in this group
           </p>
         </div>
@@ -86,7 +87,7 @@ export function SettlementDetailWidget({
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Receipt className="h-5 w-5" />
                     Outstanding Payments
@@ -123,6 +124,9 @@ export function SettlementDetailWidget({
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
+                <div className="w-full">
+                  <SlackShareWidget groupId={groupId} />
+                </div>
                 <Button className="w-full" asChild>
                   <Link href={`/public/bills/${groupId}`} target="_blank">
                     <Share2 className="w-4 h-4 mr-2" />

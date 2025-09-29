@@ -1,2 +1,2 @@
-export type { SlackConfig, CreateSlackConfigData, UpdateSlackConfigData } from './model/types'
-export * from './api/slack-configs'
+export * from "./api/slack-configs";
+export type { SlackConfig } from "@/shared/api/contract/slack-configs";

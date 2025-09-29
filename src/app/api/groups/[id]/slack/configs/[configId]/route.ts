@@ -42,12 +42,23 @@ export async function DELETE(
       );
     }
 
+    // Verify config belongs to user
+    const config = await prisma.slackConfig.findUnique({
+      where: { id: configId },
+    });
+
+    if (!config || config.userId !== userId) {
+      return createErrorResponse(
+        "Configuration not found",
+        404,
+        "Slack configuration not found or access denied",
+        "/api/groups/[id]/slack/configs/[configId]"
+      );
+    }
+
     // Delete config
     await prisma.slackConfig.delete({
-      where: {
-        id: configId,
-        groupId,
-      },
+      where: { id: configId },
     });
 
     return createSuccessResponse(
