@@ -1,4 +1,4 @@
-import { api } from '../../axios'
+import { api } from "@/shared/api/axios";
 import { CreateBillRequest, CreateBillResponse } from './types'
 
 export async function createBill(data: CreateBillRequest): Promise<CreateBillResponse> {

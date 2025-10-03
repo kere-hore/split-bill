@@ -1,4 +1,4 @@
-import { api } from "../../axios";
+import { api } from "@/shared/api/axios";
 import { OCRExtractRequest, OCRExtractResponse } from "./types";
 
 export async function extractOCR(

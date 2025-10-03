@@ -82,5 +82,5 @@ export interface AllocationData {
   createdAt: string;
   updatedAt: string;
 }
-export type GetAllocationsApiResponse = ApiSuccessResponse<AllocationData>;
+export type GetAllocationsApiResponse = ApiResponse<AllocationData>;
 export type SaveAllocationsApiResponse = ApiResponse<SaveAllocationsResponse>;

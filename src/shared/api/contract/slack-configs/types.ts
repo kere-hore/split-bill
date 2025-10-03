@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response";
+
 export interface SlackConfig {
   id: string;
   name: string;
@@ -6,7 +8,4 @@ export interface SlackConfig {
   isActive: boolean;
 }
 
-export interface SlackConfigsResponse {
-  success: boolean;
-  data: SlackConfig[];
-}
+export type SlackConfigsResponse = ApiResponse<SlackConfig[]>

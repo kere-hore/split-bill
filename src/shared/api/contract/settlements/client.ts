@@ -1,10 +1,9 @@
 import { api } from "@/shared/api/axios";
-import { ApiResponse } from "@/shared/types/api-response";
-import { SettlementsResponse } from "./types";
+import { SettlementsResponse, SettlementStatusResponse } from "./types";
 
 export async function getGroupSettlements(
   groupId: string
-): Promise<ApiResponse<SettlementsResponse>> {
+): Promise<SettlementsResponse> {
   const response = await api.get(`/groups/${groupId}/settlements`);
   return response.data;
 }
@@ -12,20 +11,9 @@ export async function getGroupSettlements(
 export async function updateSettlementStatus(
   settlementId: string,
   status: string
-): Promise<ApiResponse<{ id: string; status: string }>> {
+): Promise<SettlementStatusResponse> {
   const response = await api.patch(`/settlements/${settlementId}/status`, {
     status,
   });
   return response.data;
-}
-
-export async function getMemberSettlement(
-  groupId: string,
-  memberId: string
-): Promise<any> {
-  const response = await api.get(`/groups/${groupId}/settlements`);
-  const settlements = response.data.data?.settlements || [];
-  return settlements.find((s: any) => 
-    s.payer?.id === memberId || s.payerId === memberId
-  ) || null;
 }

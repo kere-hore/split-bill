@@ -1,8 +1,7 @@
 import axios from "axios";
-import { UpdateProfileRequest, UpdateProfileResponse, UserProfile } from "./types";
-import { ApiResponse } from "@/shared/types/api-response";
+import { GetProfileResponse, UpdateProfileRequest, UpdateProfileResponse } from "./types";
 
-export const getCurrentUserProfile = async (): Promise<ApiResponse<UserProfile>> => {
+export const getCurrentUserProfile = async (): Promise<GetProfileResponse> => {
   const response = await axios.get("/api/user/profile");
   return response.data;
 };

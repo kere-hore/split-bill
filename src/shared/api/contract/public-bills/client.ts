@@ -4,7 +4,7 @@ import { PublicBillResponse } from "./types";
 
 export async function getPublicBill(
   groupId: string
-): Promise<ApiResponse<PublicBillResponse["data"]>> {
+): Promise<PublicBillResponse> {
   const response = await api.get(`/public/bills/${groupId}`);
   return response.data;
 }

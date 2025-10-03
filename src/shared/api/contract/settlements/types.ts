@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response";
+
 export interface Settlement {
   id: string;
   payerId: string;
@@ -24,7 +26,16 @@ export interface PaymentStats {
   pendingMembers: number;
 }
 
-export interface SettlementsResponse {
+export interface SettlementData {
   settlements: Settlement[];
   paymentStats: PaymentStats;
 }
+
+export interface SettlementStatus {
+  id: string,
+  status: string
+}
+
+export type SettlementStatusResponse = ApiResponse<SettlementStatus>
+
+export type SettlementsResponse = ApiResponse<SettlementData>

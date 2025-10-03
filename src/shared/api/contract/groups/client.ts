@@ -1,4 +1,4 @@
-import { api } from '../../axios'
+import { api } from "@/shared/api/axios";
 import { GetGroupsRequest, GetGroupsResponse, Group } from './types'
 
 export async function getGroups(params: GetGroupsRequest = {}): Promise<GetGroupsResponse> {

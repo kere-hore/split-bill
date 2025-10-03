@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response";
+
 export interface PublicBillItem {
   id: string;
   name: string;
@@ -81,6 +83,4 @@ export interface PublicBillData {
   };
 }
 
-export interface PublicBillResponse {
-  data: PublicBillData;
-}
+export type PublicBillResponse = ApiResponse<PublicBillData>

@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response"
+
 export interface SlackConfig {
   id: string
   groupId: string
@@ -42,30 +44,21 @@ export interface SlackShareRequest {
   mappings?: Record<string, string>
 }
 
-export interface SlackConfigsResponse {
-  success: boolean
-  message: string
-  data: {
+export interface SlackConfigData {
     configs: SlackConfig[]
-  }
-  timestamp: string
 }
 
-export interface SlackMappingsResponse {
-  success: boolean
-  message: string
-  data: {
+export interface SlackMappingData {
     mappings: SlackUserMapping[]
-  }
-  timestamp: string
 }
 
-export interface SlackShareResponse {
-  success: boolean
-  message: string
-  data: {
+export interface SlackShareData {
     slackMessage: string
     sentToSlack: boolean
-  }
-  timestamp: string
 }
+
+export type SlackConfigsResponse = ApiResponse<SlackConfigData>
+
+export type SlackMappingsResponse = ApiResponse<SlackMappingData>
+
+export type SlackShareResponse = ApiResponse<SlackShareData>

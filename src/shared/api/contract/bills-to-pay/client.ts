@@ -1,7 +1,7 @@
-import axios from "axios";
 import { BillsToPayApiResponse } from "./types";
+import { api } from "@/shared/api/axios";
 
 export const getBillsToPay = async (): Promise<BillsToPayApiResponse> => {
-  const response = await axios.get("/api/settlements/bills-to-pay");
+  const response = await api.get("/api/settlements/bills-to-pay");
   return response.data;
 };

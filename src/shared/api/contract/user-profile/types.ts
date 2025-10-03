@@ -16,4 +16,6 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+export type GetProfileResponse = ApiResponse<UserProfile>;
+
 export type UpdateProfileResponse = ApiResponse<UserProfile>;
