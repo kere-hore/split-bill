@@ -105,7 +105,7 @@ function parseAmount(value: string | null): number {
   if (!value) return 0;
 
   // Remove currency symbols and common prefixes
-  let cleanValue = value.replace(/[Rp\$€£¥₹]/g, "").trim();
+  let cleanValue = value.replace(/[Rp$€£¥₹]/g, "").trim();
 
   // Remove common suffixes like ",-"
   cleanValue = cleanValue.replace(/[,-]+$/, "");

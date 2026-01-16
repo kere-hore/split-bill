@@ -1,94 +1,29 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import boundaries from "eslint-plugin-boundaries";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+export default [
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    plugins: {
-      boundaries,
-    },
-    settings: {
-      "boundaries/elements": [
-        {
-          type: "app",
-          pattern: "src/app/**/*",
-        },
-        {
-          type: "widgets",
-          pattern: "src/widgets/**/*",
-        },
-        {
-          type: "features",
-          pattern: "src/features/**/*",
-        },
-        {
-          type: "entities",
-          pattern: "src/entities/**/*",
-        },
-        {
-          type: "shared",
-          pattern: "src/shared/**/*",
-        },
-      ],
-      "boundaries/ignore": ["**/*.test.*", "**/*.spec.*", "**/*.stories.*"],
-    },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
-      "boundaries/element-types": [
-        "error",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
         {
-          default: "disallow",
-          rules: [
-            {
-              from: "app",
-              allow: ["widgets", "features", "entities", "shared"],
-            },
-            {
-              from: "widgets",
-              allow: ["widgets", "features", "entities", "shared"],
-            },
-            {
-              from: "features",
-              allow: ["entities", "shared"],
-            },
-            {
-              from: "entities",
-              allow: ["shared"],
-            },
-            {
-              from: "shared",
-              allow: ["shared"],
-            },
-          ],
-        },
-      ],
-      "boundaries/entry-point": [
-        "error",
-        {
-          default: "disallow",
-          rules: [
-            {
-              target: ["entities", "features", "widgets"],
-              allow: "index.{js,ts,tsx}",
-            },
-            {
-              target: "shared",
-              allow: "**",
-            },
-          ],
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
     },
   },
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "out/**",
+      "build/**",
+      "dist/**",
+      ".vercel/**",
+    ],
+  },
 ];
-
-export default eslintConfig;

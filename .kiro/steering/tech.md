@@ -2,8 +2,8 @@
 
 ## Framework & Runtime
 
-- **Next.js 16.1.2** - React framework with App Router and Turbopack
-- **React 19.2.3** - UI library with latest features
+- **Next.js 15.4.6** - React framework with App Router
+- **React 19.1.0** - UI library with latest features
 - **TypeScript 5** - Type-safe development
 - **Bun** - Package manager and runtime (preferred over npm)
 

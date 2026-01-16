@@ -39,7 +39,6 @@ export function BillImageDropzone({
     if (files.length > 0) {
       handleFileSelect(files[0]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFileSelect = (file: File) => {
