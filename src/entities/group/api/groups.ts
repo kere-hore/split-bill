@@ -20,12 +20,18 @@ export const groupKeys = {
 };
 
 // React Query Hooks
-export function useGroups(status?: "outstanding" | "allocated" | "all", params: Omit<GetGroupsParams, 'status'> = {}) {
+export function useGroups(
+  status?: "outstanding" | "allocated" | "all",
+  params: Omit<GetGroupsParams, "status"> = {}
+) {
   const queryParams = { ...params, status: status || "all" };
   return useQuery({
     queryKey: groupKeys.list(queryParams),
     queryFn: async () => {
       const response = await getGroupsContract(queryParams);
+      if (!response.success) {
+        throw new Error(response.error.message);
+      }
       return response.data.groups; // Extract groups array from API response
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -37,6 +43,9 @@ export function useGroupById(id: string) {
     queryKey: groupKeys.detail(id),
     queryFn: async () => {
       const response = await getGroupByIdContract(id);
+      if (!response.success) {
+        throw new Error(response.message);
+      }
       return response.data; // Extract data from API response
     },
     enabled: !!id,

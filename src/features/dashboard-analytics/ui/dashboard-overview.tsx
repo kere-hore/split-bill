@@ -100,14 +100,14 @@ export function DashboardOverview() {
                 </Link>
               </Button>
               {data?.stats?.outstandingGroups &&
-                data.stats.outstandingGroups > 0 && (
-                  <div className="pt-2 border-t">
-                    <div className="flex items-center gap-2 text-sm text-orange-600">
-                      <AlertCircle className="w-4 h-4" />
-                      {data.stats.outstandingGroups} groups need allocation
-                    </div>
+              data?.stats?.outstandingGroups > 0 ? (
+                <div className="pt-2 border-t">
+                  <div className="flex items-center gap-2 text-sm text-orange-600">
+                    <AlertCircle className="w-4 h-4" />
+                    {data?.stats.outstandingGroups} groups need allocation
                   </div>
-                )}
+                </div>
+              ) : null}
             </div>
           </CardContent>
         </Card>

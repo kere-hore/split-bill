@@ -16,7 +16,7 @@ const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
   const { pathname } = req.nextUrl;
 
-  // Skip middleware for static files and API routes that don't need auth
+  // Skip proxy for static files and API routes that don't need auth
   if (pathname.startsWith("/api/public") || pathname.startsWith("/_next")) {
     return NextResponse.next();
   }
@@ -46,7 +46,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     return NextResponse.next();
   } catch (error) {
-    console.error("Clerk middleware error:", error);
+    console.error("Clerk proxy error:", error);
     // On auth errors, redirect to sign-in for protected routes
     if (isProtectedRoute(req)) {
       return NextResponse.redirect(new URL("/sign-in", req.url));

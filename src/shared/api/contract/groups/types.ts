@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response";
+
 export interface GroupMember {
   id: string;
   role: string;
@@ -77,12 +79,8 @@ export interface GetGroupsRequest {
   limit?: number;
   status?: "outstanding" | "allocated" | "all";
 }
-
-export interface GetGroupsResponse {
-  success: boolean;
-  message: string;
-  data: {
-    groups: Group[];
+export interface GroupData {
+  groups: Group[];
     pagination: {
       page: number;
       limit: number;
@@ -90,6 +88,6 @@ export interface GetGroupsResponse {
       hasMore: boolean;
       totalPages: number;
     };
-  };
-  timestamp: string;
 }
+
+export type GetGroupsResponse = ApiResponse<GroupData>;

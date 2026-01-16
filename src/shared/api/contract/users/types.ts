@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/shared/types/api-response"
+
 export interface User {
   id: string
   name: string
@@ -9,10 +11,8 @@ export interface User {
   updatedAt: string
 }
 
-export interface UsersResponse {
-  success: boolean
-  message: string
-  data: {
-    users: User[]
-  }
+export interface UsersData {
+  users: User[]
 }
+
+export type UsersResponse = ApiResponse<UsersData>
