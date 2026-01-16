@@ -78,6 +78,11 @@ export function useSlackIntegration(groupId: string) {
         mappings: mappingUpdates,
       });
 
+      if (!result.success) {
+        toast.error(result.error.message);
+        return;
+      }
+
       if (result.data.sentToSlack) {
         toast.success("Message sent to Slack successfully");
       } else {

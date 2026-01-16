@@ -24,6 +24,10 @@ export const useAllocationDetail = (groupId: string, memberId: string) => {
       try {
         const response = await getAllocationDetails(groupId, memberId);
 
+        if (!response.success) {
+          throw new Error(response.error.message);
+        }
+
         return response.data;
       } catch (error) {
         // Parse error and re-throw with consistent format
