@@ -15,7 +15,7 @@ export const saveAllocations = async (
   groupId: string,
   data: SaveAllocationsRequest
 ): Promise<SaveAllocationsApiResponse> => {
-  const response = await api.post(`/api/groups/${groupId}/allocations`, data);
+  const response = await api.post(`/groups/${groupId}/allocations`, data);
   return response.data;
 };
 
